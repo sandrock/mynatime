@@ -1,12 +1,21 @@
 
 namespace MynatimeGUI.ViewModels
 {
+    using MynatimeClient;
+    using Newtonsoft.Json.Linq;
     using ReactiveUI;
+    using System;
 
     public class ProfileViewModel : ViewModelBase
     {
         private string title;
         private string subtitle;
+        private string username;
+        private DateTime lastCheckTimeUtc;
+        private bool isHome;
+        private IManatimeWebClient client;
+        private string? configurationPath;
+        private string status;
 
         public static ProfileViewModel CreateHome()
         {
@@ -17,7 +26,11 @@ namespace MynatimeGUI.ViewModels
             return item;
         }
 
-        public bool IsHome { get; set; }
+        public bool IsHome
+        {
+            get => this.isHome;
+            set => this.isHome = value;
+        }
 
         public string Title
         {
@@ -29,6 +42,49 @@ namespace MynatimeGUI.ViewModels
         {
             get { return this.subtitle; }
             set { this.RaiseAndSetIfChanged(ref this.subtitle, value); }
+        }
+
+        public IManatimeWebClient Client
+        {
+            get => this.client;
+            set => this.client = value;
+        }
+
+        public string Username
+        {
+            get => this.username;
+            set
+            {
+                this.username = value;
+                this.Title = value;
+            }
+        }
+
+        public string? ConfigurationPath
+        {
+            get => this.configurationPath;
+            set => this.configurationPath = value;
+        }
+
+        public DateTime LastCheckTimeUtc
+        {
+            get => this.lastCheckTimeUtc;
+            set => this.RaiseAndSetIfChanged(ref this.lastCheckTimeUtc, value);
+        }
+
+        public string Status
+        {
+            get => this.status;
+            set => this.RaiseAndSetIfChanged(ref this.status, value);
+        }
+
+        public void SetConfiguration(JObject? root)
+        {
+            var identity = root["Identity"] as JObject;
+            if (identity != null)
+            {
+                this.Username = identity.Value<string>("email");
+            }
         }
     }
 }

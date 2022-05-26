@@ -3,6 +3,7 @@
         xmlns:vm="using:MynatimeGUI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:things="using:MynatimeGUI.Things"
         mc:Ignorable="d" Width="400" Height="300"
         x:Class="MynatimeGUI.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
@@ -15,33 +16,45 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
-        <ListBox Grid.Column="1" Grid.Row="1" Items="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}">
+
+        <StackPanel Grid.Column="0" Grid.Row="0">
+            <TextBlock>Mynatime</TextBlock>
+        </StackPanel>
+
+        <ListBox Grid.Column="0" Grid.Row="1" Items="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
                         <TextBlock Text="{Binding Title}" ></TextBlock>
                         <TextBlock Text="{Binding Subtitle}"></TextBlock>
+                        <TextBlock Text="{Binding Status}"></TextBlock>
+                        <Button>open</Button>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
-        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical" DataContext="{Binding SelectedProfile}">
-            <TextBlock Text="{Binding Title}" ></TextBlock>
-            <TextBlock Text="{Binding Subtitle}"></TextBlock></StackPanel>
-        
-        <TextBlock Grid.ColumnSpan="4" Grid.Row="2" Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Grid Grid.Column="0" Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+                <TextBox Watermark="Username" Text="{Binding LoginUsername}"
+                         Width="40" />
+                <TextBox Watermark="Password" Text="{Binding LoginPassword}" PasswordChar="#"
+                         Width="40" />
+                <Button Command="{Binding LoginCommand}">open</Button>
+                <TextBlock Text="{Binding LoginStatus}"
+                           MinWidth="40" />
+            </StackPanel>
+        </Grid>
+
+        <TextBlock Grid.Column="0" Grid.Row="3" Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 
 </Window>

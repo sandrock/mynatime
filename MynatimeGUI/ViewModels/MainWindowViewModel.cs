@@ -27,14 +27,12 @@ namespace MynatimeGUI.ViewModels
         public MainWindowViewModel()
         {
             this.Profiles = new ObservableCollection<ProfileViewModel?>();
-            ////this.Profiles.Add(ProfileViewModel.CreateHome());
             this.LoginCommand = ReactiveCommand.CreateFromTask(this.DoLogin);
             this.client = new ManatimeWebClient();
+            this.OpenProfileCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.OpenProfile);
         }
 
         public ObservableCollection<ProfileViewModel?> Profiles { get; }
-
-        public string Greeting => "Welcome to Avalonia!";
 
         public ProfileViewModel? SelectedProfile
         {
@@ -43,6 +41,10 @@ namespace MynatimeGUI.ViewModels
         }
 
         public ReactiveCommand<Unit, Unit> LoginCommand { get; }
+
+        public ReactiveCommand<ProfileViewModel,Unit> OpenProfileCommand { get; set; }
+
+        public event EventHandler<DataEventArgs<string>> OpenProfileWindow;
 
         public string? LoginStatus
         {
@@ -173,6 +175,12 @@ namespace MynatimeGUI.ViewModels
             root.Add("Group", result.Group?.DeepClone());
             root.Add("Cookies", profile.Client.GetCookies());
             await File.WriteAllTextAsync(path, root.ToString(Formatting.Indented), Encoding.UTF8);
+        }
+
+        private Unit OpenProfile(ProfileViewModel param)
+        {
+            this.OpenProfileWindow?.Invoke(this, new DataEventArgs<string>(param.ConfigurationPath));
+            return Unit.Default;
         }
     }
 }

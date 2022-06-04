@@ -10,7 +10,7 @@
         x:Name="self"
         Icon="/Assets/avalonia-logo.ico"
         Title="MynatimeGUI"
-        DataContextChanged="OnInitialized">
+        DataContextChanged="OnDataContextChanged">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>

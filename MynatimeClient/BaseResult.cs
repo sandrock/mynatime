@@ -56,6 +56,15 @@ public class BaseResult
     }
 
     /// <summary>
+    /// Obtains, if any, error code from this result. 
+    /// </summary>
+    /// <returns></returns>
+    public string? GetErrorCode()
+    {
+        return this.Errors?.FirstOrDefault()?.Code;
+    }
+
+    /// <summary>
     /// Adds an error to this operation result. 
     /// </summary>
     /// <param name="error"></param>
@@ -75,5 +84,13 @@ public class BaseResult
         
         this.Errors.Add(error);
         return this;
+    }
+
+    public override string ToString()
+    {
+        return this.GetType().Name
+            + " " + (this.Succeed ? "Succeed" : "Failed")
+            + " " + this.GetErrorCode() + " " + this.GetErrorMessage()
+            ;
     }
 }

@@ -1,13 +1,16 @@
 namespace MynatimeClient;
 
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 public class ManatimeWebClient : IManatimeWebClient
 {
+    private readonly ILogger log = Mynatime.Infrastructure.Log.GetLogger<ManatimeWebClient>();
     private readonly string baseUrl = "https://app.manatime.com/";
     private readonly List<LogEntry> logs = new List<LogEntry>();
     private bool canEmailPasswordAuthenticate;
@@ -44,22 +47,22 @@ public class ManatimeWebClient : IManatimeWebClient
                 {
                     this.SetCsrfToken(nameof(this.PrepareEmailPasswordAuthenticate), match.Groups[1].Value);
                     this.canEmailPasswordAuthenticate = true;
-                    return BaseResult.Success<BaseResult>();
+                    return this.Log(BaseResult.Success<BaseResult>());
                 }
                 else
                 {
-                    return BaseResult.Error<BaseResult>("PageParseMiss/CSRF", "Authentication prepare failed. ");
+                    return this.Log(BaseResult.Error<BaseResult>("PageParseMiss/CSRF", "Authentication prepare failed. "));
                 }
             }
             else
             {
-                return BaseResult.Error<LoginResult>("UnknownError", "Other error. ");
+                return this.Log(BaseResult.Error<LoginResult>("UnknownError", "Other error. "));
             }
         }
         catch (Exception ex)
         {
             this.Log(nameof(this.PrepareEmailPasswordAuthenticate), ex);
-            return BaseResult.Error<BaseResult>("UnknownError", "Authentication prepare failed. ");
+            return this.Log(BaseResult.Error<BaseResult>("UnknownError", "Authentication prepare failed. "));
         }
     }
 
@@ -103,16 +106,16 @@ public class ManatimeWebClient : IManatimeWebClient
             if (this.CheckPage(ManatimePage.SecurityLogin, contents, null))
             {
                 result.AddError(new BaseError("InvalidUsernameOrPassword", "Invalid credentials. "));
-                return result;
+                return this.Log(result);
             }
 
             this.ParsePageResult(contents, result);
 
-            return result;
+            return this.Log(result);
         }
         else
         {
-            return BaseResult.Error<LoginResult>("UnknownError", "Other error. ");
+            return this.Log(BaseResult.Error<LoginResult>("UnknownError", "Other error. "));
         }
     }
 
@@ -128,16 +131,16 @@ public class ManatimeWebClient : IManatimeWebClient
 
             if (!this.CheckPage(ManatimePage.Home, contents, result))
             {
-                return result;
+                return this.Log(result);
             }
 
             this.ParsePageResult(contents, result);
 
-            return result;
+            return this.Log(result);
         }
         else
         {
-            return BaseResult.Error<HomeResult>("UnknownError", "Other error. ");
+            return this.Log(BaseResult.Error<HomeResult>("UnknownError", "Other error. "));
         }
     }
 
@@ -191,18 +194,35 @@ public class ManatimeWebClient : IManatimeWebClient
         this.Log(methodName, "New CSRF token: " + this.csrfToken);
     }
 
-    private void Log(string methodName, HttpResponseMessage response)
-    {
-        var entry = new LogEntry(methodName);
-        entry.SetResponse(response);
-        this.logs.Add(entry);
-    }
-
     private void Log(string methodName, HttpRequestMessage request)
     {
         var entry = new LogEntry(methodName);
         entry.SetRequest(request);
         this.logs.Add(entry);
+
+        if (this.log.IsEnabled(LogLevel.Trace))
+        {
+            this.log.LogTrace(entry.ToString());
+        }
+        else
+        {
+            this.log.LogDebug("HTTP Sending  " + request.Method + " " + request.RequestUri);
+        }
+    }
+
+    private void Log(string methodName, HttpResponseMessage response)
+    {
+        var entry = new LogEntry(methodName);
+        entry.SetResponse(response);
+        this.logs.Add(entry);
+        if (this.log.IsEnabled(LogLevel.Trace))
+        {
+            this.log.LogTrace(entry.ToString());
+        }
+        else
+        {
+            this.log.LogDebug("HTTP Received " + response.StatusCode + " " + response.ReasonPhrase);
+        }
     }
 
     private void Log(string methodName, string message)
@@ -210,6 +230,17 @@ public class ManatimeWebClient : IManatimeWebClient
         var entry = new LogEntry(methodName);
         entry.SetMessage(message);
         this.logs.Add(entry);
+        this.log.LogInformation(entry.ToString());
+    }
+
+    private T Log<T>(T result, [CallerMemberName] string methodName = null)
+        where T : BaseResult
+    {
+        var entry = new LogEntry(methodName);
+        entry.SetResult(result);
+        this.logs.Add(entry);
+        this.log.LogInformation(entry.ToString());
+        return result;
     }
 
     private async Task<HttpResponseMessage> Send(string methodName, HttpRequestMessage request)

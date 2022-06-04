@@ -16,6 +16,8 @@ internal class LogEntry
 
     public string Message { get; private set; }
 
+    public BaseResult Result { get; set; }
+
     public string Exception { get; set; }
 
     public void SetRequest(HttpRequestMessage request)
@@ -48,5 +50,16 @@ internal class LogEntry
     {
         this.Exception = exception.ToString();
         this.Message = exception.Message;
+    }
+
+    public void SetResult(BaseResult result)
+    {
+        if (result == null)
+        {
+            throw new ArgumentNullException(nameof(result));
+        }
+
+        this.Message = result.ToString();
+        this.Result = result;
     }
 }

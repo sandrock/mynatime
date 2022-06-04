@@ -51,6 +51,9 @@
                          Width="40" />
                 <TextBox Watermark="Password" Text="{Binding LoginPassword}" PasswordChar="#"
                          Width="40" />
+                <CheckBox IsChecked="{Binding LoginRememberPassword}">
+                    <ToolTip.Tip><TextBlock>Remember my password in the local files. Allows auto-login.  </TextBlock></ToolTip.Tip>
+                </CheckBox>
                 <Button Command="{Binding LoginCommand}">open</Button>
                 <TextBlock Text="{Binding LoginStatus}"
                            MinWidth="40" />

@@ -1,6 +1,7 @@
 
 namespace MynatimeGUI.ViewModels
 {
+    using Mynatime.Infrastructure;
     using MynatimeClient;
     using Newtonsoft.Json.Linq;
     using ReactiveUI;
@@ -16,6 +17,7 @@ namespace MynatimeGUI.ViewModels
         private IManatimeWebClient client;
         private string? configurationPath;
         private string status;
+        private MynatimeProfile? configuration;
 
         public static ProfileViewModel CreateHome()
         {
@@ -78,13 +80,20 @@ namespace MynatimeGUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref this.status, value);
         }
 
-        public void SetConfiguration(JObject? root)
+        public string? Password { get; set; }
+
+        public void SetConfiguration(MynatimeProfile root)
         {
+            this.configuration = root ?? throw new ArgumentNullException(nameof(root));
+
             var identity = root["Identity"] as JObject;
-            if (identity != null)
-            {
-                this.Username = identity.Value<string>("email");
-            }
+            this.Username = root.LoginUsername;
+            this.Password = root.LoginPassword;
+        }
+
+        public MynatimeProfile? GetConfiguration()
+        {
+            return this.configuration;
         }
     }
 }

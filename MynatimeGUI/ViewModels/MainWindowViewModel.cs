@@ -1,6 +1,8 @@
 ﻿
 namespace MynatimeGUI.ViewModels
 {
+    using Microsoft.Extensions.Logging;
+    using Mynatime.Infrastructure;
     using MynatimeClient;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -12,17 +14,21 @@ namespace MynatimeGUI.ViewModels
     using System.Linq;
     using System.Reactive;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class MainWindowViewModel : ViewModelBase
     {         
-        public const string DateTimeFlatPrecision3 = "yyyyMMdd'T'HHmmssfffK"; 
-        
+        public const string DateTimeFlatPrecision3 = "yyyyMMdd'T'HHmmssfffK";
+
+        private readonly ILogger log = Log.GetLogger<MainWindowViewModel>();
+
         private ProfileViewModel? selectedProfile;
         private IManatimeWebClient client;
         private string? loginStatus;
         private string loginUsername;
         private string loginPassword;
+        private bool loginRememberPassword;
 
         public MainWindowViewModel()
         {
@@ -64,11 +70,19 @@ namespace MynatimeGUI.ViewModels
             set { this.RaiseAndSetIfChanged(ref this.loginPassword, value); }
         }
 
+        public bool LoginRememberPassword
+        {
+            get { return this.loginRememberPassword; }
+            set { this.RaiseAndSetIfChanged(ref this.loginRememberPassword, value); }
+        }
+
         public async Task Initialize()
         {
             this.SelectedProfile = this.Profiles.FirstOrDefault()!;
             this.LoginStatus = "Loading profiles... ";
+            log.LogInformation("Loading profiles... ");
             await this.LoadConfiguration();
+            log.LogInformation("Loading profiles... done. ");
             this.LoginStatus = "Ready. ";
         }
 
@@ -80,21 +94,37 @@ namespace MynatimeGUI.ViewModels
                 ProfileViewModel? profile = null;
                 try
                 {
-                    var contents = await File.ReadAllTextAsync(file.FullName, Encoding.UTF8);
-                    var root = (JObject)JsonConvert.DeserializeObject(contents);
+                    this.log.LogInformation("Loading profile <{0}>... ", file.FullName);
+                    MynatimeProfile config;
+                    try
+                    {
+                        config = await MynatimeProfile.LoadFromFile(file.FullName);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        this.log.LogWarning("Loading profile <{0}> failed: {1}", file.FullName, ex.Message);
+                        continue;
+                    }
+
                     profile = new ProfileViewModel();
                     profile.ConfigurationPath = file.FullName;
-                    profile.SetConfiguration(root);
-                    
+                    profile.SetConfiguration(config);
+
                     profile.Client = new ManatimeWebClient();
-                    profile.Client.SetCookies((JArray)root["Cookies"]);
+                    if (config.Cookies != null)
+                    {
+                        profile.Client.SetCookies(config.Cookies);
+                    }
+
                     profile.Status = "Restoring... ";
                     this.Profiles.Add(profile);
 
+                    this.log.LogInformation("Refreshing profile <{0}>... ", file.FullName);
                     var checkTask = Task.Factory.StartNew(async () => await this.RefreshProfile(profile));
                 }
                 catch (Exception ex)
                 {
+                    this.log.LogWarning("Failed to load profile <{0}>: {1}", file.FullName, ex.ToString());
                     if (profile != null)
                     {
                         profile.Status = ex.Message;
@@ -103,24 +133,58 @@ namespace MynatimeGUI.ViewModels
             }
         }
 
-        private async Task RefreshProfile(ProfileViewModel? profile)
+        private async Task RefreshProfile(ProfileViewModel profile)
         {
+            if (profile == null)
+            {
+                throw new ArgumentNullException(nameof(profile));
+            }
+
+            var config = profile.GetConfiguration();
+            if (config == null)
+            {
+                return;
+            }
+
             var home = await profile.Client.GetHomepage();
             if (home.Succeed)
             {
+                this.log.LogInformation("Refreshed profile <{0}>. ", profile.ConfigurationPath);
                 profile.LastCheckTimeUtc = DateTime.UtcNow;
                 profile.Status = "OK";
             }
+            else if (home.GetErrorCode() == "LoggedOut" && profile.Password != null)
+            {
+                this.log.LogInformation("Profile <{0}> is <{1}>, re-authenticating... ", profile.ConfigurationPath, home.GetErrorCode());
+                var result = await profile.Client.EmailPasswordAuthenticate(profile.Username, profile.Password);
+                home = result;
+                if (result.Succeed)
+                {
+                    this.log.LogInformation("Refreshed profile <{0}>. ", profile.ConfigurationPath);
+                    profile.Client = this.client;
+                    profile.LastCheckTimeUtc = DateTime.UtcNow;
+                }
+                else
+                {
+                    this.log.LogInformation("Failed to re-authenticate profile <{0}>: {1}. ", profile.ConfigurationPath, result.GetErrorCode());
+                    this.LoginStatus = result.GetErrorMessage();
+                    profile.Status = result.GetErrorMessage() ?? "???";
+                }
+            }
             else
             {
+                this.log.LogInformation("Failed to refresh profile <{0}>: {1}. ", profile.ConfigurationPath, home.GetErrorCode());
                 profile.Status = home.GetErrorMessage() ?? "???";
             }
-            
+
             await this.SaveProfile(profile, home);
         }
 
         private async Task DoLogin()
         {
+            var username = this.loginUsername;
+            var password = this.loginPassword;
+
             this.LoginStatus = "Checking... ";
             var prepare = await this.client.PrepareEmailPasswordAuthenticate();
             if (prepare.Succeed)
@@ -133,20 +197,21 @@ namespace MynatimeGUI.ViewModels
                 return;
             }
 
-            var username = this.loginUsername;
-            var result = await this.client.EmailPasswordAuthenticate(username, this.loginPassword);
+            var result = await this.client.EmailPasswordAuthenticate(username, password);
             if (result.Succeed)
             {
                 var profile = new ProfileViewModel();
                 profile.Username = username;
                 profile.Client = this.client;
                 profile.LastCheckTimeUtc = DateTime.UtcNow;
+                profile.Password = this.loginRememberPassword ? password : null;
                 this.Profiles.Add(profile);
 
                 this.client = new ManatimeWebClient();
 
                 await this.SaveProfile(profile, result);
                 this.LoginStatus = "Ready. ";
+                profile.Status = "Ready. ";
             }
             else
             {
@@ -154,27 +219,35 @@ namespace MynatimeGUI.ViewModels
             }
         }
 
-        private async Task SaveProfile(ProfileViewModel? profile, PageResult result)
+        private async Task SaveProfile(ProfileViewModel profile, PageResult result)
         {
-            string path;
-            if (profile.ConfigurationPath != null)
+            MynatimeProfile config = profile.GetConfiguration()! ?? new MynatimeProfile();
+
+            string path = profile.ConfigurationPath ?? config.FilePath ?? Path.Combine(Environment.CurrentDirectory, "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json");
+            profile.ConfigurationPath = path;
+
+            config.LoginUsername = profile.Username;
+            config.LoginPassword = profile.Password;
+
+            if (result.Succeed)
             {
-                path = profile.ConfigurationPath;
-            }
-            else
-            {
-                path = Path.Combine(Environment.CurrentDirectory, "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json");
-                profile.ConfigurationPath = path;
+                config.UserId = result.UserId;
+                config.GroupId = result.GroupId;
+
+                if (result.Identity != null)
+                {
+                    config.Identity = (JObject)result.Identity.DeepClone();
+                }
+
+                if (result.Group != null)
+                {
+                    config.Group = (JObject)result.Group.DeepClone();
+                }
             }
 
-            var root = new JObject();
-            root.Add("__manifest", "MynatimeProfile");
-            root.Add("UserId", new JValue(result.UserId));
-            root.Add("GroupId", new JValue(result.GroupId));
-            root.Add("Identity", result.Identity?.DeepClone());
-            root.Add("Group", result.Group?.DeepClone());
-            root.Add("Cookies", profile.Client.GetCookies());
-            await File.WriteAllTextAsync(path, root.ToString(Formatting.Indented), Encoding.UTF8);
+            config.Cookies = profile.Client.GetCookies();
+
+            await config.SaveToFile(path);
         }
 
         private Unit OpenProfile(ProfileViewModel param)

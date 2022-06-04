@@ -1,5 +1,5 @@
 namespace MynatimeClient;
 
-public class LoginResult : PageResult
+public class LoginResult : HomeResult
 {
 }

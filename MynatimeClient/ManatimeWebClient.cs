@@ -154,7 +154,7 @@ public class ManatimeWebClient : IManatimeWebClient
             obj["Name"] = cookie.Name;
             obj["Path"] = cookie.Path;
             obj["Value"] = cookie.Value;
-            obj["Expires"] = cookie.Expires.ToString("o");
+            obj["Expires"] = cookie.Expires > default(DateTime) ? cookie.Expires.ToString("o") : default(string);
             obj["HttpOnly"] = cookie.HttpOnly;
             array.Add(obj);
         }

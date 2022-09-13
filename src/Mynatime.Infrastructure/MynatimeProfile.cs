@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// Serializable object representing an online Manatime profile. 
 /// </summary>
-public class MynatimeProfile : JObject
+public sealed class MynatimeProfile : JObject
 {
     private const string ManifestValue = "MynatimeProfile";
     private const string ManifestKey = "__manifest";
@@ -105,5 +105,10 @@ public class MynatimeProfile : JObject
     {
         this.FilePath = path;
         await File.WriteAllTextAsync(path, this.element.ToString(Formatting.Indented), Encoding.UTF8);
+    }
+
+    public override string ToString()
+    {
+        return nameof(MynatimeProfile) + " " + (this.LoginUsername ?? "???)");
     }
 }

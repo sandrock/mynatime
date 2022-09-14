@@ -33,7 +33,7 @@ namespace MynatimeGUI
         {
             IConfiguration configuration = new ConfigurationBuilder()
                .AddJsonFile("appsettings.json", false)
-               .SetBasePath(Environment.CurrentDirectory)
+               ////.SetBasePath(Environment.CurrentDirectory)
                .Build();
             return configuration;
         }

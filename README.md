@@ -17,7 +17,10 @@ See also: [TODO list](TODO.md)
 Building from sources
 -------------
 
-...
+```
+dotnet run --project src/Mynatime/Mynatime.csproj
+dotnet run --project src/MynatimeGUI/MynatimeGUI.csproj
+```
 
 
 

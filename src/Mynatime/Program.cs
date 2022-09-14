@@ -7,7 +7,7 @@ using Mynatime;
 using System;
 
 var configuration = new ConfigurationBuilder()
-   .SetBasePath(Directory.GetCurrentDirectory())
+   ////.SetBasePath(Directory.GetCurrentDirectory())
    .AddJsonFile("appsettings.json", false)
    .Build();
 

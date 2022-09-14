@@ -28,7 +28,7 @@ public class App
     /// <summary>
     /// Gets or sets the configuration directory to use for profiles. 
     /// </summary>
-    public string ConfigDirectory { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config/mynatime");
+    public string ConfigDirectory { get; set; } = MynatimeConfiguration.GetConfigDirectory().FullName;
 
     /// <summary>
     /// Sets the app exit code. 

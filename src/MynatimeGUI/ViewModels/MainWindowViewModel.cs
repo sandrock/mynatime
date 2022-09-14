@@ -88,7 +88,7 @@ namespace MynatimeGUI.ViewModels
 
         private async Task LoadConfiguration()
         {
-            var directory = new DirectoryInfo(Environment.CurrentDirectory);
+            var directory = MynatimeConfiguration.GetConfigDirectory();
             foreach (var file in directory.EnumerateFiles("profile.*.json"))
             {
                 ProfileViewModel? profile = null;
@@ -223,7 +223,8 @@ namespace MynatimeGUI.ViewModels
         {
             MynatimeProfile config = profile.GetConfiguration()! ?? new MynatimeProfile();
 
-            string path = profile.ConfigurationPath ?? config.FilePath ?? Path.Combine(Environment.CurrentDirectory, "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json");
+            var directory = MynatimeConfiguration.EnsureConfigDirectory();
+            string path = profile.ConfigurationPath ?? config.FilePath ?? Path.Combine(directory.FullName, "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json");
             profile.ConfigurationPath = path;
 
             config.LoginUsername = profile.Username;

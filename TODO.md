@@ -21,8 +21,60 @@ CLI
 ------------------
 
 - [ ] Authenticate, creating a profile file
-- [ ] Use existing profile file
+- [x] Use existing profile file
+- [ ] Activity categories
 - [ ] Goal 1
+    - [ ] Add activity items
+- [ ] Goal 2
+    - [ ] Track activity
+
+### Authenticate
+
+Authenticate:
+
+```bash
+mynatime +profile [email]
+```
+
+Verify:
+
+```bash
+mynatime profiles
+mynatime profile check
+```
+
+
+### Activity categories
+
+```bash
+mynatime activity categories
+```
+
+
+### Add activity items
+
+```bash
+mynatime +act category123 2.5     # today   I did 2h 30min of Category123
+mynatime +act 2022-04-16 4 cat5   # at date I did 4h       of cat5
+mynatime +act 0855 1215 internal  # today, from 0855 to 1215, I was on internal
+mynatime status                   # review   pending changes
+mynatime commit                   # save all pending changes
+```
+
+The "activity add" command can be writen as "+activity" or "+act".
+
+
+### Track activity
+
+```bash
+mynatime activity start internal   # at 0834
+mynatime activity start project4   # at 1054
+mynatime activity stop             # at 1223
+mynatime act start 1400 project4   # at 1432
+mynatime act stop 1730             # at 1735
+mynatime status                    # review   pending changes
+mynatime commit                    # save all pending changes
+```
 
 
 GUI

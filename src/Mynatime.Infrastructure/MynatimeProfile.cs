@@ -7,23 +7,23 @@ using System.Text;
 /// <summary>
 /// Serializable object representing an online Manatime profile. 
 /// </summary>
-public sealed class MynatimeProfile : JObject
+public sealed class MynatimeProfile : JsonObject
 {
     private const string ManifestValue = "MynatimeProfile";
     private const string ManifestKey = "__manifest";
 
-    private readonly JObject element;
+    private MynatimeProfileData? data;
 
     public MynatimeProfile()
+        : base("Root", new JObject())
     {
-        this.element = new JObject();
-        this.element[ManifestKey] = ManifestValue;
-        this.element["DateCreated"] = DateTime.UtcNow.ToString("o");
+        this.Element[ManifestKey] = ManifestValue;
+        this.Element["DateCreated"] = DateTime.UtcNow.ToString("o");
     }
 
     public MynatimeProfile(JObject node)
+        : base("Root", node)
     {
-        this.element = node ?? throw new ArgumentNullException(nameof(node));
     }
 
     /// <summary>
@@ -36,8 +36,8 @@ public sealed class MynatimeProfile : JObject
     /// </summary>
     public string? LoginUsername
     {
-        get => this.element.Value<string>("LoginUsername");
-        set => this.element["LoginUsername"] = value;
+        get => this.Element.Value<string>("LoginUsername");
+        set => this.Element["LoginUsername"] = value;
     }
 
     /// <summary>
@@ -45,35 +45,56 @@ public sealed class MynatimeProfile : JObject
     /// </summary>
     public string? LoginPassword
     {
-        get => this.element.Value<string>("LoginPassword");
-        set => this.element["LoginPassword"] = value;
+        get => this.Element.Value<string>("LoginPassword");
+        set => this.Element["LoginPassword"] = value;
     }
 
     public JArray? Cookies
     {
-        get => this.element["Cookies"] as JArray;
-        set => this.element["Cookies"] = value;
+        get => this.Element["Cookies"] as JArray;
+        set => this.Element["Cookies"] = value;
     }
 
     public string? UserId 
     {
-        get => this.element.Value<string>("UserId");
-        set => this.element["UserId"] = value;
+        get => this.Element.Value<string>("UserId");
+        set => this.Element["UserId"] = value;
     }
     public string? GroupId 
     {
-        get => this.element.Value<string>("GroupId");
-        set => this.element["GroupId"] = value;
+        get => this.Element.Value<string>("GroupId");
+        set => this.Element["GroupId"] = value;
     }
     public JObject? Identity 
     {
-        get => this.element["Identity"] as JObject;
-        set => this.element["Identity"] = value;
+        get => this.Element["Identity"] as JObject;
+        set => this.Element["Identity"] = value;
     }
     public JObject? Group 
     {
-        get => this.element["Group"] as JObject;
-        set => this.element["Group"] = value;
+        get => this.Element["Group"] as JObject;
+        set => this.Element["Group"] = value;
+    }
+
+    public MynatimeProfileData? Data
+    {
+        get
+        {
+            if (this.data != null)
+            {
+            }
+            else if (this.Element.TryGetValue("Data", out JToken? child))
+            {
+                this.data = new MynatimeProfileData((JObject)child);
+            }
+            else if (!this.IsFrozen)
+            {
+                this.data = new MynatimeProfileData(new JObject());
+                this.Element.Add("Data", this.data.Element);
+            }
+
+            return this.data;
+        }
     }
 
     /// <summary>
@@ -104,7 +125,7 @@ public sealed class MynatimeProfile : JObject
     public async Task SaveToFile(string path)
     {
         this.FilePath = path;
-        await File.WriteAllTextAsync(path, this.element.ToString(Formatting.Indented), Encoding.UTF8);
+        await File.WriteAllTextAsync(path, this.Element.ToString(Formatting.Indented), Encoding.UTF8);
     }
 
     public override string ToString()

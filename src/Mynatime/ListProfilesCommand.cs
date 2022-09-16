@@ -8,17 +8,17 @@ public sealed class ListProfilesCommand : Command
     {
     }
 
-    private ListProfilesCommand(App app)
-        : base(app)
+    private ListProfilesCommand(IConsoleApp consoleApp)
+        : base(consoleApp)
     {
     }
 
     public override bool MatchArg(string arg)
     {
-        return App.MatchArg(arg, "profiles");
+        return ConsoleApp.MatchArg(arg, "profiles");
     }
 
-    public override bool ParseArgs(App app, string[] args, out int consumedArgs, out Command? command)
+    public override bool ParseArgs(IConsoleApp consoleApp, string[] args, out int consumedArgs, out Command? command)
     {
         consumedArgs = 0;
         command = null;
@@ -28,7 +28,7 @@ public sealed class ListProfilesCommand : Command
             return false;
         }
 
-        command = new ListProfilesCommand(app);
+        command = new ListProfilesCommand(consoleApp);
         return true;
     }
 

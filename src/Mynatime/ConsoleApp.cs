@@ -1,28 +1,31 @@
 
 namespace Mynatime;
 
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Mynatime;
 using Mynatime.Infrastructure;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 /// <summary>
 /// The command line application. 
 /// </summary>
-public class App
+public class ConsoleApp : IConsoleApp
 {
-    private readonly ILogger<App> log;
+    private readonly ILogger<ConsoleApp> log;
     private readonly IOptions<AppSettings> appSettings;
     private readonly List<string> consoleErrors = new List<string>();
     private readonly List<MynatimeProfile> availableProfiles = new List<MynatimeProfile>();
     private readonly List<Command?> commands;
 
-    public App(ILogger<App> log, IOptions<AppSettings> appSettings)
+    public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings)
     {
         this.log = log;
         this.appSettings = appSettings;
         this.commands = new List<Command?>();
         this.commands.Add(new ListProfilesCommand());
+        this.commands.Add(new ActivityCommand(this));
+        this.commands.Add(new ActivityCategoryCommand(this, null));
     }
 
     /// <summary>
@@ -65,10 +68,10 @@ public class App
         this.log.LogInformation("App run. ");
 
         this.ParseArgs(args);
-        if (this.consoleErrors.Count> 0)
+
+        if (this.ShowConsoleErrors())
         {
             this.ExitCode = 1;
-            this.ShowConsoleErrors();
             return;
         }
 
@@ -78,6 +81,8 @@ public class App
         {
         }
 
+        this.ShowConsoleErrors();
+
         if (this.Command != null)
         {
             await this.ExecuteCommand(this.Command);
@@ -85,9 +90,63 @@ public class App
         else
         {
             this.AddConsoleError("No command. ");
+            this.ShowConsoleErrors();
             this.ExitCode = 2;
             return;
         }
+    }
+
+    internal static bool MatchArg(string arg, params string[] values)
+    {
+        foreach (var value in values)
+        {
+            if (value.Equals(arg, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool MatchShortArg(string arg, string name, out string? value)
+    {
+        value = null;
+        if (arg.Length < name.Length + 1)
+        {
+            // "-" is too short to match "-d"
+            return false;
+        }
+
+        if (!arg.StartsWith(name, StringComparison.Ordinal))
+        {
+            // "-c" does not match "-d"
+            return false;
+        }
+
+        if (arg.Length > name.Length)
+        {
+            value = arg.Substring(name.Length);
+        }
+
+        return true;
+    }
+
+    internal static bool MatchShortArg(string arg, string name)
+    {
+        if (arg.Length < name.Length + 1)
+        {
+            // "-" is too short to match "-d"
+            return false;
+        }
+
+        if (!arg.Equals(name, StringComparison.Ordinal))
+        {
+            // "-c" does not match "-d"
+            return false;
+        }
+
+        return true;
     }
 
     private async Task ExecuteCommand(Command command)
@@ -95,14 +154,24 @@ public class App
         await command.Run();
     }
 
-    private void ShowConsoleErrors()
+    private bool ShowConsoleErrors()
     {
-        Console.WriteLine("Some errors occured: ");
-        Console.WriteLine();
-        foreach (var error in this.consoleErrors)
+        if (this.consoleErrors.Count > 0)
         {
-            Console.Write("ERROR: ");
-            Console.WriteLine(error);
+            Console.WriteLine("Some errors occured: ");
+            Console.WriteLine();
+            foreach (var error in this.consoleErrors)
+            {
+                Console.Write("ERROR: ");
+                Console.WriteLine(error);
+            }
+
+            return true;
+        }
+        else
+        {
+            this.consoleErrors.Clear();
+            return false;
         }
     }
 
@@ -143,11 +212,10 @@ public class App
             }
             else if (this.Command == null)
             {
-                var command = this.GetCommandByArg(arg);
-                if (command != null)
+                foreach (var command in this.GetCommandsByArg(arg))
                 {
                     var remainingArgs = args.Skip(i).ToArray();
-                    if (command.ParseArgs(this, remainingArgs, out int consumedArgs, out Command command1))
+                    if (command.ParseArgs(this, remainingArgs, out int consumedArgs, out Command? command1))
                     {
                         this.Command = command1;
                     }
@@ -162,17 +230,16 @@ public class App
         }
     }
 
-    private Command? GetCommandByArg(string arg)
+    private IEnumerable<Command> GetCommandsByArg(string arg)
     {
         foreach (var command in this.commands)
         {
+            Debug.Assert(command != null, nameof(command) + " != null");
             if (command.MatchArg(arg))
             {
-                return command;
+                yield return command;
             }
         }
-
-        return null;
     }
 
     private async Task DiscoverProfiles()
@@ -235,39 +302,5 @@ public class App
     private void AddConsoleError(string message)
     {
         this.consoleErrors.Add(message);
-    }
-
-    internal static bool MatchArg(string arg, params string[] values)
-    {
-        foreach (var value in values)
-        {
-            if (value.Equals(arg, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private bool MatchShortArg(string arg, string name, out string? value)
-    {
-        value = null;
-        if (arg.Length < name.Length+1)
-        {
-            return false;
-        }
-
-        if (!arg.StartsWith(name, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        if (arg.Length > name.Length)
-        {
-            value = arg.Substring(name.Length);
-        }
-
-        return true;
     }
 }

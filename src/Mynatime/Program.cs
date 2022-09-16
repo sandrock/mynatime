@@ -12,7 +12,7 @@ var configuration = new ConfigurationBuilder()
    .Build();
 
 var services = new ServiceCollection();
-services.AddTransient<App>();
+services.AddTransient<ConsoleApp>();
 services.AddOptions();
 services.Configure<AppSettings>(configuration.GetSection("App"));
 services.AddSingleton(new LoggerFactory());
@@ -24,6 +24,6 @@ services.AddLogging(builder =>
 
 var serviceProvider = services.BuildServiceProvider();
 
-var app = serviceProvider.GetService<App>();
+var app = serviceProvider.GetService<ConsoleApp>();
 app.Run(args).GetAwaiter().GetResult();
 return app.ExitCode;

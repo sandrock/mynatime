@@ -6,22 +6,22 @@ namespace Mynatime;
 /// </summary>
 public abstract class Command
 {
-    private readonly App? app;
+    private readonly IConsoleApp? app;
 
     protected Command()
     {
     }
 
-    protected Command(App app)
+    protected Command(IConsoleApp consoleApp)
     {
-        this.app = app ?? throw new ArgumentNullException(nameof(app));
+        this.app = consoleApp ?? throw new ArgumentNullException(nameof(consoleApp));
     }
 
-    protected App App => this.app ?? throw new InvalidOperationException("App is not set. ");
+    protected IConsoleApp App => this.app ?? throw new InvalidOperationException("App is not set. ");
 
     public abstract bool MatchArg(string arg);
 
-    public abstract bool ParseArgs(App app, string[] args, out int consumedArgs, out Command? command);
+    public abstract bool ParseArgs(IConsoleApp app, string[] args, out int consumedArgs, out Command? command);
 
     public abstract Task Run();
 }

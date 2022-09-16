@@ -14,4 +14,6 @@ public interface IManatimeWebClient
     Task<LoginResult> EmailPasswordAuthenticate(string loginUsername, string loginPassword);
 
     Task<HomeResult> GetHomepage();
+
+    Task<NewActivityItemPage> GetNewActivityItemPage();
 }

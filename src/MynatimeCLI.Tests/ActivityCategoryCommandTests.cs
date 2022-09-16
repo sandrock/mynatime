@@ -69,8 +69,8 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock(true);
         var client = GetClientMock();
-        app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("yes"));
-        app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("no"));
+        app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("2", "yes"));
+        app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("33", "no"));
         var target = new ActivityCategoryCommand(app.Object, client.Object);
         target.DoRefresh = false;
         await target.Run();

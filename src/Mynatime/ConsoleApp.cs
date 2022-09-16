@@ -3,6 +3,7 @@ namespace Mynatime;
 
 using Mynatime;
 using Mynatime.Infrastructure;
+using MynatimeClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
@@ -14,18 +15,20 @@ public class ConsoleApp : IConsoleApp
 {
     private readonly ILogger<ConsoleApp> log;
     private readonly IOptions<AppSettings> appSettings;
+    private readonly IManatimeWebClient client;
     private readonly List<string> consoleErrors = new List<string>();
     private readonly List<MynatimeProfile> availableProfiles = new List<MynatimeProfile>();
     private readonly List<Command?> commands;
 
-    public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings)
+    public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings, IManatimeWebClient client)
     {
         this.log = log;
         this.appSettings = appSettings;
+        this.client = client;
         this.commands = new List<Command?>();
         this.commands.Add(new ListProfilesCommand());
         this.commands.Add(new ActivityCommand(this));
-        this.commands.Add(new ActivityCategoryCommand(this, null));
+        this.commands.Add(new ActivityCategoryCommand(this, this.client));
     }
 
     /// <summary>

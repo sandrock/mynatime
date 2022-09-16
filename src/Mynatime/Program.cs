@@ -1,9 +1,11 @@
 ﻿
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Mynatime;
+using MynatimeClient;
 using System;
 
 var configuration = new ConfigurationBuilder()
@@ -21,6 +23,7 @@ services.AddLogging(builder =>
     builder
        .AddDebug();
 });
+services.AddSingleton<IManatimeWebClient, ManatimeWebClient>();
 
 var serviceProvider = services.BuildServiceProvider();
 

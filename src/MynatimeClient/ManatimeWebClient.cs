@@ -10,14 +10,27 @@ using System.Text.RegularExpressions;
 
 public class ManatimeWebClient : IManatimeWebClient
 {
-    private readonly ILogger log = Mynatime.Infrastructure.Log.GetLogger<ManatimeWebClient>();
+    private readonly ILogger log;
     private readonly string baseUrl = "https://app.manatime.com/";
     private readonly List<LogEntry> logs = new List<LogEntry>();
     private bool canEmailPasswordAuthenticate;
     private string? csrfToken;
 
+    public ManatimeWebClient(ILogger<ManatimeWebClient> log)
+    {
+        this.log = log;
+        this.HttpHandler = new HttpClientHandler()
+        {
+            UseCookies = true,
+            CookieContainer = new CookieContainer(),
+            AllowAutoRedirect = true,
+        };
+        this.Http = new HttpClient(this.HttpHandler);
+    }
+
     public ManatimeWebClient()
     {
+        this.log = Mynatime.Infrastructure.Log.GetLogger<ManatimeWebClient>();
         this.HttpHandler = new HttpClientHandler()
         {
             UseCookies = true,
@@ -144,6 +157,28 @@ public class ManatimeWebClient : IManatimeWebClient
         }
     }
 
+    public async Task<NewActivityItemPage> GetNewActivityItemPage()
+    {
+        var request = this.CreateRequest(HttpMethod.Get, "presences/create/advanced");
+        var response = await this.Send(nameof(GetNewActivityItemPage), request);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = new NewActivityItemPage();
+            var contents = await response.Content.ReadAsStringAsync();
+            if (!this.CheckPage(ManatimePage.PresenceCreateAdvanced, contents, result))
+            {
+                return this.Log(result);
+            }
+
+            result.ReadPage(contents);
+            return this.Log(result);
+        }
+        else
+        {
+            return this.Log(BaseResult.Error<NewActivityItemPage>("UnknownError", "Other error. "));
+        }
+    }
+
     public JArray GetCookies()
     {
         var array = new JArray();
@@ -258,7 +293,7 @@ public class ManatimeWebClient : IManatimeWebClient
         this.logs.Add(entry);
     }
 
-    private bool CheckPage(ManatimePage desiredPage, string contents, HomeResult? result)
+    private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult result)
     {
         bool isOkay = false, isLoggedOut = false;
         if (contents.Contains(@"analytics.page(""security_login"");"))
@@ -270,6 +305,10 @@ public class ManatimeWebClient : IManatimeWebClient
         if (desiredPage == ManatimePage.Home)
         {
             isOkay = contents.Contains("analytics.page(\"legacy_home\");");
+        }
+        else if (desiredPage == ManatimePage.PresenceCreateAdvanced)
+        {
+            isOkay = contents.Contains("analytics.page(\"presence_create_advanced\");");
         }
 
         if (!isOkay && isLoggedOut)

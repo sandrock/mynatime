@@ -5,6 +5,8 @@ using System;
 
 public static class MynatimeConfiguration
 {
+    public const string DateTimeFlatPrecision3 = "yyyyMMdd'T'HHmmssfffK";
+
     internal static string ConfigDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config/mynatime");
 
     /// <summary>
@@ -30,5 +32,10 @@ public static class MynatimeConfiguration
         }
 
         return directory;
+    }
+
+    public static string GetNewProfileFileName()
+    {
+        return "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json";
     }
 }

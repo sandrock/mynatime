@@ -26,7 +26,8 @@ public class ConsoleApp : IConsoleApp
         this.appSettings = appSettings;
         this.client = client;
         this.commands = new List<Command?>();
-        this.commands.Add(new ListProfilesCommand());
+        this.commands.Add(new ProfileListCommand(this));
+        this.commands.Add(new ProfileAddCommand(this, this.client));
         this.commands.Add(new ActivityCommand(this));
         this.commands.Add(new ActivityCategoryCommand(this, this.client));
     }
@@ -97,6 +98,58 @@ public class ConsoleApp : IConsoleApp
             this.ExitCode = 2;
             return;
         }
+    }
+
+    public static string AskForPassword(string label)
+    {
+        var consoleOut = Console.Out;
+        var consoleIn = Console.In;
+        
+        var pass = new List<char>();
+        ConsoleKeyInfo key;
+        consoleOut.Write(label);
+
+        do
+        {
+            try
+            {
+                key = Console.ReadKey(true);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // System.InvalidOperationException: Cannot read keys when either application does not have a console or when console input has been redirected from a file.
+                Trace.WriteLine("Failed to Console.ReadKey: " + ex.Message);
+                consoleOut.WriteLine("WARNING: your terminal emulator does not support typing hidden passwords.");
+                consoleOut.WriteLine("WARNING: you can type a password but IT WILL BE VISIBLE ON THE SCREEN!");
+                consoleOut.Write(label);
+                return consoleIn.ReadLine();
+            }
+
+            if (key.Key == ConsoleKey.Escape)
+            {
+                return null;
+            }
+
+            // Backspace Should Not Work
+            if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+            {
+                pass.Add(key.KeyChar);
+                Console.Write("*");
+            }
+            else
+            {
+                if (key.Key == ConsoleKey.Backspace && pass.Count > 0)
+                {
+                    pass.RemoveAt(pass.Count - 1);
+                    Console.Write("\b \b");
+                }
+            }
+        }
+
+        // Stops Receiving Keys Once Enter is Pressed
+        while (key.Key != ConsoleKey.Enter);
+
+        return new string(pass.ToArray());
     }
 
     internal static bool MatchArg(string arg, params string[] values)
@@ -275,6 +328,7 @@ public class ConsoleApp : IConsoleApp
         if (this.OpenProfileName == null)
         {
             this.CurrentProfile = this.availableProfiles.First();
+            Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
             return true;
         }
         else
@@ -295,6 +349,7 @@ public class ConsoleApp : IConsoleApp
             if (matches.Count == 1)
             {
                 this.CurrentProfile = matches.Single();
+                Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
                 return true;
             }
 

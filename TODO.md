@@ -13,20 +13,26 @@ Client
 ------------------
 
 - [x] Authenticate
-- [ ] Obtain list of available activity categories
+- [x] Obtain list of available activity categories
 - [ ] Create a activity item
 
 
 CLI
 ------------------
 
-- [ ] Authenticate, creating a profile file
+- [x] Authenticate, creating a profile file
 - [x] Use existing profile file
-- [ ] Activity categories
+- [x] Activity categories
+    - [x] List categories
+    - [x] Refresh categories from source
+    - [x] Search categories
 - [ ] Goal 1
     - [ ] Add activity items
 - [ ] Goal 2
     - [ ] Track activity
+- [ ] Code
+    - [ ] Have a proper way for a command to display errors and stop
+    - [ ] The way arguments are parsed is questionable 
 
 ### Authenticate
 
@@ -61,7 +67,7 @@ mynatime status                   # review   pending changes
 mynatime commit                   # save all pending changes
 ```
 
-The "activity add" command can be writen as "+activity" or "+act".
+The "activity add" command can be written as "+activity" or "+act".
 
 
 ### Track activity

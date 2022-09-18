@@ -224,7 +224,7 @@ namespace MynatimeGUI.ViewModels
             MynatimeProfile config = profile.GetConfiguration()! ?? new MynatimeProfile();
 
             var directory = MynatimeConfiguration.EnsureConfigDirectory();
-            string path = profile.ConfigurationPath ?? config.FilePath ?? Path.Combine(directory.FullName, "profile." + DateTime.UtcNow.ToString(DateTimeFlatPrecision3) + ".json");
+            string path = profile.ConfigurationPath ?? config.FilePath ?? Path.Combine(directory.FullName, MynatimeConfiguration.GetNewProfileFileName());
             profile.ConfigurationPath = path;
 
             config.LoginUsername = profile.Username;

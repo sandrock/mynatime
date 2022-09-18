@@ -13,4 +13,8 @@ public interface IConsoleApp
     /// Gets or sets the discovered profiles. 
     /// </summary>
     IEnumerable<MynatimeProfile> AvailableProfiles { get; }
+
+    DateTime TimeNowLocal { get; }
+
+    TimeZoneInfo TimeZoneLocal { get; }
 }

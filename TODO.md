@@ -33,6 +33,7 @@ CLI
 - [ ] Code
     - [ ] Have a proper way for a command to display errors and stop
     - [ ] The way arguments are parsed is questionable 
+    - [ ] `bool Command.ParseArgs()` should return true when args match the command, even when args are invalid
 
 ### Authenticate
 

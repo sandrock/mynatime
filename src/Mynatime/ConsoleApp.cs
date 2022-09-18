@@ -30,6 +30,7 @@ public class ConsoleApp : IConsoleApp
         this.commands.Add(new ProfileAddCommand(this, this.client));
         this.commands.Add(new ActivityCommand(this));
         this.commands.Add(new ActivityCategoryCommand(this, this.client));
+        this.commands.Add(new ActivityAddCommand(this, this.client));
     }
 
     /// <summary>
@@ -61,6 +62,10 @@ public class ConsoleApp : IConsoleApp
     /// Gets or sets the discovered profiles. 
     /// </summary>
     public IEnumerable<MynatimeProfile> AvailableProfiles => this.availableProfiles;
+
+    public DateTime TimeNowLocal { get => DateTime.Now; }
+
+    public TimeZoneInfo TimeZoneLocal { get => TimeZoneInfo.Local; }
 
     /// <summary>
     /// Parse CLI arguments and run the specified command. 

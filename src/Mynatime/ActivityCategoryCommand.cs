@@ -4,6 +4,7 @@ namespace Mynatime;
 using Mynatime.Infrastructure;
 using MynatimeClient;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 public sealed class ActivityCategoryCommand : Command
@@ -18,7 +19,9 @@ public sealed class ActivityCategoryCommand : Command
 
     public static string[] Args { get; } = new string[] { "cat", "cate", "categ", "category", "categories", };
 
-    public bool DoRefresh { get; set; } = true;
+    public bool DoRefresh { get; set; } = false;
+
+    public string Search { get; set; }
 
     public override bool MatchArg(string arg)
     {
@@ -41,9 +44,28 @@ public sealed class ActivityCategoryCommand : Command
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
-            if (ConsoleApp.MatchArg(arg, "--cached") || ConsoleApp.MatchShortArg(arg, "-c"))
+            var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
+
+            string? value = null;
+            if (ConsoleApp.MatchArg(arg, "--refresh", "refresh") || ConsoleApp.MatchShortArg(arg, "-r"))
             {
-                this.DoRefresh = false;
+                this.DoRefresh = true;
+            }
+            else if (ConsoleApp.MatchArg(arg, "search") || ConsoleApp.MatchShortArg(arg, "-q", out value))
+            {
+                if (value != null)
+                {
+                    this.Search = value;
+                }
+                else if (nextArg != null)
+                {
+                    this.Search = nextArg;
+                    i++;
+                }
+                else
+                {
+                    Console.WriteLine("Search command requires a search expression. ");
+                }
             }
             else
             {
@@ -83,7 +105,14 @@ public sealed class ActivityCategoryCommand : Command
 
         if (store != null)
         {
-            foreach (var item in store.Items)
+            var allItems = store.Items.ToList();
+            var items = allItems;
+            if (this.Search != null)
+            {
+                items = this.SearchItems(allItems);
+            }
+            
+            foreach (var item in items)
             {
                 Console.WriteLine(item.ToString());
             }
@@ -91,6 +120,8 @@ public sealed class ActivityCategoryCommand : Command
 
         if (hasRefreshed)
         {
+            // TODO: this is not unit-testable :@
+            Debug.Assert(profile.FilePath != null, "profile.FilePath != null");
             await profile.SaveToFile(profile.FilePath);
         }
     }
@@ -101,6 +132,8 @@ public sealed class ActivityCategoryCommand : Command
         List<MynatimeProfileDataActivityCategory> newItems,
         List<MynatimeProfileDataActivityCategory> deletedItems)
     {
+        var profileData = profile.Data ?? new MynatimeProfileData();
+
         Console.WriteLine("Refreshing categories... ");
         // first try to get the page
         var page = await this.manatimeWebClient.GetNewActivityItemPage();
@@ -112,6 +145,12 @@ public sealed class ActivityCategoryCommand : Command
         {
             // session expired: renew
             Console.WriteLine("  Renewing session... ");
+
+            if (profile.LoginUsername == null || profile.LoginPassword == null)
+            {
+                throw new InvalidOperationException("Missing authentication information. ");
+            }
+
             var loginPage = await this.manatimeWebClient.PrepareEmailPasswordAuthenticate();
             if (loginPage.Succeed)
             {
@@ -181,10 +220,13 @@ public sealed class ActivityCategoryCommand : Command
             }
 
             // insert new items
+            Debug.Assert(profileData.ActivityCategories != null, "profileData.ActivityCategories != null");
             foreach (var entry in newItems)
             {
-                profile.Data.ActivityCategories.Add(entry);
+                profileData.ActivityCategories.Add(entry);
             }
+
+            profileData.ActivityCategories.LastUpdated = page.LoadTime;
 
             return true;
         }
@@ -193,5 +235,35 @@ public sealed class ActivityCategoryCommand : Command
             Console.WriteLine(page.ToString());
             return false;
         }
+    }
+
+    private List<MynatimeProfileDataActivityCategory> SearchItems(List<MynatimeProfileDataActivityCategory> source)
+    {
+        var result = new List<MynatimeProfileDataActivityCategory>();
+        
+        // exact match search
+        foreach (var item in source)
+        {
+            if (item.Id != null && item.Id.Equals(this.Search, StringComparison.OrdinalIgnoreCase))
+            {
+                result.AddIfAbsent(item);
+            }
+            
+            if (item.Name != null && item.Name.Equals(this.Search, StringComparison.OrdinalIgnoreCase))
+            {
+                result.AddIfAbsent(item);
+            }
+        }
+        
+        // partial match search foreach (var item in source)
+        foreach (var item in source)
+        {
+            if (item.Name != null && item.Name.Contains(this.Search, StringComparison.OrdinalIgnoreCase))
+            {
+                result.AddIfAbsent(item);
+            }
+        }
+
+        return result;
     }
 }

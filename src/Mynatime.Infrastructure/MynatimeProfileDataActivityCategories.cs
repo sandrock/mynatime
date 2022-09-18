@@ -25,6 +25,12 @@ public class MynatimeProfileDataActivityCategories : JsonObject
         }
     }
 
+    public DateTime? LastUpdated
+    {
+        get => this.Element.Value<DateTime?>("LastUpdated");
+        set => this.Element["LastUpdated"] = value;
+    }
+
     public void Add(MynatimeProfileDataActivityCategory category)
     {
         if (category == null)

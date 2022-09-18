@@ -4,14 +4,19 @@ using Newtonsoft.Json.Linq;
 
 public class MynatimeProfileData : JsonObject
 {
-    private MynatimeProfileDataActivityCategories activityCategories;
+    private MynatimeProfileDataActivityCategories? activityCategories;
+
+    public MynatimeProfileData()
+        : base("Data", new JObject())
+    {
+    }
 
     internal MynatimeProfileData(JObject element)
         : base("Data", element)
     {
     }
 
-    public MynatimeProfileDataActivityCategories ActivityCategories
+    public MynatimeProfileDataActivityCategories? ActivityCategories
     {
         get
         {

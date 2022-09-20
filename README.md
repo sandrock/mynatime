@@ -5,9 +5,9 @@ Mynatime
 Info
 -------------
 
-Project status:          experimental    
+Project status:          **experimental (does not work yet, see todo list)**    
 Contributions:           open to contributions, contact me    
-Goal:                    provide a fast GUI to update my activities into manatime.    
+Goal:                    **provide a fast GUI to update my activities into the service**.    
 Relation to the service: this is an unofficial app.   
 Build and run:           netcore6.0   
 

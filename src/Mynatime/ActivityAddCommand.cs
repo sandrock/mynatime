@@ -40,7 +40,7 @@ public class ActivityAddCommand : Command
             goto error;
         }
 
-        bool acceptStartDate = true, acceptEndDate = false, acceptDuration = true, acceptStartTime = true, acceptEndTime = false, acceptCategory = false;
+        bool acceptStartDate = true, acceptEndDate = false, acceptDuration = true, acceptStartTime = true, acceptEndTime = false, acceptCategory = true;
         DateTime date;
         var dateFormat = "yyyy-MM-dd";
         var durationRegex = new Regex("^(\\d+)([\\.,](\\d+))?$");

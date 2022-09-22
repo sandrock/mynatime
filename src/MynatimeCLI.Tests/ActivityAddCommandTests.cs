@@ -70,6 +70,23 @@ public class ActivityAddCommandTests
     }
 
     [Fact]
+    public void Match_Category_Date_Duration()
+    {
+        var args = new string[] { "act", "add", "proj1", "2022-09-18", "2.5", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityAddCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.Equal(2.5M, target.DurationHours);
+        Assert.Null(target.EndTimeLocal);
+        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
+        Assert.Equal("proj1", target.CategoryArg);
+    }
+
+    [Fact]
     public void Match_Duration_Category()
     {
         var args = new string[] { "act", "add", "2.5", "proj1", };

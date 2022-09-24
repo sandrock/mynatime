@@ -13,6 +13,7 @@ public sealed class MynatimeProfile : JsonObject
     private const string ManifestKey = "__manifest";
 
     private MynatimeProfileData? data;
+    private MynatimeProfileTransaction? transaction;
 
     public MynatimeProfile()
         : base("Root", new JObject())
@@ -76,6 +77,9 @@ public sealed class MynatimeProfile : JsonObject
         set => this.Element["Group"] = value;
     }
 
+    /// <summary>
+    /// Contains cached domain data for the current profile. 
+    /// </summary>
     public MynatimeProfileData? Data
     {
         get
@@ -94,6 +98,30 @@ public sealed class MynatimeProfile : JsonObject
             }
 
             return this.data;
+        }
+    }
+
+    /// <summary>
+    /// Contains pending actions to the service.
+    /// </summary>
+    public MynatimeProfileTransaction? Transaction
+    {
+        get
+        {
+            if (this.transaction != null)
+            {
+            }
+            else if (this.Element.TryGetValue("Transaction", out JToken? child))
+            {
+                this.transaction = new MynatimeProfileTransaction((JObject)child);
+            }
+            else if (!this.IsFrozen)
+            {
+                this.transaction = new MynatimeProfileTransaction(new JObject());
+                this.Element.Add("Transaction", this.transaction.Element);
+            }
+
+            return this.transaction;
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿
 namespace Mynatime;
 
+using Mynatime.Infrastructure;
 using MynatimeClient;
 using System;
 using System.Globalization;
@@ -21,6 +22,8 @@ public class ActivityAddCommand : Command
     public DateTime? EndTimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
     public string CategoryArg { get; set; }
+    public bool IsStart { get; set; }
+    public bool IsStop { get; set; }
 
     public override bool MatchArg(string arg)
     {
@@ -135,6 +138,76 @@ public class ActivityAddCommand : Command
 
     public override Task Run()
     {
-        throw new NotImplementedException();
+        var profile = this.App.CurrentProfile;
+        if (profile == null)
+        {
+            Console.WriteLine("No current profile. ");
+            return Task.CompletedTask;
+        }
+
+        if (this.IsStart || this.IsStop)
+        {
+            throw new NotImplementedException();
+        }
+        
+        if (this.StartTimeLocal == null)
+        {
+            this.StartTimeLocal = this.App.TimeNowLocal;
+            if (this.EndTimeLocal != null)
+            {
+                throw new InvalidOperationException();
+            }
+            else
+            {
+                this.EndTimeLocal = this.StartTimeLocal;
+            }
+        }
+
+        var page = new NewActivityItemPage();
+        MynatimeProfileDataActivityCategory category = null;
+        if (this.CategoryArg != null)
+        {
+            if (profile.Data?.ActivityCategories == null)
+            {
+                Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
+                return Task.CompletedTask;
+            }
+
+            var categories = profile.Data.ActivityCategories.Items.ToList();
+            var search = ActivityCategoryCommand.SearchItems(categories, this.CategoryArg);
+            if (search.Count == 0)
+            {
+                Console.WriteLine("No such category " + this.CategoryArg);
+                return Task.CompletedTask;
+            }
+            else if (search.Count == 1)
+            {
+                category = search[0];
+                page.ActivityId = category.Id;
+            }
+            else
+            {
+                Console.WriteLine("Too many possibilities for category " + this.CategoryArg);
+                return Task.CompletedTask;
+            }
+        }
+
+        ////page.Comment = this.CommentArg;
+        page.DateStart = this.StartTimeLocal;
+        page.DateEnd = this.EndTimeLocal;
+        if (this.DurationHours == null)
+        {
+            page.InAt = this.StartTimeLocal.Value.TimeOfDay;
+            page.OutAt = this.StartTimeLocal.Value.TimeOfDay;
+        }
+        else
+        {
+            page.Duration = this.DurationHours.Value.ToInvariantString();
+        }
+
+
+        profile.Transaction.Add(page.AsTransactionItem(this.App.TimeNowUtc));
+
+        return Task.CompletedTask;
     }
 }

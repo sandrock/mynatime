@@ -65,6 +65,8 @@ public class ConsoleApp : IConsoleApp
 
     public DateTime TimeNowLocal { get => DateTime.Now; }
 
+    public DateTime TimeNowUtc { get => DateTime.UtcNow; }
+
     public TimeZoneInfo TimeZoneLocal { get => TimeZoneInfo.Local; }
 
     /// <summary>

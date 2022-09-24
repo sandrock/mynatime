@@ -16,5 +16,7 @@ public interface IConsoleApp
 
     DateTime TimeNowLocal { get; }
 
+    DateTime TimeNowUtc { get; }
+
     TimeZoneInfo TimeZoneLocal { get; }
 }

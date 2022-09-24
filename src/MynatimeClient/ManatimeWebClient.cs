@@ -179,6 +179,11 @@ public class ManatimeWebClient : IManatimeWebClient
         }
     }
 
+    public Task<NewActivityItemPage> PostNewActivityItemPage(NewActivityItemPage form)
+    {
+        throw new NotImplementedException();
+    }
+
     public JArray GetCookies()
     {
         var array = new JArray();

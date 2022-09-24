@@ -109,7 +109,7 @@ public sealed class ActivityCategoryCommand : Command
             var items = allItems;
             if (this.Search != null)
             {
-                items = this.SearchItems(allItems);
+                items = SearchItems(allItems, this.Search);
             }
             
             foreach (var item in items)
@@ -237,19 +237,19 @@ public sealed class ActivityCategoryCommand : Command
         }
     }
 
-    private List<MynatimeProfileDataActivityCategory> SearchItems(List<MynatimeProfileDataActivityCategory> source)
+    internal static List<MynatimeProfileDataActivityCategory> SearchItems(List<MynatimeProfileDataActivityCategory> source, string search)
     {
         var result = new List<MynatimeProfileDataActivityCategory>();
         
         // exact match search
         foreach (var item in source)
         {
-            if (item.Id != null && item.Id.Equals(this.Search, StringComparison.OrdinalIgnoreCase))
+            if (item.Id != null && item.Id.Equals(search, StringComparison.OrdinalIgnoreCase))
             {
                 result.AddIfAbsent(item);
             }
             
-            if (item.Name != null && item.Name.Equals(this.Search, StringComparison.OrdinalIgnoreCase))
+            if (item.Name != null && item.Name.Equals(search, StringComparison.OrdinalIgnoreCase))
             {
                 result.AddIfAbsent(item);
             }
@@ -258,7 +258,7 @@ public sealed class ActivityCategoryCommand : Command
         // partial match search foreach (var item in source)
         foreach (var item in source)
         {
-            if (item.Name != null && item.Name.Contains(this.Search, StringComparison.OrdinalIgnoreCase))
+            if (item.Name != null && item.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
             {
                 result.AddIfAbsent(item);
             }

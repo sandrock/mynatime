@@ -5,6 +5,12 @@ namespace MynatimeClient;
 /// </summary>
 public sealed class BaseError
 {
+    public BaseError(string code)
+    {
+        this.Code = code;
+        this.Message = code;
+    }
+
     public BaseError(string code, string? message)
     {
         this.Code = code;

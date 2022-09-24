@@ -13,6 +13,9 @@ public sealed class WebForm
 {
     private readonly Dictionary<string, WebFormValues> keys = new Dictionary<string, WebFormValues>();
 
+    /// <summary>
+    /// Gets the form keys.
+    /// </summary>
     public IEnumerable<string> Keys
     {
         get
@@ -40,6 +43,18 @@ public sealed class WebForm
         {
             throw new InvalidOperationException("Form has many values for key <" + key + ">");
         }
+    }
+
+    public IList<string> GetStringValues(string key)
+    {
+        if (!this.keys.TryGetValue(key, out WebFormValues? values))
+        {
+            this.keys.Add(key, values = new WebFormValues());
+        }
+
+        return values.AsStringList();
+        var list = new List<string>(values.Select(x => x.Value));
+        return list;
     }
 
     public void SetStringValue(string key, string? value)
@@ -178,15 +193,19 @@ public sealed class WebForm
         }
     }
     
+    /// <summary>
+    /// Gets the form data in query string encoded form.
+    /// </summary>
+    /// <returns></returns>
     public string GetFormData()
     {
         var builder = new StringBuilder();
         var sep = string.Empty;
         foreach (var key in this.keys)
         {
-            builder.Append(sep);
             foreach (var value in key.Value)
             {
+                builder.Append(sep);
                 builder.Append(Uri.EscapeDataString(key.Key));
                 builder.Append('=');
                 builder.Append(Uri.EscapeDataString(value.Value));
@@ -199,6 +218,64 @@ public sealed class WebForm
 
     private class WebFormValues : Collection<WebFormValue>
     {
+        public IList<string> AsStringList()
+        {
+            var container = new WebFormValuesList(this);
+            return container;
+        }
+
+        private class WebFormValuesList : Collection<string>
+        {
+            private readonly WebFormValues me;
+            private bool isReady;
+
+            public WebFormValuesList(WebFormValues me)
+            {
+                this.me = me;
+                foreach (var item in me.Items)
+                {
+                    this.Add(item.Value);
+                }
+
+                this.isReady = true;
+            }
+
+            protected override void ClearItems()
+            {
+                base.ClearItems();
+
+                if (this.isReady)
+                {
+                    this.me.Clear();
+                }
+            }
+
+            protected override void InsertItem(int index, string item)
+            {
+                base.InsertItem(index, item);
+
+                if (this.isReady)
+                {
+                    this.me.Insert(index, new WebFormValue(item));
+                }
+            }
+
+            protected override void RemoveItem(int index)
+            {
+                base.RemoveItem(index);
+
+                if (this.isReady)
+                {
+                    this.me.RemoveAt(index);
+                }
+            }
+
+            protected override void SetItem(int index, string item)
+            {
+                throw new NotSupportedException();
+                base.SetItem(index, item);
+            }
+        }
     }
 
     private class WebFormValue

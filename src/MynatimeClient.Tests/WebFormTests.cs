@@ -131,6 +131,27 @@ public class WebFormTests
         Assert.Equal("user_id=9223372036854775797", form.Form.GetFormData());
     }
 
+    [Fact]
+    public void GetSetStringValues()
+    {
+        var input = "John";
+        var form = new SampleForm1();
+        
+        // set values
+        form.Roles.Add("admin");
+        form.Roles.Add("user");
+
+        // get values
+        Assert.Collection(
+            form.Roles,
+            x => Assert.Equal("admin", x),
+            x => Assert.Equal("user", x));
+        
+        // verify
+        Assert.Collection(form.Form.Keys, x => Assert.Equal("roles", x));
+        Assert.Equal("roles=admin&roles=user", form.Form.GetFormData());
+    }
+
     public class SampleForm1
     {
         public const string DateFormat = "yyyy-MM-dd";
@@ -169,6 +190,11 @@ public class WebFormTests
         {
             get { return this.form.GetLongValue("user_id"); }
             set { this.form.SetLongValue("user_id", value); }
+        }
+
+        public IList<string> Roles
+        {
+            get { return this.form.GetStringValues("roles"); }
         }
     }
 }

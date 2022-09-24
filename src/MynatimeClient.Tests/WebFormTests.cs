@@ -152,6 +152,36 @@ public class WebFormTests
         Assert.Equal("roles=admin&roles=user", form.Form.GetFormData());
     }
 
+    [Fact]
+    public void Ctor()
+    {
+        // not settings keys in the constructor will generate data in the order of usage
+        var form = new WebForm();
+        form.SetStringValue("x2", "value");
+        form.SetStringValue("x1", "value");
+        Assert.Collection(
+            form.Keys,
+            x => Assert.Equal("x2", x),
+            x => Assert.Equal("x1", x));
+        Assert.Equal("x2=value&x1=value", form.GetFormData());
+    }
+    
+    [Fact]
+    public void Ctor_WithKeys()
+    {
+        // settings keys in the constructor will help get data in the desired order
+        var form = new WebForm("x1", "x2", "x3", "x4");
+        form.SetStringValue("x2", "value");
+        form.SetStringValue("x1", "value");
+        form.Remove("x4");
+        Assert.Collection(
+            form.Keys,
+            x => Assert.Equal("x1", x),
+            x => Assert.Equal("x2", x),
+            x => Assert.Equal("x3", x));
+        Assert.Equal("x1=value&x2=value&x3=", form.GetFormData());
+    }
+
     public class SampleForm1
     {
         public const string DateFormat = "yyyy-MM-dd";

@@ -13,6 +13,18 @@ public sealed class WebForm
 {
     private readonly Dictionary<string, WebFormValues> keys = new Dictionary<string, WebFormValues>();
 
+    public WebForm()
+    {
+    }
+
+    public WebForm(params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            this.keys.Add(key, new WebFormValues());
+        }
+    }
+
     /// <summary>
     /// Gets the form keys.
     /// </summary>
@@ -114,7 +126,6 @@ public sealed class WebForm
         }
     }
 
-
     public TimeSpan? GetTimeSpanValue(string key, string format)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -203,17 +214,33 @@ public sealed class WebForm
         var sep = string.Empty;
         foreach (var key in this.keys)
         {
-            foreach (var value in key.Value)
+            if (key.Value.Count == 0)
             {
+                
                 builder.Append(sep);
                 builder.Append(Uri.EscapeDataString(key.Key));
                 builder.Append('=');
-                builder.Append(Uri.EscapeDataString(value.Value));
                 sep = "&";
+            }
+            else
+            {
+                foreach (var value in key.Value)
+                {
+                    builder.Append(sep);
+                    builder.Append(Uri.EscapeDataString(key.Key));
+                    builder.Append('=');
+                    builder.Append(Uri.EscapeDataString(value.Value));
+                    sep = "&";
+                }
             }
         }
 
         return builder.ToString();
+    }
+
+    public void Remove(string key)
+    {
+        this.keys.Remove(key);
     }
 
     private class WebFormValues : Collection<WebFormValue>

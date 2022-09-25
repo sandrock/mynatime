@@ -19,4 +19,6 @@ public interface IConsoleApp
     DateTime TimeNowUtc { get; }
 
     TimeZoneInfo TimeZoneLocal { get; }
+
+    Task PersistProfile(MynatimeProfile profile);
 }

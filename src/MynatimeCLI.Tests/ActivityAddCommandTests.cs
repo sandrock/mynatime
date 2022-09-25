@@ -72,6 +72,7 @@ public class ActivityAddCommandTests
         await target.Run();
         var item = Assert.Single(app.Object.CurrentProfile?.Transaction.Items);
         Assert.Equal("{\"ObjectType\":\"MynatimeClient.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=&create%5BinAt%5D=&create%5BoutAt%5D=&create%5Bduration%5D=2.5&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
+        app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Once);
     }
 
     [Fact]
@@ -126,6 +127,7 @@ public class ActivityAddCommandTests
         await target.Run();
         var item = Assert.Single(app.Object.CurrentProfile?.Transaction.Items);
         Assert.Equal("{\"ObjectType\":\"MynatimeClient.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=2022-09-18&create%5BinAt%5D=09%3A25&create%5BoutAt%5D=09%3A25&create%5Bduration%5D=&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
+        app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Once);
     }
 
     [Fact]
@@ -202,6 +204,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var target = new ActivityAddCommand(app.Object, null);
         await target.Run();
+        app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Never);
     }
 
     private Mock<IManatimeWebClient> GetClientMock()
@@ -214,11 +217,11 @@ public class ActivityAddCommandTests
     {
         var mock = this.mocks.Create<IConsoleApp>();
 
-        var profile = new MynatimeProfile();
+        MynatimeProfile profile = null;
+        mock.SetupGet(x => x.CurrentProfile).Returns(() => profile);
         if (withProfile)
         {
-            mock.SetupGet(x => x.CurrentProfile).Returns(profile);
-            
+            profile = new MynatimeProfile();
             profile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("1001", "proj1"));
         }
 
@@ -235,6 +238,8 @@ public class ActivityAddCommandTests
         mock.SetupGet(x => x.TimeNowLocal).Returns(localTime.Value);
         mock.SetupGet(x => x.TimeNowUtc).Returns(utcTime.Value);
         mock.SetupGet(x => x.TimeZoneLocal).Returns(localTz);
+
+        mock.Setup(x => x.PersistProfile(It.IsAny<MynatimeProfile>())).Returns(Task.CompletedTask).Verifiable();
 
         return mock;
     }

@@ -123,11 +123,6 @@ public class ProfileAddCommand : Command
 
         profile.Cookies = this.client.GetCookies();
 
-        var directory = MynatimeConfiguration.EnsureConfigDirectory();
-        var name = MynatimeConfiguration.GetNewProfileFileName();
-        var path = Path.Combine(directory.FullName, name);
-        await profile.SaveToFile(path);
-
-        Console.WriteLine("Profile saved to: " + path);
+        await this.App.PersistProfile(profile);
     }
 }

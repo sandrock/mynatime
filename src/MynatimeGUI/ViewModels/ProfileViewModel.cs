@@ -86,7 +86,7 @@ namespace MynatimeGUI.ViewModels
         {
             this.configuration = root ?? throw new ArgumentNullException(nameof(root));
 
-            var identity = root["Identity"] as JObject;
+            var identity = root.Element["Identity"] as JObject;
             this.Username = root.LoginUsername;
             this.Password = root.LoginPassword;
         }

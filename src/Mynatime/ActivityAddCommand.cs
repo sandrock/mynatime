@@ -136,15 +136,22 @@ public class ActivityAddCommand : Command
         return false;
     }
 
-    public override Task Run()
+    public override async Task Run()
     {
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
             Console.WriteLine("No current profile. ");
-            return Task.CompletedTask;
+            return;
         }
 
+        var transaction = profile.Transaction;
+        if (transaction == null)
+        {
+            Console.WriteLine("Current profile does not allow changes. ");
+            return;
+        }
+        
         if (this.IsStart || this.IsStop)
         {
             throw new NotImplementedException();
@@ -170,7 +177,7 @@ public class ActivityAddCommand : Command
             if (profile.Data?.ActivityCategories == null)
             {
                 Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
-                return Task.CompletedTask;
+                return;
             }
 
             var categories = profile.Data.ActivityCategories.Items.ToList();
@@ -178,7 +185,7 @@ public class ActivityAddCommand : Command
             if (search.Count == 0)
             {
                 Console.WriteLine("No such category " + this.CategoryArg);
-                return Task.CompletedTask;
+                return;
             }
             else if (search.Count == 1)
             {
@@ -188,7 +195,7 @@ public class ActivityAddCommand : Command
             else
             {
                 Console.WriteLine("Too many possibilities for category " + this.CategoryArg);
-                return Task.CompletedTask;
+                return;
             }
         }
 
@@ -205,9 +212,8 @@ public class ActivityAddCommand : Command
             page.Duration = this.DurationHours.Value.ToInvariantString();
         }
 
+        transaction.Add(page.AsTransactionItem(this.App.TimeNowUtc));
 
-        profile.Transaction.Add(page.AsTransactionItem(this.App.TimeNowUtc));
-
-        return Task.CompletedTask;
+        await this.App.PersistProfile(profile);
     }
 }

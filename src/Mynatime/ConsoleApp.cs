@@ -31,6 +31,8 @@ public class ConsoleApp : IConsoleApp
         this.commands.Add(new ActivityCommand(this));
         this.commands.Add(new ActivityCategoryCommand(this, this.client));
         this.commands.Add(new ActivityAddCommand(this, this.client));
+        this.commands.Add(new StatusCommand(this, this.client));
+        this.commands.Add(new CommitCommand(this, this.client));
     }
 
     /// <summary>
@@ -157,6 +159,44 @@ public class ConsoleApp : IConsoleApp
         while (key.Key != ConsoleKey.Enter);
 
         return new string(pass.ToArray());
+    }
+    
+    public async Task PersistProfile(MynatimeProfile profile)
+    {
+        if (profile == null)
+        {
+            throw new ArgumentNullException(nameof(profile));
+        }
+
+        string filePath;
+        if (profile.FilePath != null)
+        {
+            filePath = profile.FilePath;
+        }
+        else
+        {
+            DirectoryInfo directory;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (this.ConfigDirectory != null)
+            {
+                directory = new DirectoryInfo(this.ConfigDirectory);
+                if (!directory.Exists)
+                {
+                    directory.Create();
+                }
+            }
+            else
+            {
+                directory = MynatimeConfiguration.EnsureConfigDirectory();
+            }
+
+            var name = MynatimeConfiguration.GetNewProfileFileName();
+            filePath = Path.Combine(directory.FullName, name);
+        }
+
+        await profile.SaveToFile(filePath);
+
+        Console.WriteLine("Profile saved to: " + filePath);
     }
 
     internal static bool MatchArg(string arg, params string[] values)

@@ -10,6 +10,13 @@ public sealed class ProfileListCommand : Command
 
     public static string[] Args { get; } = new string[] { "list", "get", };
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.AddCommandPattern(ProfileCommand.Args[0] + " " + Args[0], "lists user profiles");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, ProfileCommand.Args);

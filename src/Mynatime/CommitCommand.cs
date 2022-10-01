@@ -20,6 +20,13 @@ public class CommitCommand : Command
         this.client = client;
     }
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.AddCommandPattern(Args[0], "saves pending changes");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, Args);

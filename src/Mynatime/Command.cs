@@ -24,4 +24,10 @@ public abstract class Command
     public abstract bool ParseArgs(IConsoleApp app, string[] args, out int consumedArgs, out Command? command);
 
     public abstract Task Run();
+
+    public virtual CommandDescription Describe()
+    {
+        var describe = new CommandDescription();
+        return describe;
+    }
 }

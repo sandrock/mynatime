@@ -26,6 +26,16 @@ public sealed class ActivityCategoryCommand : Command
 
     public string? Search { get; set; }
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        var prefix = ActivityCommand.Args[0] + " " + Args[0] + " ";
+        describe.AddCommandPattern(prefix, "lists activity categories");
+        describe.AddCommandPattern(prefix + "refresh", "updates activity categories from service");
+        describe.AddCommandPattern(prefix + "search <q>", "searches categories");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, ActivityCommand.Args);

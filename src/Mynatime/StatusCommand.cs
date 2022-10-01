@@ -20,6 +20,13 @@ public class StatusCommand : Command
         this.client = client;
     }
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.AddCommandPattern(Args[0], "lists pending changes");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, Args);

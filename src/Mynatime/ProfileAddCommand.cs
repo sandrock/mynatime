@@ -20,6 +20,13 @@ public class ProfileAddCommand : Command
 
     public string? LoginUsername { get; set; }
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.AddCommandPattern(ProfileCommand.Args[0] + " " + Args[0], "adds user profiles");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, ProfileCommand.Args);

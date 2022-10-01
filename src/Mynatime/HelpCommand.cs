@@ -7,7 +7,14 @@ public sealed class HelpCommand : Command
     {
     }
 
-    public static string[] Args { get; } = new string[] { "--help", "help", "-h", "/?", "/help", };
+    public static string[] Args { get; } = new string[] { "help", "--help", "-h", "/?", "/help", "h", };
+
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.AddCommandPattern(Args[0], "displays help");
+        return describe;
+    }
 
     public override bool MatchArg(string arg)
     {
@@ -48,9 +55,27 @@ public sealed class HelpCommand : Command
         Console.WriteLine("");
         Console.WriteLine("Commands: ");
         Console.WriteLine("");
+        int patternLength = 20;
         foreach (var item in this.App.Commands)
         {
-            Console.WriteLine("  (" + item.GetType().Name + ")");
+            var describe = item.Describe();
+            if (describe.CommandPatterns.Count == 0)
+            {
+                continue;
+            }
+            
+            Console.WriteLine("  ## " + item.GetType().Name);
+            foreach (var pattern in describe.CommandPatterns)
+            {
+                if (pattern.Id.Length > patternLength)
+                {
+                    patternLength = pattern.Id.Length;
+                }
+
+                Console.WriteLine("  " + pattern.Id.PadRight(patternLength + 1, ' ') + pattern.DisplayName);
+            }
+
+            Console.WriteLine();
         }
 
         Console.WriteLine("");

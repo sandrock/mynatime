@@ -1,4 +1,4 @@
-namespace MynatimeGUI.ViewModels;
+namespace Mynatime.GUI.ViewModels;
 
 using ReactiveUI;
 using System.Threading.Tasks;

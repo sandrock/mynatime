@@ -1,9 +1,9 @@
 
-namespace MynatimeGUI
+namespace Mynatime.GUI
 {
     using Avalonia.Controls;
     using Avalonia.Controls.Templates;
-    using MynatimeGUI.ViewModels;
+    using Mynatime.GUI.ViewModels;
     using System;
 
     public class ViewLocator : IDataTemplate

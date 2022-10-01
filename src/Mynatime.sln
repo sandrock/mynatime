@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MynatimeCLI", "Mynatime\MynatimeCLI.csproj", "{0C71B32B-AE32-44D2-8500-255E1F982F11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.CLI", "Mynatime\Mynatime.CLI.csproj", "{0C71B32B-AE32-44D2-8500-255E1F982F11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MynatimeGUI", "MynatimeGUI\MynatimeGUI.csproj", "{9C9C0530-4DB2-47D0-BD15-41E840D574CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.GUI", "MynatimeGUI\Mynatime.GUI.csproj", "{9C9C0530-4DB2-47D0-BD15-41E840D574CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MynatimeClient", "MynatimeClient\MynatimeClient.csproj", "{B3F13DDC-E689-4E23-9FC9-171528126A52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.Client", "MynatimeClient\Mynatime.Client.csproj", "{B3F13DDC-E689-4E23-9FC9-171528126A52}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.Infrastructure", "Mynatime.Infrastructure\Mynatime.Infrastructure.csproj", "{6D8BA57A-04D0-4B47-9127-A108BE38A315}"
 EndProject
@@ -14,9 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GUI", "GUI", "{32AB94A9-4B4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{B05C3502-41B2-4F1B-9F2D-810EE47323B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MynatimeCLI.Tests", "MynatimeCLI.Tests\MynatimeCLI.Tests.csproj", "{6544E713-8BBF-4C71-947E-930BC5F46D5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.CLI.Tests", "MynatimeCLI.Tests\Mynatime.CLI.Tests.csproj", "{6544E713-8BBF-4C71-947E-930BC5F46D5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MynatimeClient.Tests", "MynatimeClient.Tests\MynatimeClient.Tests.csproj", "{4145731D-613C-46E1-AD27-421631477328}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mynatime.Client.Tests", "MynatimeClient.Tests\Mynatime.Client.Tests.csproj", "{4145731D-613C-46E1-AD27-421631477328}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

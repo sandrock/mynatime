@@ -1,10 +1,9 @@
 ﻿
-namespace MynatimeCLI.Tests;
+namespace Mynatime.CLI.Tests;
 
 using Moq;
-using Mynatime;
 using Mynatime.Infrastructure;
-using MynatimeClient;
+using Mynatime.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

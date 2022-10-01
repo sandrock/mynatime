@@ -1,8 +1,8 @@
 
-namespace MynatimeGUI.ViewModels
+namespace Mynatime.GUI.ViewModels
 {
+    using Mynatime.Client;
     using Mynatime.Infrastructure;
-    using MynatimeClient;
     using Newtonsoft.Json.Linq;
     using ReactiveUI;
     using System;

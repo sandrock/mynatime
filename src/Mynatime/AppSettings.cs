@@ -1,5 +1,5 @@
 
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
 public class AppSettings
 {

@@ -1,8 +1,8 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
+using Mynatime.Client;
 using System;
-using MynatimeClient;
 
 public class ActivityCommand : Command
 {

@@ -1,5 +1,5 @@
 ﻿
-namespace MynatimeGUI
+namespace Mynatime.GUI
 {
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
@@ -8,7 +8,7 @@ namespace MynatimeGUI
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Mynatime.Infrastructure;
-    using MynatimeGUI.ViewModels;
+    using Mynatime.GUI.ViewModels;
     using System;
 
     class Program

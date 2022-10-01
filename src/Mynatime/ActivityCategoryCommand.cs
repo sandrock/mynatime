@@ -1,9 +1,9 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
 using Fastenshtein;
+using Mynatime.Client;
 using Mynatime.Infrastructure;
-using MynatimeClient;
 using SimplifiedSearch;
 using System;
 using System.Diagnostics;
@@ -268,7 +268,7 @@ public sealed class ActivityCategoryCommand : Command
         }
     }
 
-    internal static async Task<IList<SearchResultItem<MynatimeProfileDataActivityCategory>>> SearchItems(List<MynatimeProfileDataActivityCategory> source, string search, bool findBest)
+    public static async Task<IList<SearchResultItem<MynatimeProfileDataActivityCategory>>> SearchItems(List<MynatimeProfileDataActivityCategory> source, string search, bool findBest)
     {
         var result = new List<SearchResultItem<MynatimeProfileDataActivityCategory>>();
 

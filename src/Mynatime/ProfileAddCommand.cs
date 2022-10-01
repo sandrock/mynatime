@@ -1,8 +1,8 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
+using Mynatime.Client;
 using Mynatime.Infrastructure;
-using MynatimeClient;
 using Newtonsoft.Json.Linq;
 using System;
 

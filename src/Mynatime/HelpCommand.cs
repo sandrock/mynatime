@@ -1,4 +1,4 @@
-﻿namespace MynatimeCLI;
+﻿namespace Mynatime.CLI;
 
 public sealed class HelpCommand : Command
 {

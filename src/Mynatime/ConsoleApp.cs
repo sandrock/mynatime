@@ -1,9 +1,8 @@
 
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
-using Mynatime;
+using Mynatime.Client;
 using Mynatime.Infrastructure;
-using MynatimeClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;

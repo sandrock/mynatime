@@ -1,6 +1,6 @@
-﻿namespace MynatimeCLI;
+﻿namespace Mynatime.CLI;
 
-using MynatimeClient;
+using Mynatime.Client;
 
 public sealed class CommandDescription
 {

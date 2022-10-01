@@ -1,4 +1,4 @@
-namespace MynatimeClient;
+namespace Mynatime.Client;
 
 /// <summary>
 /// A result base object associated to an API access. 

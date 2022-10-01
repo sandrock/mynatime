@@ -1,4 +1,4 @@
-namespace MynatimeClient;
+namespace Mynatime.Client;
 
 using System.Text;
 

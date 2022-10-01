@@ -1,4 +1,4 @@
-﻿namespace MynatimeClient;
+﻿namespace Mynatime.Client;
 
 using Mynatime.Infrastructure;
 using Newtonsoft.Json;
@@ -184,7 +184,7 @@ public sealed class NewActivityItemPage : BaseResult
     {
         var item = new JObject();
         var result = new MynatimeProfileTransactionItem(item);
-        result.ObjectType = this.GetType().FullName;
+        result.ObjectType = "Mynatime.Client.NewActivityItemPage";
         result.TimeCreatedUtc = utcNow;
         item["FormData"] = this.form.GetFormData();
         return result;

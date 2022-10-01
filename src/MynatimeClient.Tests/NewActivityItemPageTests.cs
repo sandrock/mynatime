@@ -1,5 +1,5 @@
 ﻿
-namespace MynatimeClient.Tests;
+namespace Mynatime.Client.Tests;
 
 using System;
 using Xunit;

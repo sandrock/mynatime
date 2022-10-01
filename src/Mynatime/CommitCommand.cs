@@ -1,8 +1,8 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
 using Mynatime.Infrastructure;
-using MynatimeClient;
+using Mynatime.Client;
 using System;
 
 /// <summary>

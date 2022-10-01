@@ -1,5 +1,5 @@
 ﻿
-namespace MynatimeCLI.Tests.Resources;
+namespace Mynatime.CLI.Tests.Resources;
 
 using Mynatime.Infrastructure;
 using System;

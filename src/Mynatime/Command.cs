@@ -1,5 +1,5 @@
 
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
 /// <summary>
 /// Base class for a CLI command. 

@@ -1,11 +1,11 @@
 
-namespace MynatimeGUI
+namespace Mynatime.GUI
 {
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
     using Avalonia.Markup.Xaml;
-    using MynatimeGUI.ViewModels;
-    using MynatimeGUI.Views;
+    using Mynatime.GUI.ViewModels;
+    using Mynatime.GUI.Views;
 
     public partial class App : Application
     {

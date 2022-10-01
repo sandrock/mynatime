@@ -1,4 +1,4 @@
-namespace MynatimeGUI.Things;
+namespace Mynatime.GUI.Things;
 
 public class Dummy
 {

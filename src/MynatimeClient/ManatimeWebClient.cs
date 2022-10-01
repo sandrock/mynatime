@@ -1,4 +1,4 @@
-namespace MynatimeClient;
+namespace Mynatime.Client;
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

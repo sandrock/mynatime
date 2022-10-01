@@ -1,4 +1,4 @@
-namespace MynatimeGUI;
+namespace Mynatime.GUI;
 
 using Avalonia.Logging;
 using Avalonia.Utilities;

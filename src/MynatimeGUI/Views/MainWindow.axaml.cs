@@ -1,11 +1,11 @@
 
-namespace MynatimeGUI.Views
+namespace Mynatime.GUI.Views
 {
     using Avalonia.Controls;
     using Microsoft.Extensions.Logging;
+    using Mynatime.GUI.ViewModels;
+    using Mynatime.GUI.Views;
     using Mynatime.Infrastructure;
-    using MynatimeGUI.Views;
-    using MynatimeGUI.ViewModels;
     using System;
     using System.Collections.Generic;
 

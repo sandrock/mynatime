@@ -1,11 +1,10 @@
 ﻿
-namespace MynatimeCLI.Tests;
+namespace Mynatime.CLI.Tests;
 
 using Moq;
-using Mynatime;
 using Mynatime.Infrastructure;
-using MynatimeCLI.Tests.Resources;
-using MynatimeClient;
+using Mynatime.CLI.Tests.Resources;
+using Mynatime.Client;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -72,7 +71,7 @@ public class ActivityAddCommandTests
 
         await target.Run();
         var item = Assert.Single(app.Object.CurrentProfile?.Transaction.Items);
-        Assert.Equal("{\"ObjectType\":\"MynatimeClient.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=&create%5BinAt%5D=&create%5BoutAt%5D=&create%5Bduration%5D=2.5&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
+        Assert.Equal("{\"ObjectType\":\"Mynatime.Client.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=&create%5BinAt%5D=&create%5BoutAt%5D=&create%5Bduration%5D=2.5&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
         app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Once);
     }
 
@@ -127,7 +126,7 @@ public class ActivityAddCommandTests
 
         await target.Run();
         var item = Assert.Single(app.Object.CurrentProfile?.Transaction.Items);
-        Assert.Equal("{\"ObjectType\":\"MynatimeClient.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=2022-09-18&create%5BinAt%5D=09%3A25&create%5BoutAt%5D=09%3A25&create%5Bduration%5D=&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
+        Assert.Equal("{\"ObjectType\":\"Mynatime.Client.NewActivityItemPage\",\"TimeCreatedUtc\":\"2022-09-21T11:36:42Z\",\"FormData\":\"create%5Btask%5D=1001&create%5BdateStart%5D=2022-09-18&create%5BdateEnd%5D=2022-09-18&create%5BinAt%5D=09%3A25&create%5BoutAt%5D=09%3A25&create%5Bduration%5D=&create%5Bcomment%5D=&submitAdvanced=&create%5B_token%5D=\"}", item.Element.ToString(Formatting.None));
         app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Once);
     }
 

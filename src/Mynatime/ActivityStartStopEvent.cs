@@ -1,4 +1,4 @@
-﻿namespace MynatimeCLI;
+﻿namespace Mynatime.CLI;
 
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;

@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MynatimeCLI;
-using MynatimeClient;
+using Mynatime.CLI;
+using Mynatime.Client;
 using System;
 
 var configuration = new ConfigurationBuilder()

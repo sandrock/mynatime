@@ -1,4 +1,4 @@
-namespace MynatimeClient;
+namespace Mynatime.Client;
 
 /// <summary>
 /// An error associated to an API access. 

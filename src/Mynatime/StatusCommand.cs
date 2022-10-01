@@ -1,9 +1,9 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
 using System;
+using Mynatime.Client;
 using Mynatime.Infrastructure;
-using MynatimeClient;
 
 /// <summary>
 /// Lists pending changes. 

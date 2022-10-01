@@ -25,8 +25,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Mynatime.Infrastructure\Mynatime.Infrastructure.csproj" />
-      <ProjectReference Include="..\MynatimeClient\MynatimeClient.csproj" />
-      <ProjectReference Include="..\Mynatime\MynatimeCLI.csproj" />
+      <ProjectReference Include="..\MynatimeClient\Mynatime.Client.csproj" />
+      <ProjectReference Include="..\Mynatime\Mynatime.CLI.csproj" />
     </ItemGroup>
 
 </Project>

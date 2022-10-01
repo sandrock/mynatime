@@ -1,10 +1,10 @@
 
-namespace MynatimeGUI.Views;
+namespace Mynatime.GUI.Views;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using MynatimeGUI.ViewModels;
+using Mynatime.GUI.ViewModels;
 using System;
 
 public partial class ProfileWindow : Window

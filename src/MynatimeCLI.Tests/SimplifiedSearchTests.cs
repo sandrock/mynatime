@@ -1,5 +1,5 @@
 ﻿
-namespace MynatimeCLI.Tests;
+namespace Mynatime.CLI.Tests;
 
 using SimplifiedSearch;
 using System;

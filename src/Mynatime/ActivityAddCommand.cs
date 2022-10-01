@@ -1,8 +1,8 @@
 ﻿
-namespace MynatimeCLI;
+namespace Mynatime.CLI;
 
+using Mynatime.Client;
 using Mynatime.Infrastructure;
-using MynatimeClient;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;

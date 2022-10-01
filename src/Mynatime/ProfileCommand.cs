@@ -1,5 +1,5 @@
 ﻿
-namespace Mynatime;
+namespace MynatimeCLI;
 
 using System;
 

@@ -1,5 +1,5 @@
 
-namespace Mynatime;
+namespace MynatimeCLI;
 
 using Mynatime;
 using Mynatime.Infrastructure;

@@ -1,4 +1,4 @@
-﻿namespace Mynatime;
+﻿namespace MynatimeCLI;
 
 using MynatimeClient;
 

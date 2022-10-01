@@ -1,5 +1,5 @@
 ﻿
-namespace Mynatime;
+namespace MynatimeCLI;
 
 using Fastenshtein;
 using Mynatime.Infrastructure;
@@ -34,7 +34,7 @@ public sealed class ActivityStartStop
         if (root == null)
         {
             root = new MynatimeProfileTransactionItem();
-            root.ObjectType = this.GetType().FullName;
+            root.ObjectType = "MynatimeCLI.ActivityStartStop";
             root.TimeCreatedUtc = utcNow;
         }
 

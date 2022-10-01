@@ -21,7 +21,7 @@ public class ActivityAddCommand : Command
     public DateTime? StartTimeLocal { get; set; }
     public DateTime? EndTimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
-    public string CategoryArg { get; set; }
+    public string? CategoryArg { get; set; }
     public bool IsStart { get; set; }
     public bool IsStop { get; set; }
 

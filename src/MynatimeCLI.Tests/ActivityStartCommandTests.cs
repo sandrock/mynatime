@@ -4,6 +4,7 @@ namespace MynatimeCLI.Tests;
 using Moq;
 using Mynatime;
 using Mynatime.Infrastructure;
+using MynatimeCLI.Tests.Resources;
 using MynatimeClient;
 using System;
 using System.Collections.Generic;
@@ -65,14 +66,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
         Assert.False(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Null(target.CategoryArg);
     }
@@ -81,17 +82,17 @@ public class ActivityStartCommandTests
     public void Match_Start_Category()
     {
         var args = new string[] { "act", "start", "proj1", };
-        var app = GetAppMock();
+        var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
         Assert.False(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
     }
@@ -103,15 +104,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
         Assert.False(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
-        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
     }
 
@@ -122,14 +122,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
         Assert.False(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
     }
@@ -141,14 +141,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
         Assert.True(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Null(target.CategoryArg);
     }
@@ -160,14 +160,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
         Assert.True(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
     }
@@ -179,14 +179,14 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
         Assert.True(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
     }
@@ -198,16 +198,31 @@ public class ActivityStartCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityStartCommand(app.Object, client.Object);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
         Assert.True(target.IsStop);
-        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
-        Assert.Null(target.EndTimeLocal);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);
+    }
+
+    [Fact]
+    public void Match_Status()
+    {
+        var args = new string[] { "act", "status", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityStartCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.True(target.IsStatus);
+        Assert.False(target.IsStart);
+        Assert.False(target.IsStop);
     }
 
     private Mock<IManatimeWebClient> GetClientMock()

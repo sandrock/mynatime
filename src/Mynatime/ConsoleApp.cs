@@ -32,6 +32,7 @@ public class ConsoleApp : IConsoleApp
         this.commands.Add(new ActivityCommand(this));
         this.commands.Add(new ActivityCategoryCommand(this, this.client));
         this.commands.Add(new ActivityAddCommand(this, this.client));
+        this.commands.Add(new ActivityStartCommand(this, this.client));
         this.commands.Add(new StatusCommand(this, this.client));
         this.commands.Add(new CommitCommand(this, this.client));
     }

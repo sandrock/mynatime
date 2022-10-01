@@ -4,6 +4,7 @@ namespace MynatimeCLI.Tests;
 using Moq;
 using Mynatime;
 using Mynatime.Infrastructure;
+using MynatimeCLI.Tests.Resources;
 using MynatimeClient;
 using System;
 using System.Collections.Generic;
@@ -76,8 +77,7 @@ public class StatusCommandTests
         if (withProfile)
         {
             mock.SetupGet(x => x.CurrentProfile).Returns(profile);
-            
-            profile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("1001", "proj1"));
+            ActivityTesting.PopulateCategories0(profile.Data.ActivityCategories);
         }
 
         if (localTime != null && localTz != null)

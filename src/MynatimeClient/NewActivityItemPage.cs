@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-public class NewActivityItemPage : BaseResult
+public sealed class NewActivityItemPage : BaseResult
 {
     private readonly WebForm form = new WebForm("create[task]", "create[dateStart]", "create[dateEnd]", "create[inAt]", "create[outAt]", "create[duration]", "create[comment]", "submitAdvanced", "create[_token]");
 
@@ -188,5 +188,11 @@ public class NewActivityItemPage : BaseResult
         result.TimeCreatedUtc = utcNow;
         item["FormData"] = this.form.GetFormData();
         return result;
+    }
+
+    public override string ToString()
+    {
+        return nameof(NewActivityItemPage)
+          + " " + string.Join(" ", this.form.GetPairs().Select(x => x.Key + "=" + x.Value));
     }
 }

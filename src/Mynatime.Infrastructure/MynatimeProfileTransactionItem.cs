@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 /// <summary>
 /// Represents one pending action to the service.
 /// </summary>
-public class MynatimeProfileTransactionItem : JsonObject
+public sealed class MynatimeProfileTransactionItem : JsonObject
 {
     public MynatimeProfileTransactionItem()
         : base("Item", new JObject())
@@ -27,5 +27,10 @@ public class MynatimeProfileTransactionItem : JsonObject
     {
         get => this.Element.Value<string>("ObjectType");
         set => this.Element["ObjectType"] = value;
+    }
+
+    public override string ToString()
+    {
+        return nameof(MynatimeProfileTransactionItem) + " " + (this.ObjectType ?? "???");
     }
 }

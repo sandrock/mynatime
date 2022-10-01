@@ -181,7 +181,8 @@ public class ActivityAddCommand : Command
             }
 
             var categories = profile.Data.ActivityCategories.Items.ToList();
-            var search = ActivityCategoryCommand.SearchItems(categories, this.CategoryArg);
+            var searchResult = await ActivityCategoryCommand.SearchItems(categories, this.CategoryArg, true);
+            var search = searchResult.Select(x => x.Item).ToList();
             if (search.Count == 0)
             {
                 Console.WriteLine("No such category " + this.CategoryArg);
@@ -194,7 +195,7 @@ public class ActivityAddCommand : Command
             }
             else
             {
-                Console.WriteLine("Too many possibilities for category " + this.CategoryArg);
+                Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
                 return;
             }
         }

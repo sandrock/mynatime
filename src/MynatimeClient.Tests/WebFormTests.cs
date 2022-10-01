@@ -26,6 +26,26 @@ public class WebFormTests
     }
 
     [Fact]
+    public void AddStringValue()
+    {
+        var form = new WebForm();
+        
+        // set values
+        form.AddStringValue("a", "aa");
+        form.AddStringValue("a", "aaa");
+        
+        // get values
+        Assert.Collection(
+            form.GetStringValues("a"),
+            x => Assert.Equal("aa", x),
+            x => Assert.Equal("aaa", x));
+        
+        // verify
+        Assert.Collection(form.Keys, x => Assert.Equal("a", x));
+        Assert.Equal("a=aa&a=aaa", form.GetFormData());
+    }
+
+    [Fact]
     public void GetSetDateValue_Utc()
     {
         var kind = DateTimeKind.Utc;
@@ -180,6 +200,22 @@ public class WebFormTests
             x => Assert.Equal("x2", x),
             x => Assert.Equal("x3", x));
         Assert.Equal("x1=value&x2=value&x3=", form.GetFormData());
+    }
+
+    [Fact]
+    public void GetPairs()
+    {
+        var form = new WebForm("a", "b", "c");
+        form.SetStringValue("a", "aaa");
+        form.AddStringValue("b", "bb");
+        form.AddStringValue("b", "bbb");
+        var result = form.GetPairs();
+        Assert.Collection(
+            result,
+            x => { Assert.Equal("a", x.Key); Assert.Equal("aaa", x.Value); },
+            x => { Assert.Equal("b", x.Key); Assert.Equal("bb", x.Value); },
+            x => { Assert.Equal("b", x.Key); Assert.Equal("bbb", x.Value); },
+            x => { Assert.Equal("c", x.Key); Assert.Equal(string.Empty, x.Value); });
     }
 
     public class SampleForm1

@@ -87,6 +87,17 @@ public sealed class WebForm
         }
     }
 
+    public void AddStringValue(string key, string value)
+    {
+        if (!this.keys.TryGetValue(key, out WebFormValues? values))
+        {
+            values = new WebFormValues();
+            this.keys.Add(key, values);
+        }
+
+        values.Add(new WebFormValue(value));
+    }
+
     public DateTime? GetDateTimeValue(string key, string format)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -241,6 +252,24 @@ public sealed class WebForm
     public void Remove(string key)
     {
         this.keys.Remove(key);
+    }
+
+    public IEnumerable<KeyValuePair<string, string>> GetPairs()
+    {
+        foreach (var key in this.keys)
+        {
+            if (key.Value.Count == 0)
+            {
+                yield return new KeyValuePair<string, string>(key.Key, String.Empty);
+            }
+            else
+            {
+                foreach (var value in key.Value)
+                {
+                    yield return new KeyValuePair<string, string>(key.Key, value.Value);
+                }
+            }
+        }
     }
 
     private class WebFormValues : Collection<WebFormValue>

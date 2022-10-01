@@ -1,10 +1,13 @@
 ﻿
 namespace Mynatime;
 
+using Fastenshtein;
 using Mynatime.Infrastructure;
 using MynatimeClient;
+using SimplifiedSearch;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 
 public sealed class ActivityCategoryCommand : Command
@@ -21,7 +24,7 @@ public sealed class ActivityCategoryCommand : Command
 
     public bool DoRefresh { get; set; } = false;
 
-    public string Search { get; set; }
+    public string? Search { get; set; }
 
     public override bool MatchArg(string arg)
     {
@@ -41,6 +44,7 @@ public sealed class ActivityCategoryCommand : Command
             goto error;
         }
 
+        bool isSearching = false;
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
@@ -55,10 +59,12 @@ public sealed class ActivityCategoryCommand : Command
             {
                 if (value != null)
                 {
+                    isSearching = true;
                     this.Search = value;
                 }
                 else if (nextArg != null)
                 {
+                    isSearching = true;
                     this.Search = nextArg;
                     i++;
                 }
@@ -69,7 +75,16 @@ public sealed class ActivityCategoryCommand : Command
             }
             else
             {
-                goto error;
+                if (isSearching)
+                {
+                    // capture more search terms
+                    // TODO: store each search arg and code incremental search?
+                    this.Search += " " + arg;
+                }
+                else
+                {
+                    goto error;
+                }
             }
         }
 
@@ -92,6 +107,7 @@ public sealed class ActivityCategoryCommand : Command
         var newItems = new List<MynatimeProfileDataActivityCategory>();
         var deletedItems = new List<MynatimeProfileDataActivityCategory>();
 
+        // refresh from service
         var hasRefreshed = false;
         if (this.DoRefresh)
         {
@@ -103,13 +119,17 @@ public sealed class ActivityCategoryCommand : Command
             throw new InvalidOperationException("No current profile. ");
         }
 
+        // read store and display items
         if (store != null)
         {
             var allItems = store.Items.ToList();
-            var items = allItems;
+            IList<MynatimeProfileDataActivityCategory> items = allItems;
             if (this.Search != null)
             {
-                items = SearchItems(allItems, this.Search);
+                var searchResult = await SearchItems(allItems, this.Search, false);
+                items = searchResult
+                   .Select(x => x.Item)
+                   .ToList();
             }
             
             foreach (var item in items)
@@ -118,6 +138,7 @@ public sealed class ActivityCategoryCommand : Command
             }
         }
 
+        // save store if changed
         if (hasRefreshed)
         {
             // TODO: this is not unit-testable :@
@@ -237,10 +258,45 @@ public sealed class ActivityCategoryCommand : Command
         }
     }
 
-    internal static List<MynatimeProfileDataActivityCategory> SearchItems(List<MynatimeProfileDataActivityCategory> source, string search)
+    internal static async Task<IList<SearchResultItem<MynatimeProfileDataActivityCategory>>> SearchItems(List<MynatimeProfileDataActivityCategory> source, string search, bool findBest)
     {
-        var result = new List<MynatimeProfileDataActivityCategory>();
+        var result = new List<SearchResultItem<MynatimeProfileDataActivityCategory>>();
+
+        var searchResult = await source.SimplifiedSearchAsync(search, x => x.Name);
+
+        foreach (var item in searchResult)
+        {
+            result.Add(new SearchResultItem<MynatimeProfileDataActivityCategory>(item));
+        }
+
+        if (findBest && result.Count > 1)
+        {
+            var levensteins = new Dictionary<SearchResultItem<MynatimeProfileDataActivityCategory>, int>(result.Count);
+            for (var i = 0; i < result.Count; i++)
+            {
+                var item = result[i];
+                levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), item.Item.Name.ToUpperInvariant());
+            }
+
+            var sorted = levensteins.OrderBy(x => x.Value).ToArray();
+            var distancesBetweenDistances = new int[levensteins.Count];
+            int previousValue = 0;
+            for (var i = 0; i < sorted.Length; i++)
+            {
+                var item = sorted[i];
+                distancesBetweenDistances[i] = item.Value - previousValue;
+                previousValue = item.Value;
+            }
+
+            if (distancesBetweenDistances[0] < distancesBetweenDistances[1])
+            {
+                // first one looks better than the others
+                var first = sorted.First().Key;
+                result.RemoveAll(x => x != first);
+            }
+        }
         
+        /*
         // exact match search
         foreach (var item in source)
         {
@@ -263,7 +319,24 @@ public sealed class ActivityCategoryCommand : Command
                 result.AddIfAbsent(item);
             }
         }
+        */
 
         return result;
+    }
+
+    public sealed class SearchResultItem<T>
+        where T : class
+    {
+        public SearchResultItem([DisallowNull] T item)
+        {
+            this.Item = item ?? throw new ArgumentNullException(nameof(item));
+        }
+
+        public T Item { get; }
+
+        public override string ToString()
+        {
+            return this.Item.ToString()!;
+        }
     }
 }

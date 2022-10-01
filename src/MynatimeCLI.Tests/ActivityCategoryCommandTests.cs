@@ -10,6 +10,7 @@ using MynatimeClient;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -80,7 +81,7 @@ public class ActivityCategoryCommandTests
     }
 
     [Fact]
-    public void MatchArgs_Search()
+    public void MatchArgs_Search1()
     {
         var app = GetAppMock();
         var client = GetClientMock();
@@ -89,6 +90,18 @@ public class ActivityCategoryCommandTests
         Assert.True(result);
         Assert.False(target.DoRefresh);
         Assert.Equal("hello", target.Search);
+    }
+
+    [Fact]
+    public void MatchArgs_Search2()
+    {
+        var app = GetAppMock();
+        var client = GetClientMock();
+        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "search", "hello", "world", }, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.False(target.DoRefresh);
+        Assert.Equal("hello world", target.Search);
     }
 
     [Fact]
@@ -145,6 +158,47 @@ public class ActivityCategoryCommandTests
         client.Verify(x => x.GetNewActivityItemPage(), () => Times.Once());
     }
 
+    [Fact]
+    public async Task SearchItems_BestMatch_InterneCompany()
+    {
+        var app = GetAppMock(true);
+        var client = GetClientMock();
+        PopulateCategories(app.Object.CurrentProfile.Data.ActivityCategories);
+        var search = "company interne";
+        var searchResult = await ActivityCategoryCommand.SearchItems(app.Object.CurrentProfile.Data.ActivityCategories.Items.ToList(), search, true);
+        var result = searchResult.Select(x => x.Item).ToList();
+
+        Assert.Collection(
+            result,
+            x => Assert.Equal("MyCompany-Interne", x.Name));
+    }
+
+    [Fact]
+    public async Task SearchItems_OpenMatch_TinyDiff()
+    {
+        var source = new MynatimeProfileDataActivityCategories(new JObject());
+        PopulateCategories(source);
+        var input = "prospect";
+        var searchResult = await ActivityCategoryCommand.SearchItems(source.Items.ToList(), input, false);
+        var result = searchResult.Select(x => x.Item).ToList();
+        Assert.Contains(result, x => "Prospects" == x.Name);
+        Assert.Contains(result, x => "Project ASDFG" == x.Name);
+        Assert.Contains(result, x => "Project TYUI3-Branch2" == x.Name);
+    }
+
+    [Fact]
+    public async Task SearchItems_BestMatch_TinyDiff()
+    {
+        var source = new MynatimeProfileDataActivityCategories(new JObject());
+        PopulateCategories(source);
+        var input = "prospect";
+        var searchResult = await ActivityCategoryCommand.SearchItems(source.Items.ToList(), input, true);
+        var result = searchResult.Select(x => x.Item).ToList();
+        Assert.Collection(
+            result,
+            x => Assert.Equal("Prospects", x.Name));
+    }
+
     private Mock<IManatimeWebClient> GetClientMock()
     {
         var mock = this.mocks.Create<IManatimeWebClient>();
@@ -162,5 +216,34 @@ public class ActivityCategoryCommandTests
         }
 
         return mock;
+    }
+
+    public static void PopulateCategories(MynatimeProfileDataActivityCategories list)
+    {
+        var id = 1000;
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "MyCompany-Interne"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Formation Interne"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "DSI-Maintenances"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "DSI-Missions"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "DSI-Interventions"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Prospects"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project ASDFG"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project TYUI1"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project TYUI2"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project TYUI3"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project TYUI3-Branch2"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project CVBNM"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project ASDFGHJ"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project TYUIOP"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Project GHJKL"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Supertron-Maintenance"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Supertron-Formation"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "Salons et interventions externes"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-YUIOP"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-HJKL2"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-RTYUI"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-ZXCVB"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-QWERT"));
+        list.Add(new MynatimeProfileDataActivityCategory((++id).ToInvariantString(), "R&D-Interne"));
     }
 }

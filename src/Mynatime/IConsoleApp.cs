@@ -20,5 +20,7 @@ public interface IConsoleApp
 
     TimeZoneInfo TimeZoneLocal { get; }
 
+    IEnumerable<Command> Commands { get; }
+
     Task PersistProfile(MynatimeProfile profile);
 }

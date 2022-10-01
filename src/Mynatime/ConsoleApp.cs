@@ -26,6 +26,7 @@ public class ConsoleApp : IConsoleApp
         this.appSettings = appSettings;
         this.client = client;
         this.commands = new List<Command?>();
+        this.commands.Add(new HelpCommand(this));
         this.commands.Add(new ProfileListCommand(this));
         this.commands.Add(new ProfileAddCommand(this, this.client));
         this.commands.Add(new ActivityCommand(this));
@@ -70,6 +71,8 @@ public class ConsoleApp : IConsoleApp
     public DateTime TimeNowUtc { get => DateTime.UtcNow; }
 
     public TimeZoneInfo TimeZoneLocal { get => TimeZoneInfo.Local; }
+
+    public IEnumerable<Command> Commands { get => this.commands.AsReadOnly(); }
 
     /// <summary>
     /// Parse CLI arguments and run the specified command. 

@@ -12,7 +12,7 @@ Info
 | Goal                    | **provide a fast GUI to update my activities into the service**.     |
 | Relation to the service | unofficial app, use at your own risk    |
 | Build and run           | netcore6.0    |
-| License | not defined yet |
+| License | GNU GENERAL PUBLIC LICENSE Version 3  |
 
 See also: [TODO list](TODO.md)
 

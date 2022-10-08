@@ -13,6 +13,7 @@ Info
 | Build and run           | netcore6.0                                                        |
 | License                 | GNU General Public License Version 3                              |
 | Contributions           | **open to contributions**: use issues and PRs                     |
+| Main branch             | [![.NET](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml/badge.svg)](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml) |
 
 See also: [TODO list](TODO.md)
 

@@ -27,14 +27,19 @@ CLI
   - [x] Refresh categories from source
   - [x] Search categories
   - [ ] Create alias for a category (when best-match-search does not work)
-- [ ] Goal 1
-  - [ ] Add activity items
-  - [ ] Status
-  - [ ] Commit
+- [x] Goal 1
+  - [x] Add activity items
+  - [x] Status
+  - [x] Commit
 - [ ] Goal 2
   - [ ] Track activity
   - [ ] Status
   - [ ] Commit
+- Activity add and tracking
+  - [ ] specify a comment on add
+  - [ ] specify a comment on start/stop
+- Activity list
+  - [ ] list recent activities
 - [ ] Code
   - [ ] Have a proper way for a command to display errors and stop
   - [x] Have a proper way for a command to display usage
@@ -46,6 +51,7 @@ CLI
 Authenticate:
 
 ```bash
+mynatime profile add [email]
 mynatime +profile [email]
 ```
 
@@ -53,7 +59,7 @@ Verify:
 
 ```bash
 mynatime profiles
-mynatime profile check
+mynatime pro check
 ```
 
 
@@ -61,12 +67,14 @@ mynatime profile check
 
 ```bash
 mynatime activity categories
+mynatime act cat
 ```
 
 
 ### Add activity items
 
 ```bash
+mynatime act add category123 2.5  # today   I did 2h 30min of Category123
 mynatime +act category123 2.5     # today   I did 2h 30min of Category123
 mynatime +act 2022-04-16 4 cat5   # at date I did 4h       of cat5
 mynatime +act 0855 1215 internal  # today, from 0855 to 1215, I was on internal
@@ -80,13 +88,20 @@ The "activity add" command can be written as "+activity" or "+act".
 ### Track activity
 
 ```bash
-mynatime activity start internal   # at 0834
-mynatime activity start project4   # at 1054
-mynatime activity stop             # at 1223
-mynatime act start 1400 project4   # at 1432
-mynatime act stop 1730             # at 1735
-mynatime status                    # review   pending changes
-mynatime commit                    # save all pending changes
+mynatime activity start internal  # at 0834
+mynatime activity start project4  # at 1054
+mynatime activity stop            # at 1223
+mynatime act sta 1400 project4    # at 1432
+mynatime act sto 1730             # at 1735
+mynatime status                   # review   pending changes
+mynatime commit                   # save all pending changes
+```
+
+### Activity list recent activities
+
+```bash
+mynatime activity list                 # list recent days
+mynatime act ls 2022-07-10 2022-08-10  # list some days
 ```
 
 
@@ -101,7 +116,7 @@ GUI
 Extras
 ------------------
 
-- Decent logging
+- [ ] Decent logging
   - [avalonia logging](https://docs.avaloniaui.net/docs/getting-started/logging-errors-and-warnings) does not work
   - how to use [dotnet core logging](https://docs.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) without DI?
   - will use a Logger class to centralize logging calls

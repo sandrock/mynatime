@@ -7,12 +7,12 @@ Info
 
 |||
 |--|--|
-| Project status          | **experimental** (**does not work yet**, see todo list)     |
-| Contributions           | **open to contributions**: use issues and PRs     |
-| Goal                    | **provide a fast GUI to update my activities into the service**.     |
-| Relation to the service | unofficial app, use at your own risk    |
-| Build and run           | netcore6.0    |
-| License | GNU GENERAL PUBLIC LICENSE Version 3  |
+| Project status          | **experimental** (some things work, see todo list)                |
+| Goal                    | **provide a fast GUI to update my activities into the service**.  |
+| Relation to the service | unofficial app, use at your own risk                              |
+| Build and run           | netcore6.0                                                        |
+| License                 | GNU General Public License Version 3                              |
+| Contributions           | **open to contributions**: use issues and PRs                     |
 
 See also: [TODO list](TODO.md)
 

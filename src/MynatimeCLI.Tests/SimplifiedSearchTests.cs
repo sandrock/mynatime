@@ -12,7 +12,7 @@ using Xunit;
 /// </summary>
 public class SimplifiedSearchTests
 {
-    [Fact]
+    [Fact(Skip = "illustrates desired effect")]
     public async Task Search1()
     {
         var data = GetSampleData();
@@ -20,7 +20,7 @@ public class SimplifiedSearchTests
         Assert.Collection(result, x => Assert.Equal("Extra Internals", x));
     }
 
-    [Fact]
+    [Fact(Skip = "illustrates desired effect")]
     public async Task Search2()
     {
         var data = GetSampleData();

@@ -36,4 +36,14 @@ public class MynatimeProfileData : JsonObject
             return this.activityCategories;
         }
     }
+
+    public MynatimeProfileDataActivityCategory? GetActivityById(string id)
+    {
+        if (id == null)
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        return this.ActivityCategories?.Items.FirstOrDefault(x => x.Id == id);
+    }
 }

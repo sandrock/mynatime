@@ -23,17 +23,23 @@ CLI
 - [x] Authenticate, creating a profile file
 - [x] Use existing profile file
 - [x] Activity categories
-    - [x] List categories
-    - [x] Refresh categories from source
-    - [x] Search categories
+  - [x] List categories
+  - [x] Refresh categories from source
+  - [x] Search categories
+  - [ ] Create alias for a category (when best-match-search does not work)
 - [ ] Goal 1
-    - [ ] Add activity items
+  - [ ] Add activity items
+  - [ ] Status
+  - [ ] Commit
 - [ ] Goal 2
-    - [ ] Track activity
+  - [ ] Track activity
+  - [ ] Status
+  - [ ] Commit
 - [ ] Code
-    - [ ] Have a proper way for a command to display errors and stop
-    - [ ] The way arguments are parsed is questionable 
-    - [ ] `bool Command.ParseArgs()` should return true when args match the command, even when args are invalid
+  - [ ] Have a proper way for a command to display errors and stop
+  - [x] Have a proper way for a command to display usage
+  - [ ] The way arguments are parsed is questionable 
+  - [ ] `bool Command.ParseArgs()` should return true when args match the command, even when args are invalid
 
 ### Authenticate
 
@@ -96,9 +102,9 @@ Extras
 ------------------
 
 - Decent logging
-    - [avalonia logging](https://docs.avaloniaui.net/docs/getting-started/logging-errors-and-warnings) does not work
-    - how to use [dotnet core logging](https://docs.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) without DI?
-    - will use a Logger class to centralize logging calls
-        - maybe [this](https://github.com/zkSNACKs/WalletWasabi/blob/3b56845466b6d228585d879c18ca3dc79e2e80dd/WalletWasabi/Logging/Logger.cs) is correct?
-    - how to do it properly?
+  - [avalonia logging](https://docs.avaloniaui.net/docs/getting-started/logging-errors-and-warnings) does not work
+  - how to use [dotnet core logging](https://docs.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) without DI?
+  - will use a Logger class to centralize logging calls
+    - maybe [this](https://github.com/zkSNACKs/WalletWasabi/blob/3b56845466b6d228585d879c18ca3dc79e2e80dd/WalletWasabi/Logging/Logger.cs) is correct?
+  - how to do it properly?
 

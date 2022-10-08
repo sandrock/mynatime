@@ -1,4 +1,5 @@
-﻿namespace Mynatime.CLI;
+﻿
+namespace Mynatime.Infrastructure.ProfileTransaction;
 
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;

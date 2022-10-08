@@ -1,6 +1,7 @@
 ﻿
 namespace Mynatime.Client;
 
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -267,6 +268,40 @@ public sealed class WebForm
                 foreach (var value in key.Value)
                 {
                     yield return new KeyValuePair<string, string>(key.Key, value.Value);
+                }
+            }
+        }
+    }
+
+    public void LoadFormData(string data)
+    {
+        if (data == null)
+        {
+            throw new ArgumentNullException(nameof(data));
+        }
+
+        var source = QueryHelpers.ParseQuery(data);
+        foreach (var entry in source)
+        {
+            WebFormValues localValues;
+            if (!this.keys.TryGetValue(entry.Key, out localValues))
+            {
+                localValues = new();
+                this.keys.Add(entry.Key, localValues);
+            }
+
+            var inputValues = entry.Value;
+            if (inputValues.Count == 0 || inputValues.Count == 1 && inputValues[0] == String.Empty)
+            {
+                if (!this.keys.ContainsKey(entry.Key))
+                {
+                }
+            }
+            else
+            {
+                foreach (var value in inputValues)
+                {
+                    this.SetStringValue(entry.Key, value);
                 }
             }
         }

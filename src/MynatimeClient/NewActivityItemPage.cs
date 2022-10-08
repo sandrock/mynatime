@@ -1,6 +1,7 @@
 ﻿namespace Mynatime.Client;
 
 using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
@@ -8,9 +9,28 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-public sealed class NewActivityItemPage : BaseResult
+public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 {
+    const string TransactionObjectType = "Mynatime.Client.NewActivityItemPage";
+
     private readonly WebForm form = new WebForm("create[task]", "create[dateStart]", "create[dateEnd]", "create[inAt]", "create[outAt]", "create[duration]", "create[comment]", "submitAdvanced", "create[_token]");
+
+    static NewActivityItemPage()
+    {
+        MynatimeProfileTransactionManager.Default.RegisterTransactionItemType<NewActivityItemPage>(
+            TransactionObjectType,
+            x => new NewActivityItemPage(x));
+    }
+
+    public NewActivityItemPage()
+    {
+    }
+
+    private NewActivityItemPage(MynatimeProfileTransactionItem item)
+    {
+        var formData = item.Element.Value<string>("FormData");
+        this.form.LoadFormData(formData);
+    }
 
     /*
      Accept-Language: en-GB,en;q=0.5
@@ -180,14 +200,17 @@ public sealed class NewActivityItemPage : BaseResult
         return this.form.GetFormData();
     }
 
-    public MynatimeProfileTransactionItem AsTransactionItem(DateTime utcNow)
+    public MynatimeProfileTransactionItem ToTransactionItem(MynatimeProfileTransactionItem? root, DateTime utcNow)
     {
-        var item = new JObject();
-        var result = new MynatimeProfileTransactionItem(item);
-        result.ObjectType = "Mynatime.Client.NewActivityItemPage";
-        result.TimeCreatedUtc = utcNow;
-        item["FormData"] = this.form.GetFormData();
-        return result;
+        if (root == null)
+        {
+            root = new MynatimeProfileTransactionItem();
+            root.ObjectType = TransactionObjectType;
+            root.TimeCreatedUtc = utcNow;
+        }
+        
+        root.Element["FormData"] = this.form.GetFormData();
+        return root;
     }
 
     public override string ToString()

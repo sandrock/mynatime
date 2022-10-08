@@ -213,7 +213,7 @@ public class ActivityAddCommand : Command
             page.Duration = this.DurationHours.Value.ToInvariantString();
         }
 
-        transaction.Add(page.AsTransactionItem(this.App.TimeNowUtc));
+        transaction.Add(page.ToTransactionItem(null, this.App.TimeNowUtc));
 
         await this.App.PersistProfile(profile);
     }

@@ -3,6 +3,7 @@ namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
@@ -34,6 +35,10 @@ public class ConsoleApp : IConsoleApp
         this.commands.Add(new ActivityStartCommand(this, this.client));
         this.commands.Add(new StatusCommand(this, this.client));
         this.commands.Add(new CommitCommand(this, this.client));
+
+        // call static constructors. this is wrong.
+        new ActivityStartStop();
+        new NewActivityItemPage();
     }
 
     /// <summary>

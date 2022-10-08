@@ -100,6 +100,27 @@ public class WebFormTests
     }
 
     [Fact]
+    public void GetSetDateValue_Null()
+    {
+        var kind = DateTimeKind.Unspecified;
+        var input = default(DateTime?);
+        var form = new SampleForm1();
+        
+        // get values
+        Assert.Null(form.DateCreated);
+
+        // set values
+        form.DateCreated = input;
+        
+        // get values
+        Assert.Null(form.DateCreated);
+        
+        // verify
+        Assert.Collection(form.Form.Keys, x => Assert.Equal("created", x));
+        Assert.Equal("created=", form.Form.GetFormData());
+    }
+
+    [Fact]
     public void GetSetTimeValue()
     {
         var input = new TimeSpan(0, 13, 36, 42, 123);
@@ -216,6 +237,94 @@ public class WebFormTests
             x => { Assert.Equal("b", x.Key); Assert.Equal("bb", x.Value); },
             x => { Assert.Equal("b", x.Key); Assert.Equal("bbb", x.Value); },
             x => { Assert.Equal("c", x.Key); Assert.Equal(string.Empty, x.Value); });
+    }
+
+    [Fact]
+    public void LoadFormData_BasicTest()
+    {
+        var form = new WebForm();
+        form.LoadFormData("x1=value&x2=value&x3=");
+        Assert.Collection(
+            form.Keys,
+            x => Assert.Equal("x1", x),
+            x => Assert.Equal("x2", x),
+            x => Assert.Equal("x3", x));
+        Assert.Collection(
+            form.GetPairs(),
+            x => { Assert.Equal("x1", x.Key); Assert.Equal("value", x.Value); },
+            x => { Assert.Equal("x2", x.Key); Assert.Equal("value", x.Value); },
+            x => { Assert.Equal("x3", x.Key); Assert.Empty(x.Value); });
+    }
+
+    [Fact]
+    public void LoadFormData_SampleForm1_Empty()
+    {
+        string formData;
+        {
+            var data1 = new SampleForm1();
+            formData = data1.Form.GetFormData();
+        }
+
+        var data = new SampleForm1();
+        data.Form.LoadFormData(formData);
+        Assert.Null(data.Firstname);
+        Assert.Empty(data.Roles);
+        Assert.Null(data.DateCreated);
+        Assert.Null(data.TimeCreated);
+        Assert.Null(data.UserId);
+        Assert.Null(data.DateTimeUpdated);
+    }
+
+    [Fact]
+    public void LoadFormData_SampleForm1_Emptied()
+    {
+        string formData;
+        {
+            var data1 = new SampleForm1();
+            data1.Firstname = null;
+            data1.Roles.Add("me");
+            data1.Roles.Clear();
+            data1.DateCreated = null;
+            data1.TimeCreated = null;
+            data1.UserId = null;
+            data1.DateTimeUpdated = null;
+            formData = data1.Form.GetFormData();
+        }
+
+        var data = new SampleForm1();
+        data.Form.LoadFormData(formData);
+        Assert.Null(data.Firstname);
+        Assert.Empty(data.Roles);
+        Assert.Null(data.DateCreated);
+        Assert.Null(data.TimeCreated);
+        Assert.Null(data.UserId);
+        Assert.Null(data.DateTimeUpdated);
+    }
+
+    [Fact]
+    public void LoadFormData_SampleForm1_Filled()
+    {
+        string formData;
+        var someDate = new DateTime(2012, 12, 16, 0, 0, 0, DateTimeKind.Local);
+        {
+            var data1 = new SampleForm1();
+            data1.Firstname = "Anastasia";
+            data1.Roles.Add("me");
+            data1.DateCreated = someDate;
+            data1.TimeCreated = null;
+            data1.UserId = 7L;
+            data1.DateTimeUpdated = someDate;
+            formData = data1.Form.GetFormData();
+        }
+
+        var data = new SampleForm1();
+        data.Form.LoadFormData(formData);
+        Assert.Equal("Anastasia", data.Firstname);
+        Assert.Collection(data.Roles, x => Assert.Equal("me", x));
+        Assert.Equal(someDate, data.DateCreated);
+        Assert.Null(data.TimeCreated);
+        Assert.Equal(7L, data.UserId);
+        Assert.Equal(someDate, data.DateTimeUpdated);
     }
 
     public class SampleForm1

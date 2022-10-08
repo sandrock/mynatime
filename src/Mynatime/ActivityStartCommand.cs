@@ -3,6 +3,7 @@ namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -145,7 +146,7 @@ public class ActivityStartCommand : Command
         MynatimeProfileTransactionItem transactionItem = null;
         foreach (var item in transaction.Items)
         {
-            if (item.ObjectType == typeof(ActivityStartStop).FullName)
+            if (MynatimeProfileTransactionManager.Default.OfClass<ActivityStartStop>(item))
             {
                 if (transactionItem == null)
                 {
@@ -153,7 +154,8 @@ public class ActivityStartCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Transaction corrupted ");
+                    // too many of the same item type
+                    Console.WriteLine("Transaction corrupted. ");
                     return;
                 }
             }
@@ -170,8 +172,7 @@ public class ActivityStartCommand : Command
         {
             state = new ActivityStartStop();
         }
-        
-        
+
         MynatimeProfileDataActivityCategory category = null;
         if (this.CategoryArg != null)
         {

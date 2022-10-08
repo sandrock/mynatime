@@ -1,15 +1,21 @@
 ﻿
-namespace Mynatime.CLI;
+namespace Mynatime.Infrastructure.ProfileTransaction;
 
-using Fastenshtein;
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
 
-public sealed class ActivityStartStop
+public sealed class ActivityStartStop : ITransactionItem
 {
     private readonly List<ActivityStartStopEvent> items;
+
+    static ActivityStartStop()
+    {
+        MynatimeProfileTransactionManager.Default.RegisterTransactionItemType<ActivityStartStop>(
+            "MynatimeCLI.ActivityStartStop",
+            x => new ActivityStartStop(x));
+    }
 
     public ActivityStartStop(MynatimeProfileTransactionItem transactionItem)
     {
@@ -27,6 +33,10 @@ public sealed class ActivityStartStop
     public ActivityStartStop()
     {
         this.items = new List<ActivityStartStopEvent>();
+    }
+
+    public static void Hello()
+    {
     }
 
     public MynatimeProfileTransactionItem ToTransactionItem(MynatimeProfileTransactionItem? root, DateTime utcNow)

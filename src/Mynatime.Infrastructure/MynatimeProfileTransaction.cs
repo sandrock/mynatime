@@ -1,5 +1,6 @@
 ﻿namespace Mynatime.Infrastructure;
 
+using Mynatime.Infrastructure.ProfileTransaction;
 using Newtonsoft.Json.Linq;
 
 /// <summary>

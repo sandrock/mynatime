@@ -1,9 +1,10 @@
 ﻿
 namespace Mynatime.CLI;
 
-using System;
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
+using System;
 
 /// <summary>
 /// Lists pending changes. 
@@ -84,14 +85,86 @@ public class StatusCommand : Command
         }
 
         int i = -1;
+        var visitor = new ConsoleDescribeTransactionItem(this.App, profile);
+        var helper = MynatimeProfileTransactionManager.Default;
+        
         foreach (var operation in operations)
         {
             i++;
+
             Console.Write(i);
             Console.Write("\t");
-            Console.WriteLine(operation);
+            var item = helper.GetInstanceOf(operation);
+            item.Accept(visitor);
         }
 
         return Task.CompletedTask;
+    }
+
+    public class ConsoleDescribeTransactionItem : ITransactionItemVisitor
+    {
+        private readonly IConsoleApp app;
+        private readonly MynatimeProfile profile;
+
+        public ConsoleDescribeTransactionItem(IConsoleApp app, MynatimeProfile profile)
+        {
+            this.app = app;
+            this.profile = profile;
+        }
+
+        public void Visit(ActivityStartStop thing)
+        {
+            Console.WriteLine(thing.GetSummary());
+        }
+
+        public void Visit(NewActivityItemPage thing)
+        {
+            Console.Write(thing.DateStart.Value.ToString(ClientConstants.DateInputFormat));
+            Console.Write(" ");
+            if (thing.DateEnd != null && thing.Duration == null)
+            {
+                Console.Write(thing.DateStart.Value.ToString(ClientConstants.HourMinuteTimeFormat));
+                Console.Write(" ");
+                if (thing.DateStart.Value.Date != thing.DateEnd.Value.Date)
+                {
+                    Console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat));
+                }
+                else
+                {
+                    Console.Write(string.Empty.PadLeft(ClientConstants.DateInputFormat.Length));
+                }
+                
+                Console.Write(" ");
+                Console.Write(thing.DateEnd.Value.ToString(ClientConstants.HourMinuteTimeFormat));
+                Console.Write(" ");   
+            }
+            else
+            {
+                var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length*2 + 1;
+                var duration = "for " + thing.Duration?.ToString() + " h";
+                Console.Write(duration.PadRight(spaces, ' '));
+            }
+
+            if (thing.ActivityId != null)
+            {
+                var activity = this.profile.Data.GetActivityById(thing.ActivityId);
+                if (activity != null)
+                {
+                    Console.Write(activity.Name);
+                }
+                else
+                {
+                    Console.Write(thing.ActivityId);
+                }
+            }
+            
+            Console.Write(" ");
+            Console.WriteLine();
+        }
+
+        public void Visit(ITransactionItem thing)
+        {
+            Console.WriteLine(thing.ToString());
+        }
     }
 }

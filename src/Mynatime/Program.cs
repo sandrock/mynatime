@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Mynatime.CLI;
 using Mynatime.Client;
+using Mynatime.Infrastructure;
 using System;
 
 var configuration = new ConfigurationBuilder()
@@ -24,6 +25,7 @@ services.AddLogging(builder =>
        .AddDebug();
 });
 services.AddSingleton<IManatimeWebClient, ManatimeWebClient>();
+services.AddSingleton(MynatimeProfileTransactionManager.Default);
 
 var serviceProvider = services.BuildServiceProvider();
 

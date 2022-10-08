@@ -63,13 +63,13 @@ public class StatusCommand : Command
         return false;
     }
 
-    public override Task Run()
+    public override async Task Run()
     {
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
             Console.WriteLine("No current profile. ");
-            return Task.CompletedTask;
+            return;
         }
 
         var operations = new List<MynatimeProfileTransactionItem>(0);
@@ -81,7 +81,7 @@ public class StatusCommand : Command
         if (profile.Transaction == null || operations.Count == 0)
         {
             Console.WriteLine("No pending operation. ");
-            return Task.CompletedTask;
+            return;
         }
 
         int i = -1;
@@ -95,10 +95,9 @@ public class StatusCommand : Command
             Console.Write(i);
             Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
-            item.Accept(visitor);
+            await item.Accept(visitor);
         }
 
-        return Task.CompletedTask;
     }
 
     public class ConsoleDescribeTransactionItem : ITransactionItemVisitor
@@ -112,12 +111,13 @@ public class StatusCommand : Command
             this.profile = profile;
         }
 
-        public void Visit(ActivityStartStop thing)
+        public Task Visit(ActivityStartStop thing)
         {
             Console.WriteLine(thing.GetSummary());
+            return Task.CompletedTask;
         }
 
-        public void Visit(NewActivityItemPage thing)
+        public Task Visit(NewActivityItemPage thing)
         {
             Console.Write(thing.DateStart.Value.ToString(ClientConstants.DateInputFormat));
             Console.Write(" ");
@@ -160,11 +160,13 @@ public class StatusCommand : Command
             
             Console.Write(" ");
             Console.WriteLine();
+            return Task.CompletedTask;
         }
 
-        public void Visit(ITransactionItem thing)
+        public Task Visit(ITransactionItem thing)
         {
             Console.WriteLine(thing.ToString());
+            return Task.CompletedTask;
         }
     }
 }

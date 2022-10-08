@@ -5,7 +5,7 @@ using Mynatime.Infrastructure.ProfileTransaction;
 
 public interface ITransactionItemVisitor
 {
-    void Visit(ActivityStartStop thing);
-    void Visit(NewActivityItemPage thing);
-    void Visit(ITransactionItem thing);
+    Task Visit(ActivityStartStop thing);
+    Task Visit(NewActivityItemPage thing);
+    Task Visit(ITransactionItem thing);
 }

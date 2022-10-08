@@ -47,7 +47,9 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         &create%5B_token%5D=xuy888xuy888IIIIIIIIIIII-uUYuYUyuy88899_iii
     */
 
-    public DateTime LoadTime { get; set; }
+    public WebForm WebForm { get => this.form; }
+
+    public DateTime? LoadTime { get; set; }
 
     public bool IsEmptyCategoryAllowed { get; set; }
 
@@ -216,6 +218,47 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     public override string ToString()
     {
         return nameof(NewActivityItemPage)
+            + " " + (this.LoadTime != null ? ((this.Succeed ? "OK" : ("FAIL " + this.GetErrorCode()))) : string.Empty)
           + " " + string.Join(" ", this.form.GetPairs().Select(x => x.Key + "=" + x.Value));
+    }
+
+    public void Arrange()
+    {
+        if (this.DateStart == null && this.DateEnd != null)
+        {
+            this.DateStart = this.DateEnd;
+        }
+        else if (this.DateStart != null && this.DateEnd == null)
+        {
+            this.DateEnd = this.DateStart;
+        }
+        else
+        {
+            // lookd good
+        }
+
+        if (this.Duration != null && (this.InAt != null || this.OutAt != null))
+        {
+            this.AddError(new BaseError("InvalidForm/DurationOrTimes", "Cannot set both duration and times. "));
+        }
+
+        if (this.Duration != null)
+        {
+            if (decimal.TryParse(this.Duration, NumberStyles.Number, ClientConstants.NumberLang, out decimal value))
+            {
+                if (value <= 0)
+                {
+                    this.AddError(new BaseError("InvalidForm/Duration/Minimum", "Duration is set too low. "));
+                }
+                else if (value > 200)
+                {
+                    this.AddError(new BaseError("InvalidForm/Duration/Maximum", "Duration is set too high. "));
+                }
+            }
+            else
+            {
+                this.AddError(new BaseError("InvalidForm/Duration/NotNumber", "Duration must be a number. "));
+            }
+        }
     }
 }

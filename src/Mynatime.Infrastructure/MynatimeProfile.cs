@@ -14,6 +14,7 @@ public sealed class MynatimeProfile : JsonObject
 
     private MynatimeProfileData? data;
     private MynatimeProfileTransaction? transaction;
+    private MynatimeProfileTransaction? commits;
 
     public MynatimeProfile()
         : base("Root", new JObject())
@@ -122,6 +123,30 @@ public sealed class MynatimeProfile : JsonObject
             }
 
             return this.transaction;
+        }
+    }
+
+    /// <summary>
+    /// Contains past actions to the service.
+    /// </summary>
+    public MynatimeProfileTransaction? Commits
+    {
+        get
+        {
+            if (this.commits != null)
+            {
+            }
+            else if (this.Element.TryGetValue("Commits", out JToken? child))
+            {
+                this.commits = new MynatimeProfileTransaction((JObject)child);
+            }
+            else if (!this.IsFrozen)
+            {
+                this.commits = new MynatimeProfileTransaction(new JObject());
+                this.Element.Add("Commits", this.commits.Element);
+            }
+
+            return this.commits;
         }
     }
 

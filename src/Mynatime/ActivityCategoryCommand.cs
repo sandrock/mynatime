@@ -224,13 +224,13 @@ public sealed class ActivityCategoryCommand : Command
                 if (match != null)
                 {
                     match.LastUpdated = page.LoadTime;
-                    category.Update(match, page.LoadTime);
+                    category.Update(match, page.LoadTime.Value);
                 }
                 else
                 {
                     match = new MynatimeProfileDataActivityCategory(category.Id, category.DisplayName);
                     match.Created = page.LoadTime;
-                    category.Update(match, page.LoadTime);
+                    category.Update(match, page.LoadTime.Value);
                     newItems.Add(match);
                 }
             }

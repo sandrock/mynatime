@@ -20,4 +20,10 @@ public sealed class BaseError
     public string Code { get; }
 
     public string? Message { get; }
+
+    public override string ToString()
+    {
+        return (this.Code ?? "???")
+          + (this.Message != null ? (" \"" + this.Message + "\"") : string.Empty);
+    }
 }

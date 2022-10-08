@@ -51,4 +51,18 @@ public class MynatimeProfileTransaction : JsonObject
 
         array.Add(item.Element);
     }
+
+    public bool Remove(MynatimeProfileTransactionItem operation)
+    {
+        if (this.Element.TryGetValue("Items", out JToken? items) && items is JArray array)
+        {
+            // fine
+        }
+        else
+        {
+            return false;
+        }
+
+        return array.Remove(operation.Element);
+    }
 }

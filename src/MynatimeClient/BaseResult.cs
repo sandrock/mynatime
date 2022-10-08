@@ -86,6 +86,11 @@ public class BaseResult
         return this;
     }
 
+    public bool HasError()
+    {
+        return this.Errors != null && this.Errors.Count > 0;
+    }
+
     public override string ToString()
     {
         return this.GetType().Name

@@ -23,10 +23,28 @@ public sealed class MynatimeProfileTransactionItem : JsonObject
         set => this.Element["TimeCreatedUtc"] = value;
     }
 
+    public DateTime? TimeCommittedUtc
+    {
+        get => this.Element.Value<DateTime?>("TimeCommittedUtc");
+        set => this.Element["TimeCommittedUtc"] = value;
+    }
+
     public string? ObjectType
     {
         get => this.Element.Value<string>("ObjectType");
         set => this.Element["ObjectType"] = value;
+    }
+
+    public long? CommitId
+    {
+        get => this.Element.Value<long?>("CommitId");
+        set => this.Element["CommitId"] = value;
+    }
+
+    public long? CommitItemId
+    {
+        get => this.Element.Value<long?>("CommitItemId");
+        set => this.Element["CommitItemId"] = value;
     }
 
     public override string ToString()

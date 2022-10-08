@@ -164,6 +164,7 @@ public class ManatimeWebClient : IManatimeWebClient
         if (response.IsSuccessStatusCode)
         {
             var result = new NewActivityItemPage();
+            result.LoadTime = DateTime.UtcNow;
             var contents = await response.Content.ReadAsStringAsync();
             if (!this.CheckPage(ManatimePage.PresenceCreateAdvanced, contents, result))
             {
@@ -179,9 +180,36 @@ public class ManatimeWebClient : IManatimeWebClient
         }
     }
 
-    public Task<NewActivityItemPage> PostNewActivityItemPage(NewActivityItemPage form)
+    public async Task<NewActivityItemPage> PostNewActivityItemPage(NewActivityItemPage form)
     {
-        throw new NotImplementedException();
+        if (form == null)
+        {
+            throw new ArgumentNullException(nameof(form));
+        }
+
+        var request = this.CreateRequest(HttpMethod.Post, "presences/create/advanced");
+        var requestData = form.WebForm.GetPairs();
+        var requestContent = new FormUrlEncodedContent(requestData);
+        request.Content = requestContent;
+
+        var response = await this.Send(nameof(PostNewActivityItemPage), request);
+        if (response.IsSuccessStatusCode)
+        {
+            var result = new NewActivityItemPage();
+            result.LoadTime = DateTime.UtcNow;
+            var contents = await response.Content.ReadAsStringAsync();
+            if (!this.CheckPage(ManatimePage.PresenceCreateAdvanced, contents, result))
+            {
+                return this.Log(result);
+            }
+
+            result.ReadPage(contents);
+            return this.Log(result);
+        }
+        else
+        {
+            return this.Log(BaseResult.Error<NewActivityItemPage>("UnknownError", "Other error. "));
+        }
     }
 
     public JArray GetCookies()

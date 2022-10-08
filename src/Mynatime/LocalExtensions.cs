@@ -6,9 +6,9 @@ using System;
 
 public static class LocalExtensions
 {
-    public static void Accept(this ITransactionItem item, ITransactionItemVisitor visitor)
+    public static Task Accept(this ITransactionItem item, ITransactionItemVisitor visitor)
     {
         dynamic thing = item;
-        visitor.Visit(thing);
+        return visitor.Visit(thing);
     }
 }

@@ -1,8 +1,9 @@
 ﻿
 namespace Mynatime.CLI;
 
-using Mynatime.Infrastructure;
 using Mynatime.Client;
+using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 
 /// <summary>
@@ -62,36 +63,194 @@ public class CommitCommand : Command
         return false;
     }
 
-    public override Task Run()
+    public override async Task Run()
     {
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
             Console.WriteLine("No current profile. ");
-            return Task.CompletedTask;
+            return;
         }
 
-        var operations = new List<MynatimeProfileTransactionItem>(0);
+        var operationsCopy = new List<MynatimeProfileTransactionItem>(0);
         if (profile.Transaction != null)
         {
-            operations = profile.Transaction.Items.ToList();
+            operationsCopy = profile.Transaction.Items.ToList();
         }
 
-        if (profile.Transaction == null || operations.Count == 0)
+        if (profile.Transaction == null || operationsCopy.Count == 0)
         {
             Console.WriteLine("No pending operation. ");
-            return Task.CompletedTask;
+            return;
+        }
+
+        var homePage = await this.client.GetHomepage();
+        if (homePage.Succeed)
+        {
+            // fine
+        }
+        else if (homePage.Errors?.Any(x => x.Code == "LoggedOut") ?? false)
+        {
+            // session expired: renew
+            Console.WriteLine("  Renewing session... ");
+
+            if (profile.LoginUsername == null || profile.LoginPassword == null)
+            {
+                throw new InvalidOperationException("Missing authentication information. ");
+            }
+
+            var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
+            if (loginPage.Succeed)
+            {
+                var loginResultPage = await this.client.EmailPasswordAuthenticate(profile.LoginUsername, profile.LoginPassword);
+                if (loginResultPage.Succeed)
+                {
+                    homePage = await this.client.GetHomepage();
+                    if (homePage.Succeed)
+                    {
+                        // yeah!
+                    }
+                    else
+                    {
+                        Console.WriteLine("Auto log-in failed: something went wrong 3. ");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Auto log-in failed: something went wrong 2. ");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Auto log-in failed: something went wrong 1. ");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Auto log-in failed: something went wrong 0. ");
+        }
+
+        profile.Cookies = this.client.GetCookies();
+
+        long nextCommitId = 1, nextCommitItemId = 1;
+        if (profile.Commits != null)
+        {
+            foreach (var item in profile.Commits.Items)
+            {
+                if (item.CommitId != null && item.CommitId >= nextCommitId)
+                {
+                    nextCommitId = item.CommitId.Value + 1;
+                }
+
+                if (item.CommitItemId != null && item.CommitItemId >= nextCommitItemId)
+                {
+                    nextCommitItemId = item.CommitItemId.Value + 1;
+                }
+            }
         }
 
         int i = -1;
-        foreach (var operation in operations)
+        var visitor = new CommitTransactionItem(this.App, this.client, profile);
+        var helper = MynatimeProfileTransactionManager.Default;
+        var okayItems = new List<MynatimeProfileTransactionItem>();
+        foreach (var operation in operationsCopy)
         {
             i++;
+            
             Console.Write(i);
             Console.Write("\t");
-            Console.WriteLine(operation);
+            var item = helper.GetInstanceOf(operation);
+            visitor.Prepare(i, nextCommitId, nextCommitItemId);
+            await item.Accept(visitor);
+            if (visitor.Committed)
+            {
+                okayItems.Add(operation);
+                profile.Transaction.Remove(operation);
+
+                operation.TimeCommittedUtc = this.App.TimeNowUtc;
+                operation.CommitId = nextCommitId;
+                operation.CommitItemId = nextCommitItemId++;
+                
+                profile.Commits.Add(operation);
+            }
         }
 
-        return Task.CompletedTask;
+        await this.App.PersistProfile(profile);
+    }
+
+    private sealed class CommitTransactionItem : ITransactionItemVisitor
+    {
+        private readonly IConsoleApp app;
+        private readonly IManatimeWebClient client;
+        private readonly MynatimeProfile profile;
+        private int i;
+        private long nextCommitId;
+        private long nextCommitItemId;
+
+        public bool Committed { get; set; }
+
+
+        public void Prepare(int i, long nextCommitId, long nextCommitItemId)
+        {
+            this.i = i;
+            this.Committed = false;
+            this.nextCommitId = nextCommitId;
+            this.nextCommitItemId = nextCommitItemId;
+        }
+
+        public CommitTransactionItem(IConsoleApp app, IManatimeWebClient client, MynatimeProfile profile)
+        {
+            this.app = app;
+            this.client = client;
+            this.profile = profile;
+        }
+
+        public Task Visit(ActivityStartStop thing)
+        {
+            Console.WriteLine("Transaction item type is not supported. ");
+            this.Committed = false;
+            return Task.CompletedTask;
+        }
+
+        public async Task Visit(NewActivityItemPage thing)
+        {
+            thing.Comment += "\n\n-- \nMNTM;T=" + DateTime.UtcNow.ToInvariantString()
+              + ";M=" + Environment.MachineName
+              + ";C=" + this.nextCommitItemId.ToInvariantString();
+
+            thing.Arrange();
+            if (thing.HasError())
+            {
+                Console.WriteLine("FAILED: " + thing.GetErrorMessage());
+                return;
+            }
+            
+            var page1 = await this.client.GetNewActivityItemPage();
+            if (!page1.Succeed)
+            {
+                Console.WriteLine("FAILED: " + page1);
+                return;
+            }
+
+            thing.Token = page1.Token;
+            var page2 = await this.client.PostNewActivityItemPage(thing);
+            if (!page2.Succeed)
+            {
+                Console.WriteLine("FAILED: " + page2);
+                return;
+            }
+
+            Console.WriteLine("Saved. ");
+            this.Committed = true;
+        }
+
+        public Task Visit(ITransactionItem thing)
+        {
+            Console.Write(i);
+            Console.Write("\t");
+            Console.WriteLine("Transaction item type is not supported. ");
+            this.Committed = false;
+            return Task.CompletedTask;
+        }
     }
 }

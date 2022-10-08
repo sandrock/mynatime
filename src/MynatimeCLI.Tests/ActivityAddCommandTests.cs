@@ -230,9 +230,11 @@ public class ActivityAddCommandTests
         }
         else
         {
+            utcTime = new DateTime(2022, 9, 21, 11, 36, 42, DateTimeKind.Utc);
             localTz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Helsinki");
-            localTime = new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local);
-            utcTime = TimeZoneInfo.ConvertTimeToUtc(localTime.Value);
+            ////localTime = new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local);
+            ////utcTime = TimeZoneInfo.ConvertTimeToUtc(localTime.Value);
+            localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime.Value, localTz);
         }
 
         mock.SetupGet(x => x.TimeNowLocal).Returns(localTime.Value);

@@ -230,7 +230,7 @@ public class ActivityAddCommandTests
         }
         else
         {
-            localTz = TimeZoneInfo.GetSystemTimeZones().Last();
+            localTz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Helsinki");
             localTime = new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local);
             utcTime = TimeZoneInfo.ConvertTimeToUtc(localTime.Value);
         }

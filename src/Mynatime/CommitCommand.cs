@@ -218,7 +218,7 @@ public class CommitCommand : Command
 
         public async Task Visit(NewActivityItemPage thing)
         {
-            thing.Comment += "\n\n-- \nMNTM;T=" + DateTime.UtcNow.ToInvariantString()
+            thing.Comment += "\n\n-- \nMNTM;T=" + this.app.TimeNowUtc.ToInvariantString()
               + ";M=" + Environment.MachineName
               + ";C=" + this.nextCommitItemId.ToInvariantString();
 

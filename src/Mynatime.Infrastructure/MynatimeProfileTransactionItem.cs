@@ -20,7 +20,7 @@ public sealed class MynatimeProfileTransactionItem : JsonObject
     public DateTime TimeCreatedUtc
     {
         get => this.Element.Value<DateTime>("TimeCreatedUtc");
-        set => this.Element["TimeCreatedUtc"] = value;
+        set => this.Element["TimeCreatedUtc"] = value.ToInvariantString();
     }
 
     public DateTime? TimeCommittedUtc

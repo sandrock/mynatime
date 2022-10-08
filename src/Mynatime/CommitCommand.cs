@@ -92,11 +92,11 @@ public class CommitCommand : Command
         else if (homePage.Errors?.Any(x => x.Code == "LoggedOut") ?? false)
         {
             // session expired: renew
-            Console.WriteLine("  Renewing session... ");
+            Console.Write("  Renewing session... ");
 
             if (profile.LoginUsername == null || profile.LoginPassword == null)
             {
-                throw new InvalidOperationException("Missing authentication information. ");
+                Console.WriteLine("ERROR: Missing authentication information. ");
             }
 
             var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
@@ -113,21 +113,25 @@ public class CommitCommand : Command
                     else
                     {
                         Console.WriteLine("Auto log-in failed: something went wrong 3. ");
+                        return;
                     }
                 }
                 else
                 {
                     Console.WriteLine("Auto log-in failed: something went wrong 2. ");
+                    return;
                 }
             }
             else
             {
                 Console.WriteLine("Auto log-in failed: something went wrong 1. ");
+                return;
             }
         }
         else
         {
             Console.WriteLine("Auto log-in failed: something went wrong 0. ");
+            return;
         }
 
         profile.Cookies = this.client.GetCookies();

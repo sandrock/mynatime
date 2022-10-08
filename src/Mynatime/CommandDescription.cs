@@ -11,6 +11,8 @@ public sealed class CommandDescription
         this.commandPatterns = new List<SelectItem>();
     }
 
+    public string Title { get; set; }
+
     public IReadOnlyList<SelectItem> CommandPatterns { get => this.commandPatterns; }
 
     public CommandDescription AddCommandPattern(string args, string description)

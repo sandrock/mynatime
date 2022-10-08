@@ -55,16 +55,24 @@ public sealed class HelpCommand : Command
         Console.WriteLine("");
         Console.WriteLine("Commands: ");
         Console.WriteLine("");
-        int patternLength = 20;
         foreach (var item in this.App.Commands)
         {
+            int patternLength = 32;
             var describe = item.Describe();
             if (describe.CommandPatterns.Count == 0)
             {
                 continue;
             }
             
-            Console.WriteLine("  ## " + item.GetType().Name);
+            foreach (var pattern in describe.CommandPatterns)
+            {
+                if (pattern.Id.Length > patternLength)
+                {
+                    patternLength = pattern.Id.Length;
+                }
+            }
+
+            Console.WriteLine("  ## " + (describe?.Title ??  item.GetType().Name));
             foreach (var pattern in describe.CommandPatterns)
             {
                 if (pattern.Id.Length > patternLength)

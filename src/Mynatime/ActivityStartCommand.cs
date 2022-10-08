@@ -31,8 +31,9 @@ public class ActivityStartCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
-        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0], "starts an activity");
-        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StopArgs[0], "stops  an activity");
+        describe.Title = "Activity tracker";
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0] + " [time] [category]", "starts an activity");
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StopArgs[0] + " [time] [category]", "stops  an activity");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StatusArgs[0], "lists current activities");
         return describe;
     }

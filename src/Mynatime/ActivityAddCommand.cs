@@ -25,6 +25,15 @@ public class ActivityAddCommand : Command
     public bool IsStart { get; set; }
     public bool IsStop { get; set; }
 
+    public override CommandDescription Describe()
+    {
+        var describe = base.Describe();
+        describe.Title = "Add activity";
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + Args[0] + " [date] <duration> [category]", "adds an activity");
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + Args[0] + " <date> <time-start> [date-end] <time-end> [category]", "adds an activity");
+        return describe;
+    }
+
     public override bool MatchArg(string arg)
     {
         return ConsoleApp.MatchArg(arg, ActivityCommand.Args);

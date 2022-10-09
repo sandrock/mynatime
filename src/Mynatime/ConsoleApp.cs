@@ -223,7 +223,7 @@ public class ConsoleApp : IConsoleApp
     internal static bool MatchShortArg(string arg, string name, out string? value)
     {
         value = null;
-        if (arg.Length < name.Length + 1)
+        if (arg.Length < name.Length)
         {
             // "-" is too short to match "-d"
             return false;
@@ -391,7 +391,13 @@ public class ConsoleApp : IConsoleApp
             var matches = new List<MynatimeProfile>();
             foreach (var profile in this.availableProfiles)
             {
-                if (profile.FilePath != null && profile.FilePath.EndsWith(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
+                var profileFile = profile.FilePath != null ? new FileInfo(profile.FilePath) : null;
+                var fileNameWithoutExtension = profileFile != null ? (profileFile.Name.Substring(0, profileFile.Name.Length - profileFile.Extension.Length)) : null; 
+                if (profileFile != null && profileFile.Name.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    matches.Add(profile);
+                }
+                else if (fileNameWithoutExtension != null && fileNameWithoutExtension.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
                 {
                     matches.Add(profile);
                 }

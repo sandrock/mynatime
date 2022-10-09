@@ -20,28 +20,28 @@ Client
 CLI
 ------------------
 
-- [x] Authenticate, creating a profile file
+- [x] Authenticate, creating a profile file [#4](https://github.com/sandrock/mynatime/issues/4)
 - [x] Use existing profile file
 - [x] Activity categories
   - [x] List categories
   - [x] Refresh categories from source
   - [x] Search categories
   - [ ] Create alias for a category (when best-match-search does not work)
-- [x] Goal 1
+- [x] Goal 1 [#1](https://github.com/sandrock/mynatime/issues/1)
   - [x] Add activity items
   - [x] Status
   - [x] Commit
-- [ ] Goal 2
+- [ ] Goal 2 [#2](https://github.com/sandrock/mynatime/issues/2)
   - [ ] Track activity
   - [ ] Status
   - [ ] Commit
 - Activity add and tracking
-  - [ ] specify a comment on add
+  - [ ] specify a comment on add [#3](https://github.com/sandrock/mynatime/issues/3)
   - [ ] specify a comment on start/stop
 - Activity list
-  - [ ] list recent activities
+  - [ ] list recent activities [#9](https://github.com/sandrock/mynatime/issues/9)
 - [ ] Code
-  - [ ] Have a proper way for a command to display errors and stop
+  - [ ] Have a proper way for a command to display errors and stop [#10](https://github.com/sandrock/mynatime/issues/10)
   - [x] Have a proper way for a command to display usage
   - [ ] The way arguments are parsed is questionable 
   - [ ] `bool Command.ParseArgs()` should return true when args match the command, even when args are invalid

@@ -37,12 +37,12 @@ dotnet run --project src/MynatimeGUI/MynatimeGUI.csproj
 Or open the `src` directory in Visual Studio, Rider...
 
 
-CLI app
+CLI app [📖](help/AppCLI.0Index.en.md)
 -------------
 
 The CLI is meant for offline usage. Inspired by the [git stage](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository), you can prepare changes and commit them when online. 
 
-[Full mynatime CLI app documentation](help/AppCLI.en.md). Command usage:
+[📖 Full mynatime CLI app documentation](help/AppCLI.0Index.en.md). Command usage:
 
 ```
 Usage: mynatime [app options] [command] [command options]

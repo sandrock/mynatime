@@ -93,6 +93,7 @@ public class ProfileAddCommand : Command
             return;
         }
 
+        Console.WriteLine("Creating a new profile. Please authenticate. ");
         while (string.IsNullOrWhiteSpace(this.LoginUsername))
         {
             Console.Write("Email address> ");
@@ -105,8 +106,13 @@ public class ProfileAddCommand : Command
             password = ConsoleApp.AskForPassword("Password>      ");
         }
 
+        Console.Write("Processing... ");
         var resultPage = await this.client.EmailPasswordAuthenticate(this.LoginUsername, password);
-        if (!resultPage.Succeed)
+        if (resultPage.Succeed)
+        {
+            Console.WriteLine("OK. ");
+        }
+        else
         {
             Console.WriteLine(loginPage);
             return;

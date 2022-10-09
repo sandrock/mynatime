@@ -112,6 +112,13 @@ public sealed class ActivityCategoryCommand : Command
     public override async Task Run()
     {
         var profile = this.App.CurrentProfile;
+
+        if (profile == null)
+        {
+            Console.WriteLine("No current profile. ");
+            return;
+        }
+
         var store = profile.Data?.ActivityCategories;
         var existingItems = store.Items.ToList();
         var newItems = new List<MynatimeProfileDataActivityCategory>();
@@ -122,11 +129,6 @@ public sealed class ActivityCategoryCommand : Command
         if (this.DoRefresh)
         {
             hasRefreshed = await this.Refresh(profile, existingItems, newItems, deletedItems);
-        }
-
-        if (profile == null)
-        {
-            throw new InvalidOperationException("No current profile. ");
         }
 
         // read store and display items

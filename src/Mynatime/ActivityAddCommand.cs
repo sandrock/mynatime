@@ -24,6 +24,7 @@ public class ActivityAddCommand : Command
     public string? CategoryArg { get; set; }
     public bool IsStart { get; set; }
     public bool IsStop { get; set; }
+    public string Comment { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -58,13 +59,31 @@ public class ActivityAddCommand : Command
         var durationRegex = new Regex("^(\\d+)([\\.,](\\d+))?$");
         var timeRegex = new Regex("^(\\d?\\d)(\\d\\d)$");
         Match match;
+        var errors = 0;
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
             var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
 
             string? value = null;
-            if (acceptStartDate && DateTime.TryParseExact(arg, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+            if (ConsoleApp.MatchArg(arg, "--message") || ConsoleApp.MatchShortArg(arg, "-m", out value))
+            {
+                if (value != null)
+                {
+                    this.Comment = value;
+                }
+                else if (nextArg != null)
+                {
+                    this.Comment = nextArg;
+                    i++;
+                }
+                else
+                {
+                    errors++;
+                    Console.WriteLine("Argument must be followed by a message. ");
+                }
+            }
+            else if (acceptStartDate && DateTime.TryParseExact(arg, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
             {
                 this.StartTimeLocal = date;
                 acceptStartDate = false;
@@ -120,7 +139,8 @@ public class ActivityAddCommand : Command
                     this.DurationHours = this.DurationHours.Value 
                       + (decimal)(double.Parse(match.Groups[2].Value.Substring(1), NumberStyles.Integer, CultureInfo.InvariantCulture) / Math.Pow(10, match.Groups[2].Value.Length - 1) );
                 }
-                
+
+                acceptDuration = false;
                 acceptCategory = true;
             }
             else if (acceptCategory)
@@ -132,6 +152,11 @@ public class ActivityAddCommand : Command
             {
                 goto error;
             }
+        }
+
+        if (errors > 0)
+        {
+            goto error;
         }
 
         ok:
@@ -209,13 +234,13 @@ public class ActivityAddCommand : Command
             }
         }
 
-        ////page.Comment = this.CommentArg;
         page.DateStart = this.StartTimeLocal;
         page.DateEnd = this.EndTimeLocal;
+        page.Comment = this.Comment;
         if (this.DurationHours == null)
         {
             page.InAt = this.StartTimeLocal.Value.TimeOfDay;
-            page.OutAt = this.StartTimeLocal.Value.TimeOfDay;
+            page.OutAt = this.EndTimeLocal.Value.TimeOfDay;
         }
         else
         {

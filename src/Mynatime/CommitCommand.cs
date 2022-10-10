@@ -109,6 +109,7 @@ public class CommitCommand : Command
                     if (homePage.Succeed)
                     {
                         // yeah!
+                        Console.WriteLine("OK. ");
                     }
                     else
                     {

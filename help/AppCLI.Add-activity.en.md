@@ -1,5 +1,5 @@
 
-[Index](AppCLI.0Index.en.md) - [Back: Authenticate with service](AppCLI.Authenticate.en.md) - Next: nothing here yet
+[Index](AppCLI.0Index.en.md) - Back: [Authenticate with service](AppCLI.Authenticate.en.md) - Next: [Tips and tricks](AppCLI.Tips-tricks.en.md)
 
 ---
 
@@ -73,4 +73,4 @@ mynatime commit
 
 ---
 
-[Index](AppCLI.0Index.en.md) - [Back: Authenticate with service](AppCLI.Authenticate.en.md) - Next: nothing here yet
+[Index](AppCLI.0Index.en.md) - Back: [Authenticate with service](AppCLI.Authenticate.en.md) - Next: [Tips and tricks](AppCLI.Tips-tricks.en.md)

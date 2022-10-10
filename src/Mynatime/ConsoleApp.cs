@@ -98,11 +98,15 @@ public class ConsoleApp : IConsoleApp
 
         await this.DiscoverProfiles();
 
-        if (this.SelectCurrentProfile())
+        if (await this.SelectCurrentProfile())
         {
         }
 
-        this.ShowConsoleErrors();
+        if (this.ShowConsoleErrors())
+        {
+            this.ExitCode = 3;
+            return;
+        }
 
         if (this.Command != null)
         {
@@ -168,7 +172,7 @@ public class ConsoleApp : IConsoleApp
 
         return new string(pass.ToArray());
     }
-    
+
     public async Task PersistProfile(MynatimeProfile profile)
     {
         if (profile == null)
@@ -265,6 +269,10 @@ public class ConsoleApp : IConsoleApp
         await command.Run();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns>return true if there are errors; otherwise, false</returns>
     private bool ShowConsoleErrors()
     {
         if (this.consoleErrors.Count > 0)
@@ -359,62 +367,118 @@ public class ConsoleApp : IConsoleApp
         {
             foreach (var path in Directory.EnumerateFiles(this.ConfigDirectory, "*.json"))
             {
-                MynatimeProfile config;
-                try
+                var file = new FileInfo(path);
+                var config = await this.OpenProfileByFilePath(file);
+                if (config != null)
                 {
                     config = await MynatimeProfile.LoadFromFile(path);
                     this.availableProfiles.Add(config);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    this.log.LogWarning("Loading profile <{0}> failed: {1}", path, ex.Message);
                 }
             }
         }
     }
 
-    private bool SelectCurrentProfile()
+    private async Task<bool> SelectCurrentProfile()
     {
         if (this.availableProfiles.Count == 0)
         {
             return false;
         }
 
-        if (this.OpenProfileName == null)
+        // try open by file path
+        if (this.OpenProfileName != null)
         {
-            this.CurrentProfile = this.availableProfiles.First();
+            var fileInfo = new FileInfo(this.OpenProfileName);
+            if (fileInfo.Exists)
+            {
+                var config = await this.OpenProfileByFilePath(fileInfo);
+                if (config != null)
+                {
+                    this.CurrentProfile = config;
+                    return true;
+                }
+            }
+
+            // maybe path is relative to config dir?
+            fileInfo = new FileInfo(Path.Combine(this.ConfigDirectory, this.OpenProfileName));
+            if (fileInfo.Exists)
+            {
+                var config = await this.OpenProfileByFilePath(fileInfo);
+                if (config != null)
+                {
+                    this.CurrentProfile = config;
+                    return true;
+                }
+            }
+
+            ////this.AddConsoleError("Found no profile matching argument \"" + this.OpenProfileName+"\". ");
+            ////return false;
+        }
+
+        if (this.availableProfiles.Count == 0)
+        {
+            return false;
+        }
+        else if (this.availableProfiles.Count == 1)
+        {
+            this.CurrentProfile = this.availableProfiles.Single();
             Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
             return true;
         }
         else
         {
-            var matches = new List<MynatimeProfile>();
-            foreach (var profile in this.availableProfiles)
+            if (this.OpenProfileName == null)
             {
-                var profileFile = profile.FilePath != null ? new FileInfo(profile.FilePath) : null;
-                var fileNameWithoutExtension = profileFile != null ? (profileFile.Name.Substring(0, profileFile.Name.Length - profileFile.Extension.Length)) : null; 
-                if (profileFile != null && profileFile.Name.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    matches.Add(profile);
-                }
-                else if (fileNameWithoutExtension != null && fileNameWithoutExtension.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    matches.Add(profile);
-                }
-                else if (profile.LoginUsername != null && this.OpenProfileName.Equals(profile.LoginUsername, StringComparison.OrdinalIgnoreCase))
-                {
-                    matches.Add(profile);
-                }
-            }
-
-            if (matches.Count == 1)
-            {
-                this.CurrentProfile = matches.Single();
+                this.CurrentProfile = this.availableProfiles.FirstOrDefault(x => x.IsDefault == true)
+                 ?? this.availableProfiles.First();
                 Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
                 return true;
             }
+            else
+            {
+                var matches = new List<MynatimeProfile>();
+                foreach (var profile in this.availableProfiles)
+                {
+                    var profileFile = profile.FilePath != null ? new FileInfo(profile.FilePath) : null;
+                    var fileNameWithoutExtension = profileFile != null ? (profileFile.Name.Substring(0, profileFile.Name.Length - profileFile.Extension.Length)) : null;
+                    if (profileFile != null && profileFile.Name.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches.Add(profile);
+                    }
+                    else if (fileNameWithoutExtension != null && fileNameWithoutExtension.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches.Add(profile);
+                    }
+                    else if (profile.LoginUsername != null && this.OpenProfileName.Equals(profile.LoginUsername, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches.Add(profile);
+                    }
+                }
 
-            return false;
+                if (matches.Count == 1)
+                {
+                    this.CurrentProfile = matches.Single();
+                    Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+    }
+
+    private async Task<MynatimeProfile?> OpenProfileByFilePath(FileInfo file)
+    {
+        try
+        {
+            var config = await MynatimeProfile.LoadFromFile(file.FullName);
+            this.availableProfiles.Add(config);
+            return config;
+        }
+        catch (InvalidOperationException ex)
+        {
+            this.log.LogWarning("Loading profile <{0}> failed: {1}", file.FullName, ex.Message);
+            return null;
         }
     }
 

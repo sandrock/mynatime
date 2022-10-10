@@ -150,6 +150,12 @@ public sealed class MynatimeProfile : JsonObject
         }
     }
 
+    public bool? IsDefault
+    {
+        get => this.Element.Value<bool?>("IsDefault");
+        set => this.Element["IsDefault"] = value;
+    }
+
     /// <summary>
     /// Loads the profile from a JSON file. 
     /// </summary>

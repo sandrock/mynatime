@@ -17,4 +17,6 @@ Index - Mynatime CLI app documentation
     - adding activity for another day
     - reviewing 
     - committing
+5. [Tips and tricks](AppCLI.Tips-tricks.en.md)
+   - for developers
 

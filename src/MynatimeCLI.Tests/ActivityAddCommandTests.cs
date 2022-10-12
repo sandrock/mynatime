@@ -310,8 +310,16 @@ public class ActivityAddCommandTests
         }
         else
         {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                localTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
+            }
+            else
+            {
+                localTz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Helsinki");
+            }
+
             utcTime = new DateTime(2022, 9, 21, 11, 36, 42, DateTimeKind.Utc);
-            localTz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Helsinki");
             ////localTime = new DateTime(2022, 9, 21, 13, 36, 42, DateTimeKind.Local);
             ////utcTime = TimeZoneInfo.ConvertTimeToUtc(localTime.Value);
             localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime.Value, localTz);

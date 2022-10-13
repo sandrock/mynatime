@@ -59,6 +59,12 @@ You can also use duration (2.7 hours) instead of times (for "Project 123").
 mynatime act add 2022-09-15 2.7 Project-123
 ```
 
+You can also set a comment using the `-m` argument:
+
+```bash
+mynatime act add 2022-09-15 2.7 Project-123 -m "help John on the design"
+```
+
 All this is only saved on your computer. You can review what you created:
 
 ```bash

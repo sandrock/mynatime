@@ -345,7 +345,7 @@ public class WebFormTests
 
         public DateTime? DateCreated
         {
-            get { return this.form.GetDateTimeValue("created", DateFormat); }
+            get { return this.form.GetDateTimeValue("created", DateFormat, DateTimeKind.Local); }
             set { this.form.SetDateTimeValue("created", value, DateFormat); }
         }
 
@@ -357,7 +357,7 @@ public class WebFormTests
 
         public DateTime? DateTimeUpdated
         {
-            get { return this.form.GetDateTimeValue("updated", DateTimeFormat); }
+            get { return this.form.GetDateTimeValue("updated", DateTimeFormat, DateTimeKind.Local); }
             set { this.form.SetDateTimeValue("updated", value, DateTimeFormat); }
         }
 

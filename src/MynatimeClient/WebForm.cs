@@ -2,6 +2,7 @@
 namespace Mynatime.Client;
 
 using Microsoft.AspNetCore.WebUtilities;
+using Mynatime.Infrastructure;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -99,7 +100,7 @@ public sealed class WebForm
         values.Add(new WebFormValue(value));
     }
 
-    public DateTime? GetDateTimeValue(string key, string format)
+    public DateTime? GetDateTimeValue(string key, string format, DateTimeKind kind)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
         {
@@ -112,7 +113,7 @@ public sealed class WebForm
         }
         else if (values.Count == 1)
         {
-            return DateTime.ParseExact(values[0].Value, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
+            return DateTime.ParseExact(values[0].Value, format, CultureInfo.InvariantCulture, DateTimeStyles.None).ChangeKind(kind);
         }
         else
         {

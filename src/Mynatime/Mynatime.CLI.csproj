@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Mynatime.Domain\Mynatime.Domain.csproj" />
     <ProjectReference Include="..\Mynatime.Infrastructure\Mynatime.Infrastructure.csproj" />
     <ProjectReference Include="..\MynatimeClient\Mynatime.Client.csproj" />
   </ItemGroup>

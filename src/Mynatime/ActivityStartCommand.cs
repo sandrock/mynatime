@@ -7,6 +7,7 @@ using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Mynatime.Domain;
 
 public class ActivityStartCommand : Command
 {
@@ -204,12 +205,18 @@ public class ActivityStartCommand : Command
 
         if (this.IsStart || this.IsStop)
         {
-
             state.Add(this.TimeLocal.Value, this.IsStart ? "start" : this.IsStop ? "stop" : "???", category?.Id);
             hasChanged = true;
         }
 
         Console.WriteLine(state.GetSummary());
+
+        var manager = new ActivityStartStopManager(state);
+        var entries = manager.GenerateItems();
+        foreach (var entry in entries)
+        {
+            Console.WriteLine(entry.ToString());
+        }
 
         if (hasChanged)
         {

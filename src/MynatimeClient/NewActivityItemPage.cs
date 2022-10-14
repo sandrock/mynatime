@@ -69,13 +69,13 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
     public DateTime? DateStart
     {
-        get => this.form.GetDateTimeValue("create[dateStart]", ClientConstants.DateInputFormat);
+        get => this.form.GetDateTimeValue("create[dateStart]", ClientConstants.DateInputFormat, DateTimeKind.Local);
         set => this.form.SetDateTimeValue("create[dateStart]", value, ClientConstants.DateInputFormat);
     }
 
     public DateTime? DateEnd
     {
-        get => this.form.GetDateTimeValue("create[dateEnd]", ClientConstants.DateInputFormat);
+        get => this.form.GetDateTimeValue("create[dateEnd]", ClientConstants.DateInputFormat, DateTimeKind.Local);
         set => this.form.SetDateTimeValue("create[dateEnd]", value, ClientConstants.DateInputFormat);
     }
 

@@ -35,6 +35,8 @@ public sealed class ActivityStartStop : ITransactionItem
         this.items = new List<ActivityStartStopEvent>();
     }
 
+    public IEnumerable<ActivityStartStopEvent> Events { get => this.items; }
+
     public static void Hello()
     {
     }

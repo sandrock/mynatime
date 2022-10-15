@@ -2,6 +2,7 @@
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
+using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using System;
@@ -9,7 +10,7 @@ using System;
 /// <summary>
 /// Saves pending changes to the service. 
 /// </summary>
-public class CommitCommand : Command
+public sealed class CommitCommand : Command
 {
     private readonly IManatimeWebClient client;
 
@@ -170,7 +171,10 @@ public class CommitCommand : Command
             if (visitor.Committed)
             {
                 okayItems.Add(operation);
-                profile.Transaction.Remove(operation);
+                if (visitor.IsRemovable)
+                {
+                    profile.Transaction.Remove(operation);
+                }
 
                 operation.TimeCommittedUtc = this.App.TimeNowUtc;
                 operation.CommitId = nextCommitId;
@@ -194,11 +198,13 @@ public class CommitCommand : Command
 
         public bool Committed { get; set; }
 
+        public bool IsRemovable { get; set; }
 
         public void Prepare(int i, long nextCommitId, long nextCommitItemId)
         {
             this.i = i;
             this.Committed = false;
+            this.IsRemovable = false;
             this.nextCommitId = nextCommitId;
             this.nextCommitItemId = nextCommitItemId;
         }
@@ -210,11 +216,35 @@ public class CommitCommand : Command
             this.profile = profile;
         }
 
-        public Task Visit(ActivityStartStop thing)
+        public async Task Visit(ActivityStartStop thing)
         {
+            var manager = new ActivityStartStopManager(thing);
+            manager.GenerateItems();
+            if (manager.Errors.Any())
+            {
+                Console.WriteLine("Activity tracker has errors: ");
+                foreach (var error in manager.Errors)
+                {
+                    Console.WriteLine("- " + error);
+                }
+                
+                this.Committed = false;
+                return;
+            }
+
+            foreach (var activity in manager.Activities)
+            {
+                await this.Visit(activity);
+            }
+
+            foreach (var usedEvent in manager.UsedEvents)
+            {
+                thing.Remove(usedEvent);
+            }
+            
             Console.WriteLine("Transaction item type is not supported. ");
-            this.Committed = false;
-            return Task.CompletedTask;
+            this.Committed = true;
+            this.IsRemovable = !thing.Events.Any();
         }
 
         public async Task Visit(NewActivityItemPage thing)
@@ -247,6 +277,7 @@ public class CommitCommand : Command
 
             Console.WriteLine("Saved. ");
             this.Committed = true;
+            this.IsRemovable = true;
         }
 
         public Task Visit(ITransactionItem thing)

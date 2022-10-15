@@ -35,4 +35,9 @@ public sealed class ActivityStartStopEvent
         item.Add("CategoryId", this.CategoryId);
         return item;
     }
+
+    public override string ToString()
+    {
+        return nameof(ActivityStartStopEvent) + " " + this.TimeLocal.ToInvariantString() + " " + this.Mode + " " + this.CategoryId;
+    }
 }

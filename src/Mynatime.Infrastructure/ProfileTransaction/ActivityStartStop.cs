@@ -37,6 +37,8 @@ public sealed class ActivityStartStop : ITransactionItem
 
     public IEnumerable<ActivityStartStopEvent> Events { get => this.items; }
 
+    internal List<ActivityStartStopEvent> EventsList { get => this.items; }
+
     public static void Hello()
     {
     }
@@ -60,9 +62,17 @@ public sealed class ActivityStartStop : ITransactionItem
         return root;
     }
 
-    public void Add(DateTime timeLocal, string mode, string? categoryId)
+    public ActivityStartStopEvent Add(DateTime timeLocal, string mode)
     {
-        this.items.Add(new ActivityStartStopEvent(timeLocal, mode, categoryId));
+        var item = this.Add(timeLocal, mode, null);
+        return item;
+    }
+
+    public ActivityStartStopEvent Add(DateTime timeLocal, string mode, string? categoryId)
+    {
+        var item = new ActivityStartStopEvent(timeLocal, mode, categoryId);
+        this.items.Add(item);
+        return item;
     }
 
     public string GetSummary()
@@ -80,5 +90,10 @@ public sealed class ActivityStartStop : ITransactionItem
         }
         
         return sb.ToString();
+    }
+
+    public bool Remove(ActivityStartStopEvent usedEvent)
+    {
+        return this.EventsList.Remove(usedEvent);
     }
 }

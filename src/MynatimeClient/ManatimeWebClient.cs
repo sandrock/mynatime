@@ -8,6 +8,9 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+/// <summary>
+/// Stateful client for the service. It holds cookie and page state. 
+/// </summary>
 public class ManatimeWebClient : IManatimeWebClient
 {
     private readonly ILogger log;
@@ -83,7 +86,7 @@ public class ManatimeWebClient : IManatimeWebClient
     {
         if (!this.canEmailPasswordAuthenticate || this.csrfToken == null)
         {
-            return BaseResult.Error<LoginResult>("MissingCsrfToken", "Cannot authenticate with the CSRF token. ");
+            return BaseResult.Error<LoginResult>("MissingCsrfToken", "Cannot authenticate without the CSRF token. ");
         }
         /*
 <form action="/security/login_check" method="post">

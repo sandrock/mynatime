@@ -261,4 +261,16 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
             }
         }
     }
+
+    public DateTime? GetEndTime()
+    {
+        if (this.DateEnd != null && this.OutAt != null)
+        {
+            return this.DateEnd.Value.Add(this.OutAt.Value);
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

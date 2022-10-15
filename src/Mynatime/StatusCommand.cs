@@ -113,6 +113,7 @@ public class StatusCommand : Command
 
         public Task Visit(ActivityStartStop thing)
         {
+            Console.WriteLine(nameof(ActivityStartStop));
             Console.WriteLine(thing.GetSummary());
             return Task.CompletedTask;
         }

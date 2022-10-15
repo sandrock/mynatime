@@ -1,64 +1,96 @@
 ﻿namespace Mynatime.Domain;
 
 using Mynatime.Client;
+using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 
+/// <summary>
+/// Given a list of start/stop event, computes a list of <see cref="NewActivityItemPage"/>.
+/// </summary>
 public sealed class ActivityStartStopManager
 {
     private readonly ActivityStartStop source;
-    private readonly List<string> errors = new ();
+    private readonly List<BaseError> errors = new ();
+    private readonly List<ActivityStartStopEvent> usedEvents = new ();
+    private readonly List<NewActivityItemPage> activities = new();
 
     public ActivityStartStopManager(ActivityStartStop source)
     {
-        this.source = source;
+        this.source = source ?? throw new ArgumentNullException(nameof(source));
     }
 
-    public IReadOnlyList<string> Errors { get => this.errors; }
+    public IReadOnlyList<BaseError> Errors { get => this.errors; }
 
-    public IEnumerable<NewActivityItemPage> GenerateItems()
+    public IReadOnlyList<ActivityStartStopEvent> UsedEvents { get => this.usedEvents; }
+
+    public IReadOnlyList<NewActivityItemPage> Activities { get => this.activities; }
+
+    public void GenerateItems()
     {
         this.errors.Clear();
+        this.usedEvents.Clear();
+        this.activities.Clear();
 
-        NewActivityItemPage current = null;
-        foreach (var item in source.Events)
+        NewActivityItemPage? currentActivity = null, previousActivity = null;
+        // ReSharper disable once NotAccessedVariable
+        ActivityStartStopEvent? startEvent = null, stopEvent = null;
+        foreach (var currentEvent in source.Events.OrderBy(x => x.TimeLocal))
         {
-            bool itemStarts = item.Mode == "Start";
-            bool itemStops = item.Mode == "Stop";
+            bool itemStarts = currentEvent.Mode == "Start";
+            bool itemStops = currentEvent.Mode == "Stop";
 
             if (itemStarts)
             {
-                if (current != null)
+                // starting an activity
+                if (currentActivity != null)
                 {
-                    MakeStop(current, item.TimeLocal);
-                    yield return current;
-                    current = null;
+                    // and stopping another
+                    usedEvents.AddIfAbsent(startEvent!);
+                    usedEvents.AddIfAbsent(stopEvent = currentEvent);
+                    MakeStop(currentActivity, currentEvent.TimeLocal);
+                    previousActivity = currentActivity;
+                    currentActivity = null;
                 }
 
-                current = new NewActivityItemPage();
-                MakeStart(current, item.TimeLocal);
+                startEvent = currentEvent;
+                previousActivity = currentActivity;
+                currentActivity = new NewActivityItemPage();
+                MakeStart(currentActivity, currentEvent.TimeLocal);
             }
             else if (itemStops)
             {
-                if (current != null)
+                // stopping an activity
+                if (currentActivity != null)
                 {
-                    MakeStop(current, item.TimeLocal);
-                    yield return current;
-                    current = null;
+                    usedEvents.AddIfAbsent(startEvent!);
+                    usedEvents.AddIfAbsent(stopEvent = currentEvent);
+                    MakeStop(currentActivity, currentEvent.TimeLocal);
+                    previousActivity = currentActivity;
+                    currentActivity = null;
+                }
+                else if (previousActivity != null)
+                {
+                    usedEvents.AddIfAbsent(stopEvent = currentEvent);
+                    currentActivity = new NewActivityItemPage();
+                    MakeStart(currentActivity, previousActivity.GetEndTime()!.Value);
+                    MakeStop(currentActivity, currentEvent.TimeLocal);
+                    previousActivity = currentActivity;
+                    currentActivity = null;
                 }
                 else
                 {
-                    this.errors.Add("Stop event " + item + " is not following a start event. ");
+                    this.errors.Add(new BaseError("StopNotFollowingStart", "Stop event " + currentEvent + " is not following a start event. "));
                 }
             }
             else
             {
-                this.errors.Add("Event " + item + " is of unknown type. ");
+                this.errors.Add(new BaseError("UnknownEventType", "Event " + currentEvent + " is of unknown type. "));
             }
         }
 
-        if (current?.OutAt != null)
+        if (currentActivity?.OutAt != null)
         {
-            yield return current;
+            this.activities.Add(currentActivity);
         }
     }
 
@@ -72,5 +104,6 @@ public sealed class ActivityStartStopManager
     {
         current.DateEnd = item.Date;
         current.OutAt = item.TimeOfDay;
+        this.activities.Add(current);
     }
 }

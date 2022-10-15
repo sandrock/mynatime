@@ -212,8 +212,8 @@ public class ActivityStartCommand : Command
         Console.WriteLine(state.GetSummary());
 
         var manager = new ActivityStartStopManager(state);
-        var entries = manager.GenerateItems();
-        foreach (var entry in entries)
+        manager.GenerateItems();
+        foreach (var entry in manager.Activities)
         {
             Console.WriteLine(entry.ToString());
         }

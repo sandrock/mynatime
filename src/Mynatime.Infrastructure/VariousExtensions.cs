@@ -66,4 +66,13 @@ public static class VariousExtensions
         return value != null ? value.Value.ChangeKind(kind) : default(DateTime?);
     }
 
+    public static IList<T> AddIfAbsent<T>(this IList<T> collection, T item)
+    {
+        if (!collection.Contains(item))
+        {
+            collection.Add(item);
+        }
+
+        return collection;
+    }
 }

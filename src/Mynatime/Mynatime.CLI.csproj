@@ -8,9 +8,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>MynatimeCLI.Tests</_Parameter1>
-    </AssemblyAttribute>
+    <InternalsVisibleTo Include="Mynatime.CLI.Tests" />
   </ItemGroup>
 
   <ItemGroup>

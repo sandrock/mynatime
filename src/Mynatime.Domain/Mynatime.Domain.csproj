@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Mynatime.Domain.Tests" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\MynatimeClient\Mynatime.Client.csproj" />
   </ItemGroup>
 

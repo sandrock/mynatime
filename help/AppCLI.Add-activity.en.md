@@ -6,6 +6,9 @@
 Add an activity - Mynatime CLI app documentation
 ====================================
 
+Refresh the activity categories
+-----------------------------------
+
 First, you have to pull the list of activity categories from the service.
 
 ```bash
@@ -40,6 +43,10 @@ You can search a category:
 mynatime activity category search project something
 mynatime act cat search project something
 ```
+
+
+Adding past activity
+-----------------------------------
 
 Now let's add an activity for the current day, using start time (08:30) and end time (11:50) for project "Internal".
 
@@ -76,6 +83,51 @@ If it looks okay, you can publish to the service:
 ```bash
 mynatime commit
 ```
+
+
+Tracking activity
+-----------------------------------
+
+The best way to add activity is to track your work as you do it. 
+
+Say you arrive at work, and start working on project1.
+
+```bash
+# time is 0840
+mynatime act start project1
+```
+
+You start working on project1 and it is time for the daily meeting.
+
+```bash
+# time is 0930
+mynatime act start daily
+```
+
+The daily ended and you went to work on project2. It's noon and you forgot to end the daily () and set the current project.
+
+```bash
+# time is 1202
+mynatime act stop 0940
+mynatime act start 0940
+mynatime act stop project2
+```
+
+Each time you switch to a different task, you just have to "start" it.  When you stop, you "stop".
+
+At the end of the day, you can review that activities:
+
+```bash
+mynatime act status
+mynatime status
+```
+
+And publish it:
+
+```bash
+mynatime commit
+```
+
 
 ---
 

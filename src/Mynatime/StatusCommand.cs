@@ -2,6 +2,7 @@
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
+using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using System;
@@ -111,10 +112,34 @@ public class StatusCommand : Command
             this.profile = profile;
         }
 
-        public Task Visit(ActivityStartStop thing)
+        public Task Visit(ActivityStartStop state)
         {
             Console.WriteLine(nameof(ActivityStartStop));
-            Console.WriteLine(thing.GetSummary());
+            var manager = new ActivityStartStopManager(state);
+            manager.GenerateItems();
+
+            if (manager.Errors.Any())
+            {
+                Console.WriteLine("Errors:");
+                foreach (var error in manager.Errors)
+                {
+                    Console.WriteLine("- " + error);
+                }
+            }
+
+            Console.WriteLine("Activities:");
+            foreach (var entry in manager.Activities)
+            {
+                Console.WriteLine("- " + entry.ToDisplayString(profile.Data));
+            }
+
+            {
+                foreach (var item in state.Events.Except(manager.UsedEvents))
+                {
+                    Console.WriteLine("- " + item.ToDisplayString(profile.Data));
+                }
+            }
+
             return Task.CompletedTask;
         }
 

@@ -55,6 +55,7 @@ public sealed class ActivityStartStopManager
                 startEvent = currentEvent;
                 previousActivity = currentActivity;
                 currentActivity = new NewActivityItemPage();
+                currentActivity.ActivityId = currentEvent.ActivityId;
                 MakeStart(currentActivity, currentEvent.TimeLocal);
             }
             else if (itemStops)
@@ -64,14 +65,17 @@ public sealed class ActivityStartStopManager
                 {
                     usedEvents.AddIfAbsent(startEvent!);
                     usedEvents.AddIfAbsent(stopEvent = currentEvent);
+                    currentActivity.ActivityId = currentEvent.ActivityId ?? currentActivity.ActivityId;
                     MakeStop(currentActivity, currentEvent.TimeLocal);
                     previousActivity = currentActivity;
                     currentActivity = null;
                 }
                 else if (previousActivity != null)
                 {
+                    // stopping after a stop
                     usedEvents.AddIfAbsent(stopEvent = currentEvent);
                     currentActivity = new NewActivityItemPage();
+                    currentActivity.ActivityId = currentEvent.ActivityId;
                     MakeStart(currentActivity, previousActivity.GetEndTime()!.Value);
                     MakeStop(currentActivity, currentEvent.TimeLocal);
                     previousActivity = currentActivity;

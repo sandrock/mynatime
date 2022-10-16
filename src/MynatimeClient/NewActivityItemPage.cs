@@ -222,6 +222,56 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
           + " " + string.Join(" ", this.form.GetPairs().Select(x => x.Key + "=" + x.Value));
     }
 
+    public string ToDisplayString(MynatimeProfileData data)
+    {
+        var sb = new StringBuilder();
+        var sep = string.Empty;
+        if (this.DateStart != null)
+        {
+            sb.Append(sep);
+            sb.Append(this.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
+            sep = " ";
+        }
+
+        if (this.InAt != null)
+        {
+            sb.Append(sep);
+            sb.Append(this.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
+            sep = " ";
+        }
+
+        if (this.DateEnd != null && (this.DateStart == null || this.DateStart.Value != this.DateEnd.Value))
+        {
+            sb.Append(sep);
+            sb.Append(this.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
+            sep = " ";
+        }
+
+        if (this.OutAt != null)
+        {
+            sb.Append(sep);
+            sb.Append(this.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
+            sep = " ";
+        }
+
+        if (this.Duration != null)
+        {
+            sb.Append(sep);
+            sb.Append(this.Duration);
+            sep = " ";
+        }
+
+        if (this.ActivityId != null)
+        {
+            var activity = data.GetActivityById(this.ActivityId);
+            sb.Append(sep);
+            sb.Append(activity.Name);
+            sep = " ";
+        }
+
+        return sb.ToString();
+    }
+
     public void Arrange()
     {
         if (this.DateStart == null && this.DateEnd != null)

@@ -6,7 +6,7 @@ using Mynatime.Infrastructure;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using static Mynatime.CLI.Constants;
+using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityAddCommand : Command
 {

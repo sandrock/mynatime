@@ -8,7 +8,7 @@ using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using static Mynatime.CLI.Constants;
+using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityStartCommand : Command
 {
@@ -148,7 +148,7 @@ public class ActivityStartCommand : Command
         }
         else
         {
-            Console.WriteLine("Neither start or stop? ");
+            Console.WriteLine("Neither start or stop or status? ");
             return;
         }
 
@@ -213,17 +213,40 @@ public class ActivityStartCommand : Command
 
         if (this.IsStart || this.IsStop)
         {
-            state.Add(this.TimeLocal.Value, this.IsStart ? "start" : this.IsStop ? "stop" : "???", category?.Id);
+            state.Add(this.TimeLocal.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id);
             hasChanged = true;
         }
 
-        Console.WriteLine(state.GetSummary());
+        if (this.IsStatus)
+        {
+            Console.WriteLine("Events:");
+            Console.WriteLine(state.GetSummary());
+        }
 
         var manager = new ActivityStartStopManager(state);
         manager.GenerateItems();
+
+        if (manager.Errors.Any())
+        {
+            Console.WriteLine("Errors:");
+            foreach (var error in manager.Errors)
+            {
+                Console.WriteLine("- " + error);
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Activities:");
         foreach (var entry in manager.Activities)
         {
-            Console.WriteLine(entry.ToString());
+            Console.WriteLine("- " + entry.ToDisplayString(profile.Data));
+        }
+
+        {
+            foreach (var item in state.Events.Except(manager.UsedEvents))
+            {
+                Console.WriteLine("- " + item.ToDisplayString(profile.Data));
+            }
         }
 
         if (hasChanged)

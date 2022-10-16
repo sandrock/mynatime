@@ -241,8 +241,7 @@ public sealed class CommitCommand : Command
             {
                 thing.Remove(usedEvent);
             }
-            
-            Console.WriteLine("Transaction item type is not supported. ");
+
             this.Committed = true;
             this.IsRemovable = !thing.Events.Any();
         }

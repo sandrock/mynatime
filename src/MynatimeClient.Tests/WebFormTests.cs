@@ -15,8 +15,9 @@ public class WebFormTests
         var form = new SampleForm1();
         
         // set values
+        form.Firstname = "tmp";
         form.Firstname = input;
-        
+
         // get values
         Assert.Equal(input, form.Firstname);
         

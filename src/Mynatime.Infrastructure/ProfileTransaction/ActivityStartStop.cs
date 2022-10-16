@@ -85,7 +85,7 @@ public sealed class ActivityStartStop : ITransactionItem
             sb.Append("  ");
             sb.Append(item.Mode.PadRight(6, ' '));
             sb.Append("  ");
-            sb.Append(item.CategoryId);
+            sb.Append(item.ActivityId);
             sb.AppendLine();
         }
         

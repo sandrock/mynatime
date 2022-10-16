@@ -1,10 +1,9 @@
 ﻿
-namespace Mynatime.CLI;
+namespace Mynatime.Infrastructure;
 
-using System;
 using System.Text.RegularExpressions;
 
-public static class Constants
+public static class MynatimeConstants
 {
     /// <summary>
     /// Parses an hour duration in decimal format.
@@ -17,4 +16,6 @@ public static class Constants
     public static Regex TimeRegex = new Regex("^(\\d?\\d)(\\d\\d)$");
 
     public static string DateFormat = "yyyy-MM-dd";
+
+    public static string TimeFormat = "HHmm";
 }

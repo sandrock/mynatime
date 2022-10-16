@@ -81,6 +81,7 @@ public sealed class WebForm
 
         if (value != null)
         {
+            values.Clear();
             values.Add(new WebFormValue(value));
         }
         else

@@ -369,11 +369,6 @@ public class ConsoleApp : IConsoleApp
             {
                 var file = new FileInfo(path);
                 var config = await this.OpenProfileByFilePath(file);
-                if (config != null)
-                {
-                    config = await MynatimeProfile.LoadFromFile(path);
-                    this.availableProfiles.Add(config);
-                }
             }
         }
     }

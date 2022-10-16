@@ -5,6 +5,8 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 using System;
 
 /// <summary>
@@ -16,8 +18,8 @@ public class StatusCommand : Command
 
     public static string[] Args { get; } = new string[] { "status", };
 
-    public StatusCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public StatusCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -86,14 +88,14 @@ public class StatusCommand : Command
         }
 
         int i = -1;
-        var visitor = new ConsoleDescribeTransactionItem(this.App, profile);
+        var visitor = new ConsoleDescribeTransactionItem(this.App, profile, this.Console);
         var helper = MynatimeProfileTransactionManager.Default;
         
         foreach (var operation in operations)
         {
             i++;
 
-            Console.Write(i);
+            Console.Write(i.ToInvariantString());
             Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
             await item.Accept(visitor);
@@ -106,11 +108,14 @@ public class StatusCommand : Command
         private readonly IConsoleApp app;
         private readonly MynatimeProfile profile;
 
-        public ConsoleDescribeTransactionItem(IConsoleApp app, MynatimeProfile profile)
+        public ConsoleDescribeTransactionItem(IConsoleApp app, MynatimeProfile profile, IAnsiConsole console)
         {
             this.app = app;
             this.profile = profile;
+            this.Console = console;
         }
+
+        public IAnsiConsole Console { get; }
 
         public Task Visit(ActivityStartStop state)
         {

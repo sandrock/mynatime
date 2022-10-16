@@ -7,11 +7,18 @@ using Mynatime.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Spectre.Console;
 using Xunit;
 
 public class ProfileAddCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? console;
+
+    private IAnsiConsole Console
+    {
+        get => this.console ?? (this.console = this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object);
+    }
 
     public static IEnumerable<object[]> ValidInitialArgument()
     {
@@ -33,7 +40,7 @@ public class ProfileAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ProfileAddCommand(app.Object, client.Object);
+        var target = new ProfileAddCommand(app.Object, client.Object, Console);
         var result = target.MatchArg(arg0);
         Assert.True(result);
         result = target.ParseArgs(app.Object, new string[] { arg0, arg1, }, out int consumedArgs, out Command? command);
@@ -45,7 +52,7 @@ public class ProfileAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ProfileAddCommand(app.Object, client.Object);
+        var target = new ProfileAddCommand(app.Object, client.Object, Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
     }
@@ -55,7 +62,7 @@ public class ProfileAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ProfileAddCommand(app.Object, client.Object);
+        var target = new ProfileAddCommand(app.Object, client.Object, Console);
         var result = target.ParseArgs(app.Object, new []{ "profile", "add", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Null(target.LoginUsername);
@@ -66,7 +73,7 @@ public class ProfileAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ProfileAddCommand(app.Object, client.Object);
+        var target = new ProfileAddCommand(app.Object, client.Object, Console);
         var result = target.ParseArgs(app.Object, new []{ "profile", "add", "--email", "test@test.com", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal("test@test.com", target.LoginUsername);
@@ -77,7 +84,7 @@ public class ProfileAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ProfileAddCommand(app.Object, client.Object);
+        var target = new ProfileAddCommand(app.Object, client.Object, Console);
         await target.Run();
     }
 

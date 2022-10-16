@@ -5,6 +5,7 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 
 /// <summary>
@@ -16,8 +17,8 @@ public sealed class CommitCommand : Command
 
     public static string[] Args { get; } = new string[] { "commit", };
 
-    public CommitCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public CommitCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -156,14 +157,14 @@ public sealed class CommitCommand : Command
         }
 
         int i = -1;
-        var visitor = new CommitTransactionItem(this.App, this.client, profile);
+        var visitor = new CommitTransactionItem(this.App, this.client, profile, this.Console);
         var helper = MynatimeProfileTransactionManager.Default;
         var okayItems = new List<MynatimeProfileTransactionItem>();
         foreach (var operation in operationsCopy)
         {
             i++;
             
-            Console.Write(i);
+            Console.Write(i.ToInvariantString());
             Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
             visitor.Prepare(i, nextCommitId, nextCommitItemId);
@@ -200,6 +201,16 @@ public sealed class CommitCommand : Command
 
         public bool IsRemovable { get; set; }
 
+        public IAnsiConsole Console { get; }
+
+        public CommitTransactionItem(IConsoleApp app, IManatimeWebClient client, MynatimeProfile profile, IAnsiConsole ansiConsole)
+        {
+            this.app = app;
+            this.client = client;
+            this.profile = profile;
+            this.Console = ansiConsole;
+        }
+
         public void Prepare(int i, long nextCommitId, long nextCommitItemId)
         {
             this.i = i;
@@ -207,13 +218,6 @@ public sealed class CommitCommand : Command
             this.IsRemovable = false;
             this.nextCommitId = nextCommitId;
             this.nextCommitItemId = nextCommitItemId;
-        }
-
-        public CommitTransactionItem(IConsoleApp app, IManatimeWebClient client, MynatimeProfile profile)
-        {
-            this.app = app;
-            this.client = client;
-            this.profile = profile;
         }
 
         public async Task Visit(ActivityStartStop thing)
@@ -281,7 +285,7 @@ public sealed class CommitCommand : Command
 
         public Task Visit(ITransactionItem thing)
         {
-            Console.Write(i);
+            Console.Write(i.ToInvariantString());
             Console.Write("\t");
             Console.WriteLine("Transaction item type is not supported. ");
             this.Committed = false;

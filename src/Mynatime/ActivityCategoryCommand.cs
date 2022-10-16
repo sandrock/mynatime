@@ -9,13 +9,14 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using Spectre.Console;
 
 public sealed class ActivityCategoryCommand : Command
 {
     private readonly IManatimeWebClient manatimeWebClient;
 
-    public ActivityCategoryCommand(IConsoleApp consoleApp, IManatimeWebClient manatimeWebClient)
-        : base(consoleApp)
+    public ActivityCategoryCommand(IConsoleApp app, IManatimeWebClient manatimeWebClient, IAnsiConsole console)
+        : base(app, console)
     {
         this.manatimeWebClient = manatimeWebClient;
     }

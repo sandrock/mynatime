@@ -1,9 +1,11 @@
 ﻿namespace Mynatime.CLI;
 
+using Spectre.Console;
+
 public sealed class HelpCommand : Command
 {
-    public HelpCommand(ConsoleApp app)
-        : base(app)
+    public HelpCommand(ConsoleApp app, IAnsiConsole console)
+        : base(app, console)
     {
     }
 

@@ -1,6 +1,7 @@
 ﻿namespace Mynatime.CLI;
 
 using Mynatime.Infrastructure;
+using Spectre.Console;
 
 public interface IConsoleApp
 {
@@ -21,6 +22,8 @@ public interface IConsoleApp
     TimeZoneInfo TimeZoneLocal { get; }
 
     IEnumerable<Command> Commands { get; }
+
+    ////IAnsiConsole Console { get; }
 
     Task PersistProfile(MynatimeProfile profile);
 }

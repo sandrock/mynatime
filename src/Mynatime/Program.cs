@@ -8,6 +8,7 @@ using Mynatime.CLI;
 using Mynatime.Client;
 using Mynatime.Infrastructure;
 using System;
+using Spectre.Console;
 
 var configuration = new ConfigurationBuilder()
    ////.SetBasePath(Directory.GetCurrentDirectory())
@@ -17,6 +18,12 @@ var configuration = new ConfigurationBuilder()
 var services = new ServiceCollection();
 services.AddTransient<ConsoleApp>();
 services.AddOptions();
+services.AddSingleton<IAnsiConsole>((x) => AnsiConsole.Create(new AnsiConsoleSettings()
+{
+    Ansi = AnsiSupport.Detect,
+    ColorSystem = ColorSystemSupport.Detect,
+    Out = (IAnsiConsoleOutput) new AnsiConsoleOutput(System.Console.Out)
+}));
 services.Configure<AppSettings>(configuration.GetSection("App"));
 services.AddSingleton(new LoggerFactory());
 services.AddLogging(builder =>

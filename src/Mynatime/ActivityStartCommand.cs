@@ -8,12 +8,13 @@ using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Spectre.Console;
 using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityStartCommand : Command
 {
-    public ActivityStartCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ActivityStartCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
     }

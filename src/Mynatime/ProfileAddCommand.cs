@@ -5,13 +5,14 @@ using Mynatime.Client;
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System;
+using Spectre.Console;
 
 public class ProfileAddCommand : Command
 {
     private readonly IManatimeWebClient client;
 
-    public ProfileAddCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ProfileAddCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -89,16 +90,19 @@ public class ProfileAddCommand : Command
         var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
         if (!loginPage.Succeed)
         {
-            Console.WriteLine(loginPage);
+            Console.WriteLine(loginPage.ToString());
             return;
         }
 
         Console.WriteLine("Creating a new profile. Please authenticate. ");
+        this.LoginUsername = Console.Ask<string>("Email address> ");
+        /*
         while (string.IsNullOrWhiteSpace(this.LoginUsername))
         {
             Console.Write("Email address> ");
             this.LoginUsername = Console.ReadLine();
         }
+        */
 
         var password = default(string);
         while (string.IsNullOrEmpty(password))
@@ -114,7 +118,7 @@ public class ProfileAddCommand : Command
         }
         else
         {
-            Console.WriteLine(loginPage);
+            Console.WriteLine(loginPage.ToString());
             return;
         }
 

@@ -3,6 +3,7 @@ namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Spectre.Console;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -10,8 +11,8 @@ using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityAddCommand : Command
 {
-    public ActivityAddCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ActivityAddCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
     }

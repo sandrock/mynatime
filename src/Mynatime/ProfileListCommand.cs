@@ -1,10 +1,12 @@
 
 namespace Mynatime.CLI;
 
+using Spectre.Console;
+
 public sealed class ProfileListCommand : Command
 {
-    public ProfileListCommand(IConsoleApp consoleApp)
-        : base(consoleApp)
+    public ProfileListCommand(IConsoleApp app, IAnsiConsole console)
+        : base(app, console)
     {
     }
 
@@ -70,7 +72,7 @@ public sealed class ProfileListCommand : Command
         foreach (var profile in this.App.AvailableProfiles)
         {
             Console.Write("- ");
-            Console.WriteLine(profile);
+            Console.WriteLine(profile.ToString());
             if (profile.FilePath != null)
             {
                 Console.Write("  - ");

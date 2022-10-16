@@ -2,12 +2,13 @@
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
+using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Mynatime.Domain;
+using static Mynatime.CLI.Constants;
 
 public class ActivityStartCommand : Command
 {
@@ -25,6 +26,7 @@ public class ActivityStartCommand : Command
     public bool IsStop { get; set; }
     public bool IsStatus { get; set; }
     public TimeZoneInfo TimeZoneLocal { get; set; }
+    public DateTime DateLocal { get; set; }
     public DateTime? TimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
     public string? CategoryArg { get; set; }
@@ -75,8 +77,9 @@ public class ActivityStartCommand : Command
             goto error;
         }
 
-        bool acceptDuration = true, acceptStartTime = true, acceptEndTime = false, acceptCategory = true;
-        var timeRegex = new Regex("^(\\d?\\d)(\\d\\d)$");
+        this.DateLocal = this.App.TimeNowLocal.Date;
+        bool acceptStartTime = true, acceptStartDate = true, acceptCategory = true;
+        DateTime date;
         Match match;
         for (++i; i < args.Length; i++)
         {
@@ -84,11 +87,16 @@ public class ActivityStartCommand : Command
             var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
 
             string? value = null;
-            if (acceptStartTime && (match = timeRegex.Match(arg)).Success)
+            if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+            {
+                this.DateLocal = date.Date;
+                acceptStartDate = false;
+            }
+            else if (acceptStartTime && (match = TimeRegex.Match(arg)).Success)
             {
                 var hours = int.Parse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
                 var minutes = int.Parse(match.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
-                this.TimeLocal = this.App.TimeNowLocal.Date.AddHours(hours).AddMinutes(minutes);
+                this.TimeLocal = this.DateLocal.AddHours(hours).AddMinutes(minutes);
                 acceptStartTime = false;
             }
             else if (acceptCategory)

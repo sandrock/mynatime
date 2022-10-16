@@ -134,6 +134,25 @@ public class ActivityStartCommandTests
     }
 
     [Fact]
+    public void Match_Start_Date_Time_Category()
+    {
+        var args = new string[] { "act", "start", "2022-08-01", "0834", "proj1", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityStartCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.True(target.IsStart);
+        Assert.False(target.IsStop);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 8, 1, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
+        Assert.Null(target.DurationHours);
+        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
+        Assert.Equal("proj1", target.CategoryArg);
+    }
+
+    [Fact]
     public void Match_Stop()
     {
         var args = new string[] { "act", "stop", };
@@ -191,6 +210,25 @@ public class ActivityStartCommandTests
     }
 
     [Fact]
+    public void Match_Stop_Category_Date_Time()
+    {
+        var args = new string[] { "act", "stop", "proj1", "2022-08-01", "0834", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityStartCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.False(target.IsStart);
+        Assert.True(target.IsStop);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 8, 1, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
+        Assert.Null(target.DurationHours);
+        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
+        Assert.Equal("proj1", target.CategoryArg);
+    }
+
+    [Fact]
     public void Match_Stop_Time_Category()
     {
         var args = new string[] { "act", "stop", "0834", "proj1", };
@@ -204,6 +242,25 @@ public class ActivityStartCommandTests
         Assert.True(target.IsStop);
         Assert.False(target.IsStatus);
         Assert.Equal(new DateTime(2022, 9, 21, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
+        Assert.Null(target.DurationHours);
+        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
+        Assert.Equal("proj1", target.CategoryArg);
+    }
+
+    [Fact]
+    public void Match_Stop_Date_Time_Category()
+    {
+        var args = new string[] { "act", "stop", "2022-08-01", "0834", "proj1", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityStartCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.False(target.IsStart);
+        Assert.True(target.IsStop);
+        Assert.False(target.IsStatus);
+        Assert.Equal(new DateTime(2022, 8, 1, 8, 34, 0, DateTimeKind.Local), target.TimeLocal);
         Assert.Null(target.DurationHours);
         Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
         Assert.Equal("proj1", target.CategoryArg);

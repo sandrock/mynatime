@@ -6,6 +6,7 @@ using Mynatime.Infrastructure;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using static Mynatime.CLI.Constants;
 
 public class ActivityAddCommand : Command
 {
@@ -55,9 +56,6 @@ public class ActivityAddCommand : Command
 
         bool acceptStartDate = true, acceptEndDate = false, acceptDuration = true, acceptStartTime = true, acceptEndTime = false, acceptCategory = true;
         DateTime date;
-        var dateFormat = "yyyy-MM-dd";
-        var durationRegex = new Regex("^(\\d+)([\\.,](\\d+))?$");
-        var timeRegex = new Regex("^(\\d?\\d)(\\d\\d)$");
         Match match;
         var errors = 0;
         for (++i; i < args.Length; i++)
@@ -83,19 +81,19 @@ public class ActivityAddCommand : Command
                     Console.WriteLine("Argument must be followed by a message. ");
                 }
             }
-            else if (acceptStartDate && DateTime.TryParseExact(arg, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+            else if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
             {
                 this.StartTimeLocal = date;
                 acceptStartDate = false;
                 acceptEndDate = true;
             }
-            else if (acceptEndDate && DateTime.TryParseExact(arg, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+            else if (acceptEndDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
             {
                 this.EndTimeLocal = date;
                 acceptStartDate = false;
                 acceptEndDate = false;
             }
-            else if ((acceptStartTime || acceptEndTime) && (match = timeRegex.Match(arg)).Success)
+            else if ((acceptStartTime || acceptEndTime) && (match = TimeRegex.Match(arg)).Success)
             {
                 var hours = int.Parse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
                 var minutes = int.Parse(match.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
@@ -131,7 +129,7 @@ public class ActivityAddCommand : Command
                     }
                 }
             }
-            else if (acceptDuration && (match = durationRegex.Match(arg)).Success)
+            else if (acceptDuration && (match = DurationRegex.Match(arg)).Success)
             {
                 this.DurationHours = (decimal)int.Parse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
                 if (!string.IsNullOrEmpty(match.Groups[2].Value))

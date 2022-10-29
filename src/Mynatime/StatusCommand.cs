@@ -1,6 +1,7 @@
 ﻿
 namespace Mynatime.CLI;
 
+using System.Globalization;
 using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
@@ -147,13 +148,13 @@ public class StatusCommand : Command
         {
             Console.Write(thing.DateStart.Value.ToString(ClientConstants.DateInputFormat));
             Console.Write(" ");
-            if (thing.DateEnd != null && thing.Duration == null)
+            if (thing.DateEnd != null && thing.Duration == null && thing.InAt != null && thing.OutAt != null)
             {
-                Console.Write(thing.DateStart.Value.ToString(ClientConstants.HourMinuteTimeFormat));
+                Console.Write(thing.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
                 Console.Write(" ");
                 if (thing.DateStart.Value.Date != thing.DateEnd.Value.Date)
                 {
-                    Console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat));
+                    Console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
                 }
                 else
                 {
@@ -161,14 +162,18 @@ public class StatusCommand : Command
                 }
                 
                 Console.Write(" ");
-                Console.Write(thing.DateEnd.Value.ToString(ClientConstants.HourMinuteTimeFormat));
+                Console.Write(thing.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
                 Console.Write(" ");   
             }
-            else
+            else if (thing.DateEnd != null && thing.Duration != null && thing.InAt == null && thing.OutAt == null)
             {
                 var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length*2 + 1;
                 var duration = "for " + thing.Duration?.ToString() + " h";
                 Console.Write(duration.PadRight(spaces, ' '));
+            }
+            else
+            {
+                Console.Write(" INVALID ACTIVITY");   
             }
 
             if (thing.ActivityId != null)

@@ -36,6 +36,7 @@ namespace Mynatime.GUI.ViewModels
             this.LoginCommand = ReactiveCommand.CreateFromTask(this.DoLogin);
             this.client = new ManatimeWebClient();
             this.OpenProfileCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.OpenProfile);
+            this.OpenActivityCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.OpenActivity);
         }
 
         public ObservableCollection<ProfileViewModel?> Profiles { get; }
@@ -50,7 +51,11 @@ namespace Mynatime.GUI.ViewModels
 
         public ReactiveCommand<ProfileViewModel,Unit> OpenProfileCommand { get; set; }
 
+        public ReactiveCommand<ProfileViewModel,Unit> OpenActivityCommand { get; set; }
+
         public event EventHandler<DataEventArgs<string>> OpenProfileWindow;
+
+        public event EventHandler<DataEventArgs<string>> OpenActivityWindow;
 
         public string? LoginStatus
         {
@@ -270,6 +275,12 @@ namespace Mynatime.GUI.ViewModels
         private Unit OpenProfile(ProfileViewModel param)
         {
             this.OpenProfileWindow?.Invoke(this, new DataEventArgs<string>(param.ConfigurationPath));
+            return Unit.Default;
+        }
+
+        private Unit OpenActivity(ProfileViewModel param)
+        {
+            this.OpenActivityWindow?.Invoke(this, new DataEventArgs<string>(param.ConfigurationPath));
             return Unit.Default;
         }
     }

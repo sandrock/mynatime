@@ -17,15 +17,19 @@ namespace Mynatime.GUI.Views
         {
             this.InitializeComponent();
             this.ProfileWindows = new List<ProfileWindow>();
+            this.ActivityWindows = new List<ActivityWindow>();
             this.log.LogInformation("hey");
         }
 
         public List<ProfileWindow> ProfileWindows { get; }
 
+        public List<ActivityWindow> ActivityWindows { get; }
+
         private void OnDataContextChanged(object? sender, EventArgs e)
         {
             var context = (MainWindowViewModel)this.DataContext!; 
             var task = context.Initialize();
+
             context.OpenProfileWindow += (s, e) =>
             {
                 if (e.Data is null)
@@ -56,6 +60,41 @@ namespace Mynatime.GUI.Views
                 if (!found)
                 {
                     this.log.LogInformation("Create window for profile {0}", e.Data);
+                    var window = new ProfileWindow(e.Data);
+                    this.ProfileWindows.Add(window);
+                    window.Show(this);
+                }
+            };
+            context.OpenActivityWindow += (s, e) =>
+            {
+                if (e.Data is null)
+                {
+                    return;
+                }
+
+                var found = false;
+                foreach (var window in this.ActivityWindows)
+                {
+                    if (window.ProfileFilePath == e.Data)
+                    {
+                        this.log.LogInformation("Activity window exists for profile {0}", e.Data);
+                        found = true;
+                        try
+                        {
+                            // this crashes once the window closed :(
+                            window.Activate();
+                            window.Focus();
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogError(ex.ToString());
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    this.log.LogInformation("Create activity window for profile {0}", e.Data);
                     var window = new ProfileWindow(e.Data);
                     this.ProfileWindows.Add(window);
                     window.Show(this);

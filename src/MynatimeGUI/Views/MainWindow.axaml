@@ -40,6 +40,8 @@
                         <TextBlock Text="{Binding Status}"></TextBlock>
                         <Button Command="{Binding DataContext.OpenProfileCommand, ElementName=self}"
                                 CommandParameter="{Binding}">open</Button>
+                        <Button Command="{Binding DataContext.OpenActivityCommand, ElementName=self}"
+                                CommandParameter="{Binding}">activity</Button>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

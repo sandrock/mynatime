@@ -219,7 +219,12 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     {
         return nameof(NewActivityItemPage)
             + " " + (this.LoadTime != null ? ((this.Succeed ? "OK" : ("FAIL " + this.GetErrorCode()))) : string.Empty)
-          + " " + string.Join(" ", this.form.GetPairs().Select(x => x.Key + "=" + x.Value));
+          + " DateStart=" + (this.DateStart != null ? this.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) : String.Empty)
+          + " InAt=" + (this.InAt != null ? this.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture) : String.Empty)
+          + " DateEnd=" + (this.DateEnd != null ? this.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) : String.Empty)
+          + " OutAt=" + (this.OutAt != null ? this.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture) : String.Empty)
+          + " Duration=" + (this.Duration != null ? this.Duration : String.Empty)
+          + " ActivityId=" + (this.ActivityId != null ? this.ActivityId : String.Empty);
     }
 
     public string ToDisplayString(MynatimeProfileData data)

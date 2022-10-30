@@ -215,6 +215,78 @@ public class ActivityStartStopManagerTests
         Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
     }
 
+    [Fact]
+    public void ComputeActivityList_NightlyItem()
+    {
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+
+        // day 1
+        source.Add(date0.AddHours(08.0), "Start", "project1");
+        source.Add(date0.AddHours(12.0), "Stop");
+        source.Add(date0.AddHours(13.5), "Start", "internal");
+        source.Add(date0.AddHours(16.5), "Start", "project2");
+        ////source.Add(date0.AddHours(17.5), "Stop");
+
+        // day 2
+        var date1 = date0.AddDays(1);
+        source.Add(date1.AddHours(09.0), "Start", "project1");
+        source.Add(date1.AddHours(09.4), "Start", "project2");
+        source.Add(date1.AddHours(12.0), "Stop");
+
+        target.GenerateItems();
+        var items = target.Activities;
+        Assert.Empty(target.Errors);
+        Assert.Collection(
+            items,
+            x => { VerifyEqual(x, date0, 08, 00, date0, 12, 00, "project1"); },
+            x => { VerifyEqual(x, date0, 13, 30, date0, 16, 30, "internal"); },
+            x => { VerifyEqual(x, date0, 16, 30, date1, 09, 00, "project2"); },
+            x => { VerifyEqual(x, date1, 09, 00, date1, 09, 24, "project1"); },
+            x => { VerifyEqual(x, date1, 09, 24, date1, 12, 00, "project2"); });
+        Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
+        Assert.Collection(
+            target.Warnings,
+            x => { Assert.Equal("NightlyItem", x.Code); });
+    }
+
+    [Fact]
+    public void ComputeActivityList_ManyDaysItem()
+    {
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+
+        // day 1
+        source.Add(date0.AddHours(08.0), "Start", "project1");
+        source.Add(date0.AddHours(12.0), "Stop");
+        source.Add(date0.AddHours(13.5), "Start", "internal");
+        source.Add(date0.AddHours(16.5), "Start", "project2");
+        ////source.Add(date0.AddHours(17.5), "Stop");
+
+        // day 2
+        var date1 = date0.AddDays(2);
+        source.Add(date1.AddHours(09.0), "Start", "project1");
+        source.Add(date1.AddHours(09.4), "Start", "project2");
+        source.Add(date1.AddHours(12.0), "Stop");
+
+        target.GenerateItems();
+        var items = target.Activities;
+        Assert.Empty(target.Errors);
+        Assert.Collection(
+            items,
+            x => { VerifyEqual(x, date0, 08, 00, date0, 12, 00, "project1"); },
+            x => { VerifyEqual(x, date0, 13, 30, date0, 16, 30, "internal"); },
+            x => { VerifyEqual(x, date0, 16, 30, date1, 09, 00, "project2"); },
+            x => { VerifyEqual(x, date1, 09, 00, date1, 09, 24, "project1"); },
+            x => { VerifyEqual(x, date1, 09, 24, date1, 12, 00, "project2"); });
+        Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
+        Assert.Collection(
+            target.Warnings,
+            x => { Assert.Equal("ManyDaysItem", x.Code); });
+    }
+
     private void VerifyEqual(NewActivityItemPage item, DateTime date, int hour, int minute, DateTime endDate, int endHour, int endMinute, string? category)
     {
         Assert.Null(item.Duration);

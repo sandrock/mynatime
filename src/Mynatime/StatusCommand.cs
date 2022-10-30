@@ -115,7 +115,7 @@ public class StatusCommand : Command
 
         public Task Visit(ActivityStartStop state)
         {
-            Console.WriteLine(nameof(ActivityStartStop));
+            Console.WriteLine("Activity tracker");
             var manager = new ActivityStartStopManager(state);
             manager.GenerateItems();
 
@@ -128,16 +128,25 @@ public class StatusCommand : Command
                 }
             }
 
+            if (manager.Warnings.Any())
+            {
+                Console.WriteLine("Warnings:");
+                foreach (var error in manager.Warnings)
+                {
+                    Console.WriteLine("- " + error);
+                }
+            }
+
             Console.WriteLine("Activities:");
             foreach (var entry in manager.Activities)
             {
-                Console.WriteLine("- " + entry.ToDisplayString(profile.Data));
+                Console.WriteLine("- " + entry.ToDisplayString(profile.Data!));
             }
 
             {
                 foreach (var item in state.Events.Except(manager.UsedEvents))
                 {
-                    Console.WriteLine("- " + item.ToDisplayString(profile.Data));
+                    Console.WriteLine("- " + item.ToDisplayString(profile.Data!));
                 }
             }
 
@@ -146,7 +155,8 @@ public class StatusCommand : Command
 
         public Task Visit(NewActivityItemPage thing)
         {
-            Console.Write(thing.DateStart.Value.ToString(ClientConstants.DateInputFormat));
+            Console.WriteLine("Activity item ");
+            Console.Write(thing.DateStart!.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
             Console.Write(" ");
             if (thing.DateEnd != null && thing.Duration == null && thing.InAt != null && thing.OutAt != null)
             {
@@ -173,12 +183,12 @@ public class StatusCommand : Command
             }
             else
             {
-                Console.Write(" INVALID ACTIVITY");   
+                Console.Write(" INVALID ACTIVITY");
             }
 
             if (thing.ActivityId != null)
             {
-                var activity = this.profile.Data.GetActivityById(thing.ActivityId);
+                var activity = this.profile.Data!.GetActivityById(thing.ActivityId);
                 if (activity != null)
                 {
                     Console.Write(activity.Name);

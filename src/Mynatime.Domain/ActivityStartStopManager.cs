@@ -3,6 +3,7 @@
 using Mynatime.Client;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using System.Globalization;
 
 /// <summary>
 /// Given a list of start/stop event, computes a list of <see cref="NewActivityItemPage"/>.
@@ -11,6 +12,7 @@ public sealed class ActivityStartStopManager
 {
     private readonly ActivityStartStop source;
     private readonly List<BaseError> errors = new ();
+    private readonly List<BaseError> warnings = new ();
     private readonly List<ActivityStartStopEvent> usedEvents = new ();
     private readonly List<NewActivityItemPage> activities = new();
 
@@ -21,6 +23,8 @@ public sealed class ActivityStartStopManager
 
     public IReadOnlyList<BaseError> Errors { get => this.errors; }
 
+    public IReadOnlyList<BaseError> Warnings { get => this.warnings; }
+
     public IReadOnlyList<ActivityStartStopEvent> UsedEvents { get => this.usedEvents; }
 
     public IReadOnlyList<NewActivityItemPage> Activities { get => this.activities; }
@@ -28,6 +32,7 @@ public sealed class ActivityStartStopManager
     public void GenerateItems()
     {
         this.errors.Clear();
+        this.warnings.Clear();
         this.usedEvents.Clear();
         this.activities.Clear();
 
@@ -96,6 +101,40 @@ public sealed class ActivityStartStopManager
         {
             this.activities.Add(currentActivity);
         }
+
+        foreach (var activity in this.activities)
+        {
+            int days = CountDaysAcross(activity.DateStart!.Value, activity.DateEnd!.Value);
+            if (days == 0)
+            {
+                // impossible
+            }
+            else if (days == 1)
+            {
+                // ok
+            }
+            else if (days == 2)
+            {
+                this.warnings.Add(new BaseError("NightlyItem", "Nightly activity between " + activity.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+            }
+            else
+            {
+                this.warnings.Add(new BaseError("ManyDaysItem", "Multiple days activity between " + activity.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+            }
+        }
+    }
+
+    private int CountDaysAcross(DateTime start, DateTime end)
+    {
+        int value = 0;
+        var current = start;
+        for (; current <= end ;)
+        {
+            current = start.AddDays(value + 1);
+            value++;
+        }
+
+        return value;
     }
 
     private void MakeStart(NewActivityItemPage current, DateTime item)

@@ -89,7 +89,7 @@ namespace Mynatime.GUI.ViewModels
         private async Task LoadConfiguration()
         {
             var directory = MynatimeConfiguration.GetConfigDirectory();
-            foreach (var file in directory.EnumerateFiles("profile.*.json"))
+            foreach (var file in MynatimeProfiles.DiscoverProfileFiles(directory))
             {
                 ProfileViewModel? profile = null;
                 try

@@ -363,13 +363,9 @@ public class ConsoleApp : IConsoleApp
 
     private async Task DiscoverProfiles()
     {
-        if (Directory.Exists(this.ConfigDirectory))
+        foreach (var file in MynatimeProfiles.DiscoverProfileFiles(this.ConfigDirectory))
         {
-            foreach (var path in Directory.EnumerateFiles(this.ConfigDirectory, "*.json"))
-            {
-                var file = new FileInfo(path);
-                var config = await this.OpenProfileByFilePath(file);
-            }
+            var config = await this.OpenProfileByFilePath(file);
         }
     }
 

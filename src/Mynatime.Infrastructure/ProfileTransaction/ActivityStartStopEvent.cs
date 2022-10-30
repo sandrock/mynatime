@@ -22,6 +22,8 @@ public sealed class ActivityStartStopEvent
 
     public string? ActivityId { get; }
 
+    public string? Comment { get; set; }
+
     public static ActivityStartStopEvent Deserialize(JObject item)
     {
         return new ActivityStartStopEvent(

@@ -73,6 +73,38 @@ public class ActivityStartStopManagerTests
     }
 
     [Fact]
+    public void ComputeActivityList_OneDayOkay_Comment()
+    {
+        var date = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date.AddHours(08.0), "Start", null, "c1");
+        source.Add(date.AddHours(09.5), "Start", "project2", "c2");
+        source.Add(date.AddHours(12.0), "Stop", null, "c3");
+        source.Add(date.AddHours(13.5), "Start", "project1", "c4");
+        source.Add(date.AddHours(15.0), "Start", null, "c5");
+        source.Add(date.AddHours(16.5), "Stop", "project3", "c6");
+
+        target.GenerateItems();
+        var items = target.Activities;
+        Assert.Empty(target.Errors);
+        Assert.Collection(
+            items,
+            x => { VerifyEqual(x, date, 08, 00, date, 09, 30, null, "c1"); },
+            x => { VerifyEqual(x, date, 09, 30, date, 12, 00, "project2", "c2\nc3"); },
+            x => { VerifyEqual(x, date, 13, 30, date, 15, 00, "project1", "c4"); },
+            x => { VerifyEqual(x, date, 15, 00, date, 16, 30, "project3", "c5\nc6"); });
+        Assert.Collection(
+            target.UsedEvents,
+            x => { Assert.Same(source.EventsList[0], x); },
+            x => { Assert.Same(source.EventsList[1], x); },
+            x => { Assert.Same(source.EventsList[2], x); },
+            x => { Assert.Same(source.EventsList[3], x); },
+            x => { Assert.Same(source.EventsList[4], x); },
+            x => { Assert.Same(source.EventsList[5], x); });
+    }
+
+    [Fact]
     public void ComputeActivityList_OneDayOkay_Unordered()
     {
         var date = new DateTime(2021, 7, 1, 8, 0, 0, DateTimeKind.Local);
@@ -287,10 +319,9 @@ public class ActivityStartStopManagerTests
             x => { Assert.Equal("ManyDaysItem", x.Code); });
     }
 
-    private void VerifyEqual(NewActivityItemPage item, DateTime date, int hour, int minute, DateTime endDate, int endHour, int endMinute, string? category)
+    private void VerifyEqual(NewActivityItemPage item, DateTime date, int hour, int minute, DateTime endDate, int endHour, int endMinute, string? category, string? comment = null)
     {
         Assert.Null(item.Duration);
-        Assert.Null(item.Comment);
         Assert.Equal(item.DateStart, date.Date);
         Assert.Equal(item.DateEnd, endDate.Date);
         Assert.Equal(item.InAt, new TimeSpan(hour, minute, 0));
@@ -303,6 +334,15 @@ public class ActivityStartStopManagerTests
         else
         {
             Assert.Null(item.ActivityId);
+        }
+
+        if (comment != null)
+        {
+            Assert.Equal(comment, item.Comment);
+        }
+        else
+        {
+            Assert.Null(item.Comment);
         }
     }
 }

@@ -10,9 +10,9 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using static Mynatime.Infrastructure.MynatimeConstants;
 
-public class ActivityStartCommand : Command
+public class ActivityTrackingCommand : Command
 {
-    public ActivityStartCommand(IConsoleApp app, IManatimeWebClient client)
+    public ActivityTrackingCommand(IConsoleApp app, IManatimeWebClient client)
         : base(app)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
@@ -32,6 +32,7 @@ public class ActivityStartCommand : Command
     public DateTime? TimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
     public string? CategoryArg { get; set; }
+    public string? Comment { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -89,13 +90,32 @@ public class ActivityStartCommand : Command
         bool acceptStartTime = true, acceptStartDate = true, acceptCategory = true;
         DateTime date;
         Match match;
+        var errors = 0;
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
             var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
 
             string? value = null;
-            if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+
+            if (ConsoleApp.MatchArg(arg, "--message") || ConsoleApp.MatchShortArg(arg, "-m", out value))
+            {
+                if (value != null)
+                {
+                    this.Comment = value;
+                }
+                else if (nextArg != null)
+                {
+                    this.Comment = nextArg;
+                    i++;
+                }
+                else
+                {
+                    errors++;
+                    Console.WriteLine("Argument must be followed by a message. ");
+                }
+            }
+            else if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
             {
                 this.DateLocal = date.Date;
                 acceptStartDate = false;
@@ -116,6 +136,11 @@ public class ActivityStartCommand : Command
             {
                 goto error;
             }
+        }
+
+        if (errors > 0)
+        {
+            goto error;
         }
 
         ok:

@@ -68,9 +68,10 @@ public sealed class ActivityStartStop : ITransactionItem
         return item;
     }
 
-    public ActivityStartStopEvent Add(DateTime timeLocal, string mode, string? categoryId)
+    public ActivityStartStopEvent Add(DateTime timeLocal, string mode, string? categoryId, string? comment = null)
     {
         var item = new ActivityStartStopEvent(timeLocal, mode, categoryId);
+        item.Comment = comment;
         this.items.Add(item);
         return item;
     }

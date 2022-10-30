@@ -62,6 +62,7 @@ public sealed class ActivityStartStopManager
                 currentActivity = new NewActivityItemPage();
                 currentActivity.ActivityId = currentEvent.ActivityId;
                 MakeStart(currentActivity, currentEvent.TimeLocal);
+                AppendComment(currentActivity, currentEvent);
             }
             else if (itemStops)
             {
@@ -72,6 +73,7 @@ public sealed class ActivityStartStopManager
                     usedEvents.AddIfAbsent(stopEvent = currentEvent);
                     currentActivity.ActivityId = currentEvent.ActivityId ?? currentActivity.ActivityId;
                     MakeStop(currentActivity, currentEvent.TimeLocal);
+                    AppendComment(currentActivity, currentEvent);
                     previousActivity = currentActivity;
                     currentActivity = null;
                 }
@@ -83,6 +85,7 @@ public sealed class ActivityStartStopManager
                     currentActivity.ActivityId = currentEvent.ActivityId;
                     MakeStart(currentActivity, previousActivity.GetEndTime()!.Value);
                     MakeStop(currentActivity, currentEvent.TimeLocal);
+                    AppendComment(currentActivity, currentEvent);
                     previousActivity = currentActivity;
                     currentActivity = null;
                 }
@@ -148,5 +151,22 @@ public sealed class ActivityStartStopManager
         current.DateEnd = item.Date;
         current.OutAt = item.TimeOfDay;
         this.activities.Add(current);
+    }
+
+    private void AppendComment(NewActivityItemPage currentActivity, ActivityStartStopEvent currentEvent)
+    {
+        if (string.IsNullOrEmpty(currentEvent.Comment))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(currentActivity.Comment))
+        {
+            currentActivity.Comment += "\n" + currentEvent.Comment;
+        }
+        else
+        {
+            currentActivity.Comment = currentEvent.Comment;
+        }
     }
 }

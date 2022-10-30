@@ -160,6 +160,7 @@ mynatime act stop [time] [category]               # stops  an activity
 mynatime act status                               # lists current activities
 mynatime act clear                                # removes all events
 mynatime act start/stop [date] [time] [category]  # you can specify a date
+                        [--message|-m <message>]    # you can add a comment
 ```
 
 
@@ -173,6 +174,7 @@ Activity tracking uses a list of events to create a list of activities. You can 
 ```bash
 mynatime  act add [date] <duration> [category]                         # adds an activity
 mynatime  act add <date> <time-start> [date-end] <time-end> [category] # adds an activity
+                        [--message|-m <message>]                       # you can add a comment
 ```
 
 

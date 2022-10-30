@@ -17,7 +17,7 @@ public class ConsoleApp : IConsoleApp
     private readonly IOptions<AppSettings> appSettings;
     private readonly IManatimeWebClient client;
     private readonly List<string> consoleErrors = new List<string>();
-    private readonly List<MynatimeProfile> availableProfiles = new List<MynatimeProfile>();
+    private readonly List<MynatimeProfile> availableProfiles = new ();
     private readonly List<Command?> commands;
 
     public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings, IManatimeWebClient client)
@@ -100,6 +100,11 @@ public class ConsoleApp : IConsoleApp
 
         if (await this.SelectCurrentProfile())
         {
+            var cookies = this.CurrentProfile!.Cookies;
+            if (cookies != null)
+            {
+                this.client.SetCookies(cookies);
+            }
         }
 
         if (this.ShowConsoleErrors())
@@ -363,19 +368,15 @@ public class ConsoleApp : IConsoleApp
 
     private async Task DiscoverProfiles()
     {
+        // this will add each profile to the list of available profiles
         foreach (var file in MynatimeProfiles.DiscoverProfileFiles(this.ConfigDirectory))
         {
-            var config = await this.OpenProfileByFilePath(file);
+            await this.OpenProfileByFilePath(file);
         }
     }
 
     private async Task<bool> SelectCurrentProfile()
     {
-        if (this.availableProfiles.Count == 0)
-        {
-            return false;
-        }
-
         // try open by file path
         if (this.OpenProfileName != null)
         {
@@ -385,6 +386,7 @@ public class ConsoleApp : IConsoleApp
                 var config = await this.OpenProfileByFilePath(fileInfo);
                 if (config != null)
                 {
+                    this.AddAvailableProfile(config);
                     this.CurrentProfile = config;
                     return true;
                 }
@@ -397,13 +399,11 @@ public class ConsoleApp : IConsoleApp
                 var config = await this.OpenProfileByFilePath(fileInfo);
                 if (config != null)
                 {
+                    this.AddAvailableProfile(config);
                     this.CurrentProfile = config;
                     return true;
                 }
             }
-
-            ////this.AddConsoleError("Found no profile matching argument \"" + this.OpenProfileName+"\". ");
-            ////return false;
         }
 
         if (this.availableProfiles.Count == 0)
@@ -463,7 +463,16 @@ public class ConsoleApp : IConsoleApp
         try
         {
             var config = await MynatimeProfile.LoadFromFile(file.FullName);
-            this.availableProfiles.Add(config);
+
+            if (config.IsEnabled == false)
+            {
+                this.log.LogInformation("Loading profile <{0}>: this profile is disabled. ", file.FullName);
+            }
+            else
+            {
+                this.AddAvailableProfile(config);
+            }
+
             return config;
         }
         catch (InvalidOperationException ex)
@@ -471,6 +480,35 @@ public class ConsoleApp : IConsoleApp
             this.log.LogWarning("Loading profile <{0}> failed: {1}", file.FullName, ex.Message);
             return null;
         }
+    }
+
+    private void AddAvailableProfile(MynatimeProfile config)
+    {
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
+        if (!string.IsNullOrEmpty(config.UniqueId))
+        {
+            if (this.availableProfiles.Any(p => string.Equals(p.UniqueId, config.UniqueId, StringComparison.OrdinalIgnoreCase)))
+            {
+                // already exists
+                return;
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(config.FilePath))
+        {
+            var info = new FileInfo(config.FilePath);
+            if (this.availableProfiles.Any(p => p.FilePath != null && info.FullName.Equals(new FileInfo(p.FilePath).FullName, StringComparison.Ordinal)))
+            {
+                // already exists
+                return;
+            }
+        }
+
+        this.availableProfiles.Add(config);
     }
 
     private void AddConsoleError(string message)

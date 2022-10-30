@@ -102,8 +102,8 @@ public class ManatimeWebClient : IManatimeWebClient
         requestData.Add(new KeyValuePair<string, string>("_csrf_token", this.csrfToken));
         requestData.Add(new KeyValuePair<string, string>("_username", username));
         requestData.Add(new KeyValuePair<string, string>("_password", password));
-        requestData.Add(new KeyValuePair<string, string>("remember_me=", "on"));
-        requestData.Add(new KeyValuePair<string, string>("_submit=", ""));
+        requestData.Add(new KeyValuePair<string, string>("_remember_me", "on"));
+        requestData.Add(new KeyValuePair<string, string>("_submit", ""));
         var requestContent = new FormUrlEncodedContent(requestData);
         request.Content = requestContent;
 
@@ -372,8 +372,8 @@ public class ManatimeWebClient : IManatimeWebClient
             result.AddError(new BaseError("PageParseMiss/Identity", "Failed to extract user information. "));
         }
             
-        var groupJson = Regex.Match(contents, @"analytics\.group\('(\d+)',\s+\{(.*?)\}\)", RegexOptions.Singleline);
-        if (identifyJson.Success)
+        var groupJson = Regex.Match(contents, @"analytics\.group\(""(\d+)"",\s+\{(.*?)\}\)", RegexOptions.Singleline);
+        if (groupJson.Success)
         {
             result.GroupId = groupJson.Groups[1].Value;
             result.Group = (JObject)JsonConvert.DeserializeObject("{" + groupJson.Groups[2].Value + "}");

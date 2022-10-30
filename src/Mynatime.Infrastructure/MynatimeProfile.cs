@@ -156,6 +156,28 @@ public sealed class MynatimeProfile : JsonObject
         set => this.Element["IsDefault"] = value;
     }
 
+    public bool? IsEnabled
+    {
+        get => this.Element.Value<bool?>("IsEnabled");
+        set => this.Element["IsEnabled"] = value;
+    }
+
+    public string UniqueId
+    {
+        get
+        {
+            var value = this.Element.Value<string?>("UniqueId");
+            if (string.IsNullOrEmpty(value))
+            {
+                value = Guid.NewGuid().ToString();
+                this.Element["UniqueId"] = value;
+            }
+
+            return value;
+        }
+        set => this.Element["UniqueId"] = value;
+    }
+
     /// <summary>
     /// Loads the profile from a JSON file. 
     /// </summary>

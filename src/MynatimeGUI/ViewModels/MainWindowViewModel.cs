@@ -106,6 +106,11 @@ namespace Mynatime.GUI.ViewModels
                         continue;
                     }
 
+                    if (config.IsEnabled == false)
+                    {
+                        continue;
+                    }
+
                     profile = new ProfileViewModel();
                     profile.ConfigurationPath = file.FullName;
                     profile.SetConfiguration(config);
@@ -156,19 +161,30 @@ namespace Mynatime.GUI.ViewModels
             else if (home.GetErrorCode() == "LoggedOut" && profile.Password != null)
             {
                 this.log.LogInformation("Profile <{0}> is <{1}>, re-authenticating... ", profile.ConfigurationPath, home.GetErrorCode());
-                var result = await profile.Client.EmailPasswordAuthenticate(profile.Username, profile.Password);
-                home = result;
-                if (result.Succeed)
+                var loginPage = await profile.Client.PrepareEmailPasswordAuthenticate();
+                if (!loginPage.Succeed)
                 {
-                    this.log.LogInformation("Refreshed profile <{0}>. ", profile.ConfigurationPath);
-                    profile.Client = this.client;
-                    profile.LastCheckTimeUtc = DateTime.UtcNow;
+                    this.log.LogInformation("Failed to re-authenticate profile <{0}>: {1}. ", profile.ConfigurationPath, loginPage.GetErrorCode());
+                    this.LoginStatus = loginPage.GetErrorMessage();
+                    profile.Status = loginPage.GetErrorMessage() ?? "???";
                 }
                 else
                 {
-                    this.log.LogInformation("Failed to re-authenticate profile <{0}>: {1}. ", profile.ConfigurationPath, result.GetErrorCode());
-                    this.LoginStatus = result.GetErrorMessage();
-                    profile.Status = result.GetErrorMessage() ?? "???";
+                    var result = await profile.Client.EmailPasswordAuthenticate(profile.Username, profile.Password);
+                    home = result;
+                    if (result.Succeed)
+                    {
+                        this.log.LogInformation("Refreshed profile <{0}>. ", profile.ConfigurationPath);
+                        profile.Client = this.client;
+                        profile.LastCheckTimeUtc = DateTime.UtcNow;
+                        profile.Status = "Refresh OK";
+                    }
+                    else
+                    {
+                        this.log.LogInformation("Failed to re-authenticate profile <{0}>: {1}. ", profile.ConfigurationPath, result.GetErrorCode());
+                        this.LoginStatus = result.GetErrorMessage();
+                        profile.Status = result.GetErrorMessage() ?? "???";
+                    }
                 }
             }
             else

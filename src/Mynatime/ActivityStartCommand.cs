@@ -21,10 +21,12 @@ public class ActivityStartCommand : Command
     public static string[] StartArgs { get; } = new string[] { "start", };
     public static string[] StopArgs { get; } = new string[] { "stop", };
     public static string[] StatusArgs { get; } = new string[] { "status", };
+    public static string[] ClearArgs { get; } = new string[] { "clear", };
 
     public bool IsStart { get; set; }
     public bool IsStop { get; set; }
     public bool IsStatus { get; set; }
+    public bool IsClear { get; set; }
     public TimeZoneInfo TimeZoneLocal { get; set; }
     public DateTime DateLocal { get; set; }
     public DateTime? TimeLocal { get; set; }
@@ -38,6 +40,8 @@ public class ActivityStartCommand : Command
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0] + " [time] [category]", "starts an activity");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StopArgs[0] + " [time] [category]", "stops  an activity");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StatusArgs[0], "lists current activities");
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + ClearArgs[0], "removes all events");
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0] + "/" + StopArgs[0] + " [date] [time] [category]", "you can specify a date");
         return describe;
     }
 
@@ -71,6 +75,10 @@ public class ActivityStartCommand : Command
         else if (ConsoleApp.MatchArg(args[i], StatusArgs))
         {
             this.IsStatus = true;
+        }
+        else if (ConsoleApp.MatchArg(args[i], ClearArgs))
+        {
+            this.IsClear = true;
         }
         else
         {
@@ -137,18 +145,21 @@ public class ActivityStartCommand : Command
             return;
         }
 
-        if (this.IsStatus && !(this.IsStart || this.IsStop))
+        if (this.IsStatus && !(this.IsStart || this.IsStop || this.IsClear))
         {
         }
-        else if (this.IsStart && !(this.IsStatus || this.IsStop))
+        else if (this.IsStart && !(this.IsStatus || this.IsStop || this.IsClear))
         {
         }
-        else if (this.IsStop && !(this.IsStart || this.IsStatus))
+        else if (this.IsStop && !(this.IsStart || this.IsStatus || this.IsClear))
+        {
+        }
+        else if (this.IsClear && !(this.IsStart || this.IsStatus || this.IsStop))
         {
         }
         else
         {
-            Console.WriteLine("Neither start or stop or status? ");
+            Console.WriteLine("Neither start or stop or status or clear? ");
             return;
         }
 
@@ -214,6 +225,12 @@ public class ActivityStartCommand : Command
         if (this.IsStart || this.IsStop)
         {
             state.Add(this.TimeLocal.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id);
+            hasChanged = true;
+        }
+
+        if (this.IsClear)
+        {
+            state.Clear();
             hasChanged = true;
         }
 

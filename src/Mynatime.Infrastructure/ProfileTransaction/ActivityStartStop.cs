@@ -96,4 +96,9 @@ public sealed class ActivityStartStop : ITransactionItem
     {
         return this.EventsList.Remove(usedEvent);
     }
+
+    public void Clear()
+    {
+        this.items.Clear();
+    }
 }

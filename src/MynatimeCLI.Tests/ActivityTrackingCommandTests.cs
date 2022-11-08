@@ -15,8 +15,11 @@ public class ActivityTrackingCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
-    public static IEnumerable<object[]> ValidInitialArgument()
+    public static IEnumerable<object?[]> ValidInitialArgument()
     {
+        yield return new object?[] { "activities", null, };
+        yield return new object?[] { "act", null, };
+        yield return new object[] { "act", "status", };
         yield return new object[] { "act", "start", };
         yield return new object[] { "Activity", "start", };
         yield return new object[] { "activities", "start", };
@@ -29,7 +32,6 @@ public class ActivityTrackingCommandTests
     {
         yield return new object[] { "act", "cet", };
         yield return new object[] { "category", "activity", };
-        yield return new object[] { "activities", };
         yield return new object[] { "categories", };
         yield return new object[] { "act", "add", };
         yield return new object[] { "Activity", "add", };
@@ -37,14 +39,15 @@ public class ActivityTrackingCommandTests
     }
 
     [Theory, MemberData(nameof(ValidInitialArgument))]
-    public void MatchArg_Yes(string arg0, string arg1)
+    public void MatchArg_Yes(string? arg0, string? arg1)
     {
         var app = GetAppMock();
         var client = GetClientMock();
         var target = new ActivityTrackingCommand(app.Object, client.Object);
-        var result = target.MatchArg(arg0);
+        var result = target.MatchArg(arg0!);
         Assert.True(result);
-        result = target.ParseArgs(app.Object, new string[] { arg0, arg1, }, out int consumedArgs, out Command? command);
+        result = target.ParseArgs(app.Object, arg0 == null ? new string[0] : arg1 == null ? new string[] { arg0, } : new string[] { arg0, arg1, }, out int consumedArgs,
+            out Command? command);
         Assert.True(result);
     }
 
@@ -390,6 +393,21 @@ public class ActivityTrackingCommandTests
     public void Match_Status()
     {
         var args = new string[] { "act", "status", };
+        var app = GetAppMock();
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.True(target.IsStatus);
+        Assert.False(target.IsStart);
+        Assert.False(target.IsStop);
+    }
+
+    [Fact]
+    public void Match_Nothing()
+    {
+        var args = new string[] { "act", };
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();

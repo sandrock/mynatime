@@ -53,6 +53,13 @@ public class ActivityTrackingCommand : Command
 
     public override bool ParseArgs(IConsoleApp app, string[] args, out int consumedArgs, out Command? command)
     {
+        if (args.Length == 1 && this.MatchArg(args[0]))
+        {
+            // status!
+            this.IsStatus = true;
+            goto ok;
+        }
+
         var i = -1;
         if (++i >= args.Length || !this.MatchArg(args[i]))
         {

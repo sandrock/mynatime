@@ -54,7 +54,7 @@ public class ActivityAddCommandTests
     }
 
     [Fact]
-    public async Task MatchAndRun_Date_Duration_Category()
+    public async Task MatchAndRun_Date_Duration_Category_Okay()
     {
         var args = new string[] { "act", "add", "2022-09-18", "2.5", "proj1", };
         var app = GetAppMock(withProfile: true);
@@ -112,7 +112,7 @@ public class ActivityAddCommandTests
     }
     
     [Fact]
-    public async Task MatchAndRun_Date_TimeStart_TimeEnd_Category()
+    public async Task MatchAndRun_Date_TimeStart_TimeEnd_Category_Okay()
     {
         var args = new string[] { "act", "add", "2022-09-18", "925", "1140", "proj1", };
         var app = GetAppMock(withProfile: true);
@@ -315,7 +315,29 @@ public class ActivityAddCommandTests
     }
 
     [Fact]
-    public async Task Run_NoProfile()
+    public async Task MatchAndRun_Date_TimeStart_Category_Error()
+    {
+        var args = new string[] { "act", "add", "2022-09-18", "0925", "proj1", };
+        var app = GetAppMock(withProfile: true);
+        var tz = app.Object.TimeZoneLocal;
+        var client = GetClientMock();
+        var target = new ActivityAddCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
+        Assert.Null(target.DurationHours);
+        Assert.Null(target.EndTimeLocal);
+        Assert.Equal(tz.Id, target.TimeZoneLocal.Id);
+        Assert.Equal("proj1", target.CategoryArg);
+
+        await target.Run();
+        Assert.Empty(app.Object.CurrentProfile?.Transaction.Items);
+        app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Never);
+        Assert.Null(target.Comment);
+    }
+
+    [Fact]
+    public async Task Run_NoProfile_Error()
     {
         var app = GetAppMock();
         var target = new ActivityAddCommand(app.Object, null);

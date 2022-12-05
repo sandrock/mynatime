@@ -23,8 +23,6 @@ public class ActivityAddCommand : Command
     public DateTime? EndTimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
     public string? CategoryArg { get; set; }
-    public bool IsStart { get; set; }
-    public bool IsStop { get; set; }
     public string Comment { get; set; }
 
     public override CommandDescription Describe()
@@ -184,11 +182,6 @@ public class ActivityAddCommand : Command
             return;
         }
         
-        if (this.IsStart || this.IsStop)
-        {
-            throw new NotImplementedException();
-        }
-        
         if (this.StartTimeLocal == null)
         {
             this.StartTimeLocal = this.App.TimeNowLocal;
@@ -203,6 +196,7 @@ public class ActivityAddCommand : Command
         }
 
         var page = new NewActivityItemPage();
+        bool hasChanged = false, ok = true;
         MynatimeProfileDataActivityCategory category = null;
         if (this.CategoryArg != null)
         {
@@ -235,17 +229,26 @@ public class ActivityAddCommand : Command
         page.DateStart = this.StartTimeLocal;
         page.DateEnd = this.EndTimeLocal;
         page.Comment = this.Comment;
-        if (this.DurationHours == null)
+        
+        if (this.DurationHours != null && this.StartTimeLocal != null && this.EndTimeLocal == null)
         {
+            // by duration
+            page.Duration = this.DurationHours.Value.ToInvariantString();
+        }
+        else if (this.StartTimeLocal != null && this.EndTimeLocal != null && this.DurationHours == null)
+        {
+            // by time start and time end
             page.InAt = this.StartTimeLocal.Value.TimeOfDay;
             page.OutAt = this.EndTimeLocal.Value.TimeOfDay;
         }
         else
         {
-            page.Duration = this.DurationHours.Value.ToInvariantString();
+            Console.WriteLine("Please specify the start and end time (using the time format) or the duration (in decimal hours). ");
+            return;
         }
 
         transaction.Add(page.ToTransactionItem(null, this.App.TimeNowUtc));
+        hasChanged = true;
 
         await this.App.PersistProfile(profile);
     }

@@ -204,7 +204,9 @@ public class ActivityStartStopManagerTests
         target.GenerateItems();
         var items = target.Activities;
         Assert.Empty(target.Errors);
-        Assert.Empty(items);
+        Assert.Collection(
+            items,
+            x => { VerifyEqual(x, date, 08, 00, null, 0, 00, null, isStartAndStop: false); });
     }
 
     [Fact]
@@ -319,13 +321,23 @@ public class ActivityStartStopManagerTests
             x => { Assert.Equal("ManyDaysItem", x.Code); });
     }
 
-    private void VerifyEqual(NewActivityItemPage item, DateTime date, int hour, int minute, DateTime endDate, int endHour, int endMinute, string? category, string? comment = null)
+    private void VerifyEqual(ActivityItemWrapper wrapper, DateTime date, int hour, int minute, DateTime? endDate, int endHour, int endMinute, string? category, string? comment = null, bool? isStartAndStop = true)
     {
+        var item = wrapper.Item;
         Assert.Null(item.Duration);
         Assert.Equal(item.DateStart, date.Date);
-        Assert.Equal(item.DateEnd, endDate.Date);
+
+        if (endDate != null)
+        {
+            Assert.Equal(endDate.Value.Date, item.DateEnd);
+            Assert.Equal(item.OutAt, new TimeSpan(endHour, endMinute, 0));
+        }
+        else
+        {
+            Assert.Null(endDate);
+        }
+        
         Assert.Equal(item.InAt, new TimeSpan(hour, minute, 0));
-        Assert.Equal(item.OutAt, new TimeSpan(endHour, endMinute, 0));
 
         if (category != null)
         {
@@ -343,6 +355,11 @@ public class ActivityStartStopManagerTests
         else
         {
             Assert.Null(item.Comment);
+        }
+
+        if (isStartAndStop != null)
+        {
+            Assert.Equal(isStartAndStop.Value, wrapper.IsStartAndStop);
         }
     }
 }

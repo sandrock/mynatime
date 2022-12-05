@@ -15,4 +15,10 @@
     <InternalsVisibleTo Include="Mynatime.Domain.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\MynatimeClient\ClientConstants.cs">
+      <Link>ClientConstants.cs</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>

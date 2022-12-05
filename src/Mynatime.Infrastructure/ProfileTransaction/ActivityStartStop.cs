@@ -1,9 +1,11 @@
 ﻿
 namespace Mynatime.Infrastructure.ProfileTransaction;
 
+using Mynatime.Client;
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 using System.Text;
 
 public sealed class ActivityStartStop : ITransactionItem
@@ -82,7 +84,9 @@ public sealed class ActivityStartStop : ITransactionItem
         foreach (var item in this.items)
         {
             sb.Append("  - ");
-            sb.Append(item.TimeLocal.ToInvariantString());
+            sb.Append(item.TimeLocal.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
+            sb.Append("  ");
+            sb.Append(item.TimeLocal.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
             sb.Append("  ");
             sb.Append(item.Mode.PadRight(6, ' '));
             sb.Append("  ");

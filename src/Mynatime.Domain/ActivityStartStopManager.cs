@@ -14,7 +14,7 @@ public sealed class ActivityStartStopManager
     private readonly List<BaseError> errors = new ();
     private readonly List<BaseError> warnings = new ();
     private readonly List<ActivityStartStopEvent> usedEvents = new ();
-    private readonly List<NewActivityItemPage> activities = new();
+    private readonly List<ActivityItemWrapper> activities = new();
 
     public ActivityStartStopManager(ActivityStartStop source)
     {
@@ -27,7 +27,7 @@ public sealed class ActivityStartStopManager
 
     public IReadOnlyList<ActivityStartStopEvent> UsedEvents { get => this.usedEvents; }
 
-    public IReadOnlyList<NewActivityItemPage> Activities { get => this.activities; }
+    public IReadOnlyList<ActivityItemWrapper> Activities { get => this.activities; }
 
     public void GenerateItems()
     {
@@ -36,7 +36,7 @@ public sealed class ActivityStartStopManager
         this.usedEvents.Clear();
         this.activities.Clear();
 
-        NewActivityItemPage? currentActivity = null, previousActivity = null;
+        ActivityItemWrapper? currentActivity = null, previousActivity = null;
         // ReSharper disable once NotAccessedVariable
         ActivityStartStopEvent? startEvent = null, stopEvent = null;
         foreach (var currentEvent in source.Events.OrderBy(x => x.TimeLocal))
@@ -59,8 +59,8 @@ public sealed class ActivityStartStopManager
 
                 startEvent = currentEvent;
                 previousActivity = currentActivity;
-                currentActivity = new NewActivityItemPage();
-                currentActivity.ActivityId = currentEvent.ActivityId;
+                currentActivity = new ActivityItemWrapper();
+                currentActivity.Item.ActivityId = currentEvent.ActivityId;
                 MakeStart(currentActivity, currentEvent.TimeLocal);
                 AppendComment(currentActivity, currentEvent);
             }
@@ -71,7 +71,7 @@ public sealed class ActivityStartStopManager
                 {
                     usedEvents.AddIfAbsent(startEvent!);
                     usedEvents.AddIfAbsent(stopEvent = currentEvent);
-                    currentActivity.ActivityId = currentEvent.ActivityId ?? currentActivity.ActivityId;
+                    currentActivity.Item.ActivityId = currentEvent.ActivityId ?? currentActivity.Item.ActivityId;
                     MakeStop(currentActivity, currentEvent.TimeLocal);
                     AppendComment(currentActivity, currentEvent);
                     previousActivity = currentActivity;
@@ -81,9 +81,9 @@ public sealed class ActivityStartStopManager
                 {
                     // stopping after a stop
                     usedEvents.AddIfAbsent(stopEvent = currentEvent);
-                    currentActivity = new NewActivityItemPage();
-                    currentActivity.ActivityId = currentEvent.ActivityId;
-                    MakeStart(currentActivity, previousActivity.GetEndTime()!.Value);
+                    currentActivity = new ActivityItemWrapper();
+                    currentActivity.Item.ActivityId = currentEvent.ActivityId;
+                    MakeStart(currentActivity, previousActivity.Item.GetEndTime()!.Value);
                     MakeStop(currentActivity, currentEvent.TimeLocal);
                     AppendComment(currentActivity, currentEvent);
                     previousActivity = currentActivity;
@@ -100,14 +100,19 @@ public sealed class ActivityStartStopManager
             }
         }
 
-        if (currentActivity?.OutAt != null)
+        if (currentActivity?.Item.OutAt != null)
         {
-            this.activities.Add(currentActivity);
+            currentActivity.IsStartAndStop = true;
         }
 
         foreach (var activity in this.activities)
         {
-            int days = CountDaysAcross(activity.DateStart!.Value, activity.DateEnd!.Value);
+            if (!activity.IsStartAndStop)
+            {
+                continue;
+            }
+
+            int days = CountDaysAcross(activity.Item.DateStart!.Value, activity.Item.DateEnd!.Value);
             if (days == 0)
             {
                 // impossible
@@ -118,11 +123,11 @@ public sealed class ActivityStartStopManager
             }
             else if (days == 2)
             {
-                this.warnings.Add(new BaseError("NightlyItem", "Nightly activity between " + activity.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+                this.warnings.Add(new BaseError("NightlyItem", "Nightly activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
             }
             else
             {
-                this.warnings.Add(new BaseError("ManyDaysItem", "Multiple days activity between " + activity.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+                this.warnings.Add(new BaseError("ManyDaysItem", "Multiple days activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
             }
         }
     }
@@ -140,33 +145,34 @@ public sealed class ActivityStartStopManager
         return value;
     }
 
-    private void MakeStart(NewActivityItemPage current, DateTime item)
+    private void MakeStart(ActivityItemWrapper current, DateTime item)
     {
-        current.DateStart = item.Date;
-        current.InAt = item.TimeOfDay;
-    }
-
-    private void MakeStop(NewActivityItemPage current, DateTime item)
-    {
-        current.DateEnd = item.Date;
-        current.OutAt = item.TimeOfDay;
+        current.Item.DateStart = item.Date;
+        current.Item.InAt = item.TimeOfDay;
         this.activities.Add(current);
     }
 
-    private void AppendComment(NewActivityItemPage currentActivity, ActivityStartStopEvent currentEvent)
+    private void MakeStop(ActivityItemWrapper current, DateTime item)
+    {
+        current.Item.DateEnd = item.Date;
+        current.Item.OutAt = item.TimeOfDay;
+        current.IsStartAndStop = true;
+    }
+
+    private void AppendComment(ActivityItemWrapper currentActivity, ActivityStartStopEvent currentEvent)
     {
         if (string.IsNullOrEmpty(currentEvent.Comment))
         {
             return;
         }
 
-        if (!string.IsNullOrEmpty(currentActivity.Comment))
+        if (!string.IsNullOrEmpty(currentActivity.Item.Comment))
         {
-            currentActivity.Comment += "\n" + currentEvent.Comment;
+            currentActivity.Item.Comment += "\n" + currentEvent.Comment;
         }
         else
         {
-            currentActivity.Comment = currentEvent.Comment;
+            currentActivity.Item.Comment = currentEvent.Comment;
         }
     }
 }

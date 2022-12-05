@@ -140,7 +140,7 @@ public class StatusCommand : Command
             Console.WriteLine("Activities:");
             foreach (var entry in manager.Activities)
             {
-                Console.WriteLine("- " + entry.ToDisplayString(profile.Data!));
+                Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!));
             }
 
             {

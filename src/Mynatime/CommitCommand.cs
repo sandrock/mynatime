@@ -234,7 +234,10 @@ public sealed class CommitCommand : Command
 
             foreach (var activity in manager.Activities)
             {
-                await this.Visit(activity);
+                if (activity.IsStartAndStop)
+                {
+                    await this.Visit(activity.Item);
+                }
             }
 
             foreach (var usedEvent in manager.UsedEvents)

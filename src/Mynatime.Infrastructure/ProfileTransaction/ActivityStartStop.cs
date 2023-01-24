@@ -86,7 +86,7 @@ public sealed class ActivityStartStop : ITransactionItem
             sb.Append("  - ");
             sb.Append(item.TimeLocal.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
             sb.Append("  ");
-            sb.Append(item.TimeLocal.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
+            sb.Append(item.TimeLocal.TimeOfDay.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
             sb.Append("  ");
             sb.Append(item.Mode.PadRight(6, ' '));
             sb.Append("  ");

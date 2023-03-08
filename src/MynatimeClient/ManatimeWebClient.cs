@@ -89,7 +89,7 @@ public class ManatimeWebClient : IManatimeWebClient
             return BaseResult.Error<LoginResult>("MissingCsrfToken", "Cannot authenticate without the CSRF token. ");
         }
         /*
-<form action="/security/login_check" method="post">
+<form action="/security/login" method="post">
     <input type="hidden"                    name="_csrf_token"   value="kCCyMAVBpsQjea3O4vgnyHOpERWK54mB3pJZH1kBGQQ"/>
     <input type="text" id="username"        name="_username"     value="" required="required" autofocus="autofocus"/>
     <input type="password" id="password"    name="_password"     required="required"/>
@@ -97,7 +97,7 @@ public class ManatimeWebClient : IManatimeWebClient
     <button type="submit" class="btn btn-primary ml-3" id="_submit" name="_submit">
 </form>
          */
-        var request = this.CreateRequest(HttpMethod.Post, "security/login_check");
+        var request = this.CreateRequest(HttpMethod.Post, "security/login");
         var requestData = new List<KeyValuePair<string, string>>();
         requestData.Add(new KeyValuePair<string, string>("_csrf_token", this.csrfToken));
         requestData.Add(new KeyValuePair<string, string>("_username", username));

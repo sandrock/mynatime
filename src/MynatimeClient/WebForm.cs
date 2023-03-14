@@ -9,16 +9,24 @@ using System.Globalization;
 using System.Text;
 
 /// <summary>
-/// Container for web form values. With utility methods. 
+/// <para>Container for web form values. With utility methods. </para>
+/// <para>Stores keys and values to help parse or submit web forms. </para>
 /// </summary>
 public sealed class WebForm
 {
     private readonly Dictionary<string, WebFormValues> keys = new Dictionary<string, WebFormValues>();
 
+    /// <summary>
+    /// Creates a new empty web form.
+    /// </summary>
     public WebForm()
     {
     }
 
+    /// <summary>
+    /// Creates a web form with preset keys. 
+    /// </summary>
+    /// <param name="keys"></param>
     public WebForm(params string[] keys)
     {
         foreach (var key in keys)
@@ -38,6 +46,12 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Gets the single string value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">more than one value is set for the specified key</exception>
     public string? GetStringValue(string key)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -59,6 +73,11 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Gets all the string values associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
     public IList<string> GetStringValues(string key)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -71,6 +90,11 @@ public sealed class WebForm
         return list;
     }
 
+    /// <summary>
+    /// Sets one string value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
     public void SetStringValue(string key, string? value)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -90,6 +114,11 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Adds one string value associated to the specified key.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
     public void AddStringValue(string key, string value)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -101,6 +130,16 @@ public sealed class WebForm
         values.Add(new WebFormValue(value));
     }
 
+    /// <summary>
+    /// Gets the single DateTime value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="format"></param>
+    /// <param name="kind"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException">more than one value is set for the specified key</exception>
+    /// <exception cref="FormatException"></exception>
     public DateTime? GetDateTimeValue(string key, string format, DateTimeKind kind)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -122,6 +161,12 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Sets a single DateTime value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <param name="format"></param>
     public void SetDateTimeValue(string key, DateTime? value, string format)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -140,6 +185,14 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Gets the single TimeSpan value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">more than one value is set for the specified key</exception>
+    /// <exception cref="FormatException"></exception>
     public TimeSpan? GetTimeSpanValue(string key, string format)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -161,6 +214,12 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Sets the single TimeSpan value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <param name="format"></param>
     public void SetTimeSpanValue(string key, TimeSpan? value, string format)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -179,6 +238,13 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Gets the single integer value associated to the specified key.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">more than one value is set for the specified key</exception>
+    /// <exception cref="FormatException"></exception>
     public long? GetLongValue(string key)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -192,7 +258,7 @@ public sealed class WebForm
         }
         else if (values.Count == 1)
         {
-            return long.Parse(values[0].Value, CultureInfo.InvariantCulture);
+            return long.Parse(values[0].Value, NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
         else
         {
@@ -200,6 +266,11 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Sets the single integer value associated to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
     public void SetLongValue(string key, long? value)
     {
         if (!this.keys.TryGetValue(key, out WebFormValues? values))
@@ -252,11 +323,31 @@ public sealed class WebForm
         return builder.ToString();
     }
 
+    /// <summary>
+    /// Removes a key and the associated values. 
+    /// </summary>
+    /// <param name="key"></param>
     public void Remove(string key)
     {
         this.keys.Remove(key);
     }
 
+    /// <summary>
+    /// Removes the associated values to the specified key. 
+    /// </summary>
+    /// <param name="key"></param>
+    public void Clear(string key)
+    {
+        if (this.keys.TryGetValue(key, out var values))
+        {
+            values.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Enumerates all pairs of key and value. 
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<KeyValuePair<string, string>> GetPairs()
     {
         foreach (var key in this.keys)
@@ -275,6 +366,11 @@ public sealed class WebForm
         }
     }
 
+    /// <summary>
+    /// Loads url-encoded form data. 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public void LoadFormData(string data)
     {
         if (data == null)
@@ -309,7 +405,7 @@ public sealed class WebForm
         }
     }
 
-    private class WebFormValues : Collection<WebFormValue>
+    private sealed class WebFormValues : Collection<WebFormValue>
     {
         public IList<string> AsStringList()
         {
@@ -371,7 +467,7 @@ public sealed class WebForm
         }
     }
 
-    private class WebFormValue
+    private sealed class WebFormValue
     {
         public WebFormValue(string value)
         {

@@ -291,12 +291,12 @@ public class ActivityTrackingCommand : Command
             Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data));
         }
 
-        {
-            foreach (var item in state.Events.Except(manager.UsedEvents))
-            {
-                Console.WriteLine("- " + item.ToDisplayString(profile.Data));
-            }
-        }
+        ////{
+        ////    foreach (var item in state.Events.Except(manager.UsedEvents))
+        ////    {
+        ////        Console.WriteLine("- " + item.ToDisplayString(profile.Data));
+        ////    }
+        ////}
 
         if (hasChanged)
         {

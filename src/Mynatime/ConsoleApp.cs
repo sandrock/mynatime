@@ -85,7 +85,7 @@ public class ConsoleApp : IConsoleApp
     /// <param name="args"></param>
     public async Task Run(string[] args)
     {
-        Console.WriteLine(this.appSettings.Value.Title);
+        Console.WriteLine(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat));
         this.log.LogInformation("App run. ");
 
         this.ParseArgs(args);

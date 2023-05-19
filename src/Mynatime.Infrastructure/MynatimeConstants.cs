@@ -3,6 +3,9 @@ namespace Mynatime.Infrastructure;
 
 using System.Text.RegularExpressions;
 
+/// <summary>
+/// Constants related to the app. 
+/// </summary>
 public static class MynatimeConstants
 {
     /// <summary>
@@ -15,7 +18,7 @@ public static class MynatimeConstants
     /// </summary>
     public static Regex TimeRegex = new Regex("^(\\d?\\d)(\\d\\d)$");
 
-    public static string DateFormat = "yyyy-MM-dd";
+    public const string DateFormat = "yyyy-MM-dd";
 
-    public static string TimeFormat = "HHmm";
+    public const string TimeFormat = "HHmm";
 }

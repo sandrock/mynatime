@@ -4,6 +4,9 @@ namespace Mynatime.Client;
 using System;
 using System.Globalization;
 
+/// <summary>
+/// Constants related to the service. 
+/// </summary>
 #if CLIENTLIB
 public static class ClientConstants
 #else

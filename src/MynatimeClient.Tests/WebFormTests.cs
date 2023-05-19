@@ -328,6 +328,18 @@ public class WebFormTests
         Assert.Equal(someDate, data.DateTimeUpdated);
     }
 
+    [Fact]
+    public void ClearKey()
+    {
+        var data = new WebForm();
+        var key = "key";
+        data.AddStringValue(key, "value1");
+        data.AddStringValue(key, "value2");
+        data.Clear(key);
+        Assert.Single(data.Keys);
+        Assert.Empty(data.GetStringValues(key));
+    }
+
     public class SampleForm1
     {
         public const string DateFormat = "yyyy-MM-dd";

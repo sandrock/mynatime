@@ -52,7 +52,7 @@ public sealed class ActivityStartStopEvent
 
         sb.Append(this.TimeLocal.ToString(DateFormat, CultureInfo.InvariantCulture));
         sb.Append(' ');
-        sb.Append(this.TimeLocal.TimeOfDay.ToString(TimeFormat, CultureInfo.InvariantCulture));
+        sb.Append(this.TimeLocal.ToString(TimeFormat, CultureInfo.InvariantCulture));
 
         if (this.ActivityId != null)
         {

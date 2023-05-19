@@ -247,22 +247,29 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
         if (this.DateEnd != null && (this.DateStart == null || this.DateStart.Value != this.DateEnd.Value))
         {
-            sb.Append(sep);
+            sb.Append("->");
             sb.Append(this.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
             sep = " ";
         }
 
         if (this.OutAt != null)
         {
-            sb.Append(sep);
+            sb.Append("->");
             sb.Append(this.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
             sep = " ";
         }
 
         if (this.Duration != null)
         {
-            sb.Append(sep);
+            sb.Append("->");
             sb.Append(this.Duration);
+            sep = " ";
+        }
+
+        if (this.Duration == null && this.OutAt == null)
+        {
+            sb.Append("->");
+            sb.Append("?????");
             sep = " ";
         }
 

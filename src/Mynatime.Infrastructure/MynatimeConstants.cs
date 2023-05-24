@@ -21,4 +21,6 @@ public static class MynatimeConstants
     public const string DateFormat = "yyyy-MM-dd";
 
     public const string TimeFormat = "HHmm";
+    
+    public const string ServiceBaseUrl = "https://app.manatime.com/";
 }

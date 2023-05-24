@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:things="using:Mynatime.GUI.Things"
         mc:Ignorable="d"
-        Width="400" Height="300"
+        Width="480" Height="340"
         x:Class="Mynatime.GUI.Views.MainWindow"
         x:Name="self"
         Icon="/Assets/avalonia-logo.ico"
@@ -31,38 +31,84 @@
             <TextBlock>Mynatime</TextBlock>
         </StackPanel>
 
-        <ListBox Grid.Column="0" Grid.Row="1" Items="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" >
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Title}" ></TextBlock>
-                        <TextBlock Text="{Binding Subtitle}"></TextBlock>
-                        <TextBlock Text="{Binding Status}"></TextBlock>
-                        <Button Command="{Binding DataContext.OpenProfileCommand, ElementName=self}"
-                                CommandParameter="{Binding}">open</Button>
-                        <Button Command="{Binding DataContext.OpenActivityCommand, ElementName=self}"
-                                CommandParameter="{Binding}">activity</Button>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Profiles">
+                <ItemsControl Grid.Column="0" Grid.Row="1" Items="{Binding Profiles}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding Title}" ></TextBlock>
+                                <TextBlock Text="{Binding Subtitle}"></TextBlock>
+                                <TextBlock Text="{Binding Status}"></TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Command="{Binding DataContext.OpenProfileCommand, ElementName=self}"
+                                            CommandParameter="{Binding}">open</Button>
+                                    <Button Command="{Binding DataContext.OpenActivityCommand, ElementName=self}"
+                                            CommandParameter="{Binding}">activity</Button>
+                                    <Button Command="{Binding DataContext.DeleteProfileCommand, ElementName=self}"
+                                            CommandParameter="{Binding}">delete</Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </TabItem>
+            
+            <TabItem Header="Log in">
+                <Grid HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock>Log in here to create a profile. </TextBlock>
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Username: </TextBlock>
+                    <TextBox Watermark="Username" Text="{Binding LoginUsername}"
+                             Grid.Row="1" Grid.Column="1"  />
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Password: </TextBlock>
+                    <TextBox Watermark="Password" Text="{Binding LoginPassword}" PasswordChar="#"
+                             Grid.Row="2"  Grid.Column="1"  />
+                    
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <CheckBox IsChecked="{Binding LoginRememberPassword}" />
+                        <TextBlock VerticalAlignment="Center">Remember my password in the local files. Allows auto-login.  </TextBlock>
                     </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-
-        <Grid Grid.Column="0" Grid.Row="2">
-            <StackPanel Orientation="Horizontal">
-                <TextBox Watermark="Username" Text="{Binding LoginUsername}"
-                         Width="40" />
-                <TextBox Watermark="Password" Text="{Binding LoginPassword}" PasswordChar="#"
-                         Width="40" />
-                <CheckBox IsChecked="{Binding LoginRememberPassword}">
-                    <ToolTip.Tip><TextBlock>Remember my password in the local files. Allows auto-login.  </TextBlock></ToolTip.Tip>
-                </CheckBox>
-                <Button Command="{Binding LoginCommand}">open</Button>
-                <TextBlock Text="{Binding LoginStatus}"
-                           MinWidth="40" />
-            </StackPanel>
-        </Grid>
-
-        <TextBlock Grid.Column="0" Grid.Row="3" Text="Greeting" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    
+                    <Button Grid.Row="4" Grid.Column="1" Command="{Binding LoginCommand}">open</Button>
+                    
+                    <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding LoginStatus}" />
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Settings">
+                <StackPanel>
+                    <TextBlock>No setting available now. </TextBlock>
+                </StackPanel>
+            </TabItem>
+            
+            <TabItem Header="About">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock>Mynatime GUI</TextBlock>
+                    <TextBlock>unofficial client app</TextBlock>
+                    <TextBlock>Licensed under the GPL-3.0 license</TextBlock>
+                    <Button Click="Button_OnClick">https://github.com/sandrock/mynatime</Button>
+                    <Button Click="Button_OnClick2">open service</Button>
+                    <TextBlock>UI based on Avalonia</TextBlock>
+                    <Button Click="Button_OnClick3">https://avaloniaui.net/</Button>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 
 </Window>

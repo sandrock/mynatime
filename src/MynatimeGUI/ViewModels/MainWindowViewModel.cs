@@ -36,6 +36,7 @@ namespace Mynatime.GUI.ViewModels
             this.LoginCommand = ReactiveCommand.CreateFromTask(this.DoLogin);
             this.client = new ManatimeWebClient();
             this.OpenProfileCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.OpenProfile);
+            this.DeleteProfileCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.DeleteProfile);
             this.OpenActivityCommand = ReactiveCommand.Create<ProfileViewModel, Unit>(this.OpenActivity);
         }
 
@@ -50,6 +51,8 @@ namespace Mynatime.GUI.ViewModels
         public ReactiveCommand<Unit, Unit> LoginCommand { get; }
 
         public ReactiveCommand<ProfileViewModel,Unit> OpenProfileCommand { get; set; }
+
+        public ReactiveCommand<ProfileViewModel,Unit> DeleteProfileCommand { get; set; }
 
         public ReactiveCommand<ProfileViewModel,Unit> OpenActivityCommand { get; set; }
 
@@ -206,6 +209,12 @@ namespace Mynatime.GUI.ViewModels
             var username = this.loginUsername;
             var password = this.loginPassword;
 
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                this.LoginStatus = "Username and password are required. ";
+                return;
+            }
+
             this.LoginStatus = "Checking... ";
             var prepare = await this.client.PrepareEmailPasswordAuthenticate();
             if (prepare.Succeed)
@@ -275,6 +284,12 @@ namespace Mynatime.GUI.ViewModels
         private Unit OpenProfile(ProfileViewModel param)
         {
             this.OpenProfileWindow?.Invoke(this, new DataEventArgs<string>(param.ConfigurationPath));
+            return Unit.Default;
+        }
+
+        private Unit DeleteProfile(ProfileViewModel param)
+        {
+            
             return Unit.Default;
         }
 

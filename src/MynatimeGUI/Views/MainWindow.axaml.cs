@@ -8,6 +8,10 @@ namespace Mynatime.GUI.Views
     using Mynatime.Infrastructure;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Runtime.InteropServices;
+    using Avalonia.Interactivity;
+    using Mynatime.GUI.Things;
 
     public partial class MainWindow : Window
     {
@@ -100,6 +104,22 @@ namespace Mynatime.GUI.Views
                     window.Show(this);
                 }
             };
+        }
+
+        private void Button_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var url = "https://github.com/sandrock/mynatime";
+            Utility.OpenUrl(url);
+        }
+
+        private void Button_OnClick2(object? sender, RoutedEventArgs e)
+        {
+            Utility.OpenUrl(MynatimeConstants.ServiceBaseUrl);
+        }
+
+        private void Button_OnClick3(object? sender, RoutedEventArgs e)
+        {
+            Utility.OpenUrl("https://avaloniaui.net/");
         }
     }
 }

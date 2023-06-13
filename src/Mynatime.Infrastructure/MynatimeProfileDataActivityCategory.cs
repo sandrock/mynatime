@@ -48,6 +48,7 @@ public class MynatimeProfileDataActivityCategory : JsonObject
 
     public override string ToString()
     {
-        return "ActCategory " + this.Id + " <" + this.Name + ">";
+        return "ActCategory " + this.Id + " <" + this.Name + ">"
+            + (this.Deleted != null ? " DISABLED/DELETED" : string.Empty);
     }
 }

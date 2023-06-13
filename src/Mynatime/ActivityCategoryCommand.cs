@@ -123,12 +123,13 @@ public sealed class ActivityCategoryCommand : Command
         var existingItems = store.Items.ToList();
         var newItems = new List<MynatimeProfileDataActivityCategory>();
         var deletedItems = new List<MynatimeProfileDataActivityCategory>();
+        var changedItems = new List<MynatimeProfileDataActivityCategory>();
 
         // refresh from service
         var hasRefreshed = false;
         if (this.DoRefresh)
         {
-            hasRefreshed = await this.Refresh(profile, existingItems, newItems, deletedItems);
+            hasRefreshed = await this.Refresh(profile, existingItems, newItems, deletedItems, changedItems);
         }
 
         // read store and display items
@@ -146,7 +147,26 @@ public sealed class ActivityCategoryCommand : Command
             
             foreach (var item in items)
             {
-                Console.WriteLine(item.ToString());
+                Console.Write(item.ToString());
+
+                if (newItems.Contains(item))
+                {
+                    Console.Write("\t\tNEW!");
+                }
+
+                if (changedItems.Contains(item))
+                {
+                    Console.Write("\t\tCHANGED!");
+                }
+
+                Console.WriteLine();
+            }
+
+            foreach (var item in deletedItems)
+            {
+                Console.Write(item.ToString());
+                Console.Write("\t\tDELETED!");
+                Console.WriteLine();
             }
         }
 
@@ -163,7 +183,8 @@ public sealed class ActivityCategoryCommand : Command
         MynatimeProfile profile,
         List<MynatimeProfileDataActivityCategory> existingItems,
         List<MynatimeProfileDataActivityCategory> newItems,
-        List<MynatimeProfileDataActivityCategory> deletedItems)
+        List<MynatimeProfileDataActivityCategory> deletedItems,
+        List<MynatimeProfileDataActivityCategory> changedItems)
     {
         var profileData = profile.Data ?? new MynatimeProfileData();
 
@@ -222,17 +243,18 @@ public sealed class ActivityCategoryCommand : Command
             // add and update items 
             foreach (var category in page.Categories)
             {
-                var match = existingItems.SingleOrDefault(x => x.Id == category.Id);
+                var match = existingItems.SingleOrDefault(x => x.Id!.Equals(category.Id, StringComparison.Ordinal));
                 if (match != null)
                 {
                     match.LastUpdated = page.LoadTime;
-                    category.Update(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime.Value);
+                    changedItems.Add(match);
                 }
                 else
                 {
                     match = new MynatimeProfileDataActivityCategory(category.Id, category.DisplayName);
                     match.Created = page.LoadTime;
-                    category.Update(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime.Value);
                     newItems.Add(match);
                 }
             }
@@ -240,15 +262,21 @@ public sealed class ActivityCategoryCommand : Command
             // remove items
             foreach (var entry in existingItems)
             {
-                var match = page.Categories.SingleOrDefault(x => x.Id == entry.Id);
+                var match = page.Categories.SingleOrDefault(x => x.Id!.Equals(entry.Id, StringComparison.Ordinal));
                 if (match != null)
                 {
-                    // okay
+                    if (entry.Deleted != null)
+                    {
+                        entry.Deleted = null;
+                    }
                 }
                 else
                 {
-                    deletedItems.Add(entry);
-                    entry.Deleted = page.LoadTime;
+                    if (entry.Deleted == null)
+                    {
+                        deletedItems.Add(entry);
+                        entry.Deleted = page.LoadTime;
+                    }
                 }
             }
 

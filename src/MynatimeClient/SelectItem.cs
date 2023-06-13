@@ -10,7 +10,7 @@ public sealed class SelectItem
 
     public int Index { get; set; } = -1;
 
-    public void Update(MynatimeProfileDataActivityCategory match, DateTime time)
+    public void UpdateFrom(MynatimeProfileDataActivityCategory match, DateTime time)
     {
         match.LastUpdated = time;
         match.Name = this.DisplayName;

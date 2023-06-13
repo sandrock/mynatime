@@ -10,10 +10,16 @@ using static Mynatime.Infrastructure.MynatimeConstants;
 public sealed class ActivityStartStopEvent
 {
     public ActivityStartStopEvent(DateTime timeLocal, string mode, string? activityId)
+        : this(timeLocal, mode, activityId, null)
     {
-        TimeLocal = timeLocal;
-        Mode = mode;
-        ActivityId = activityId;
+    }
+
+    public ActivityStartStopEvent(DateTime timeLocal, string mode, string? activityId, string? comment)
+    {
+        this.TimeLocal = timeLocal;
+        this.Mode = mode;
+        this.ActivityId = activityId;
+        this.Comment = comment;
     }
 
     public DateTime TimeLocal { get; }
@@ -29,7 +35,8 @@ public sealed class ActivityStartStopEvent
         return new ActivityStartStopEvent(
             item.Value<DateTime>("Time"),
             item.Value<string>("Mode")!,
-            item.Value<string?>("CategoryId"));
+            item.Value<string?>("CategoryId"),
+            item.Value<string?>("Comment"));
     }
 
     public JObject Serialize()
@@ -38,6 +45,7 @@ public sealed class ActivityStartStopEvent
         item.Add("Time", this.TimeLocal.ToInvariantString());
         item.Add("Mode", this.Mode);
         item.Add("CategoryId", this.ActivityId);
+        item.Add("Comment", this.Comment);
         return item;
     }
 

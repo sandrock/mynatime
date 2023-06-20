@@ -256,7 +256,7 @@ public class ActivityTrackingCommand : Command
 
         if (this.IsStart || this.IsStop)
         {
-            state.Add(this.TimeLocal.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id);
+            state.Add(this.TimeLocal.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id, this.Comment);
             hasChanged = true;
         }
 

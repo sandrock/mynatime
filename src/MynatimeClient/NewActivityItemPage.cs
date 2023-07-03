@@ -278,7 +278,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
             var activity = data.GetActivityById(this.ActivityId);
             sb.Append(sep);
             sb.Append("A:");
-            sb.Append(activity.Name);
+            sb.Append(activity?.Name ?? this.ActivityId);
             sep = " ";
         }
 

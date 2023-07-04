@@ -351,7 +351,13 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else if (desiredPage == ManatimePage.PresenceCreateAdvanced)
         {
+            // on 2023-07-03: this does not exist any more
             isOkay = contents.Contains("analytics.page(\"presence_create_advanced\");");
+            
+            // 2023-07-03: <title>Créer une présence > Avancé</title>
+            // <form name="create" method="post" action="/presences/create/advanced">
+            isOkay = contents.Contains("<title>Créer une présence > Avancé</title>")
+                  || contents.Contains("""<form name="create" method="post" action="/presences/create/advanced">""");
         }
 
         if (!isOkay)
@@ -374,23 +380,55 @@ public class ManatimeWebClient : IManatimeWebClient
         var identifyJson = Regex.Match(contents, @"analytics\.identify\('(\d+)',\s+\{(.*?)\}\);", RegexOptions.Singleline);
         if (identifyJson.Success)
         {
+            // 2023-07-03: this things is no more available
+            // {
+            //    "email": "xxxxxxx@xxxxxxxxx.xxx", "name": "Xxxxxx XXXXXXXX",
+            //    "firstName": "Xxxxxx",         "lastName": "XXXXXXXX",
+            //    "gender": "female",             "birthday": "XXXX-XX-XX",
+            //    "address": { "street": "xx xxxxxx xxxxxxxxxxxxxx",  "postalCode": "XXXXX",
+            //        "city": "Xxxxxx", "country": "XX"
+            //    },
+            //    "company": {
+            //        "id": "XXXXX",          "name": "Xxxxxxxxx",
+            //        "employee_count": "XXX", "plan": "unlimited"
+            //    },
+            //    "createdAt": "XXXX-XX-XXTXX:XX:XX+XX:XX"
+            // },
             result.UserId = identifyJson.Groups[1].Value;
             result.Identity = (JObject)JsonConvert.DeserializeObject("{" + identifyJson.Groups[2].Value + "}");
+        }
+        else if ((identifyJson = Regex.Match(contents, """Sentry\.setUser\((\{.+\})\);""")).Success)
+        {
+            // Sentry.setUser({"username":"xxxxxxx@xxxxxxxxx.com","roles":["ROLE_USER_MT","ROLE_MANAGER_MT","XXXXXXXXXXXX"]});
+            var json = (JObject)JsonConvert.DeserializeObject(identifyJson.Groups[1].Value);
+            result.Identity = new JObject();
+            result.Identity["email"] = json.Value<string>("username");
+            result.Identity["name"] = null;
+            result.Identity["firstName"] = null;
+            result.Identity["lastName"] = null;
+            result.Identity["gender"] = null;
+            result.Identity["birthday"] = null;
+            result.Identity["address"] = null;
+            result.Identity["company"] = null;
+            result.Identity["createdAt"] = null;
+            result.Identity["roles"] = json["roles"];
         }
         else
         {
             result.AddError(new BaseError(ErrorCode.PageParseMissIdentity, "Failed to extract user information. "));
         }
-            
+
         var groupJson = Regex.Match(contents, @"analytics\.group\(""(\d+)"",\s+\{(.*?)\}\)", RegexOptions.Singleline);
         if (groupJson.Success)
         {
+            // 2023-07-03: this things is no more available
             result.GroupId = groupJson.Groups[1].Value;
             result.Group = (JObject)JsonConvert.DeserializeObject("{" + groupJson.Groups[2].Value + "}");
         }
         else
         {
-            result.AddError(new BaseError(ErrorCode.PageParseMissGroup, "Failed to extract group information. "));
+            // 2023-07-03: this things is no more available
+            ////result.AddError(new BaseError(ErrorCode.PageParseMissGroup, "Failed to extract group information. "));
         }
 
         return result.Succeed;

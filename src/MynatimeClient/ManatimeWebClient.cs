@@ -340,20 +340,30 @@ public class ManatimeWebClient : IManatimeWebClient
 
         if (desiredPage == ManatimePage.Home)
         {
+            // on 2023-07-03: this does not exist any more :(
             isOkay = contents.Contains("analytics.page(\"legacy_home\");");
+
+            if (!isOkay)
+            {
+                // <span class="company text-muted text-truncate">MyCompany</span>
+                isOkay = Regex.IsMatch(contents, "<span +class=\"(.+ )?company( .*)?\">.+</span>");
+            }
         }
         else if (desiredPage == ManatimePage.PresenceCreateAdvanced)
         {
             isOkay = contents.Contains("analytics.page(\"presence_create_advanced\");");
         }
 
-        if (!isOkay && isLoggedOut)
+        if (!isOkay)
         {
-            result?.AddError(new BaseError("LoggedOut", "Your session expired. "));
-        }
-        else if (!isOkay)
-        {
-            result?.AddError(new BaseError("InvalidPage", "Loaded page is wrong. "));
+            if (isLoggedOut)
+            {
+                result?.AddError(new BaseError(ErrorCode.LoggedOut, "Your session expired. "));
+            }
+            else
+            {
+                result?.AddError(new BaseError(ErrorCode.InvalidPage.Generic, "Loaded page is wrong. "));
+            }
         }
 
         return isOkay;

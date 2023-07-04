@@ -67,18 +67,18 @@ public class ManatimeWebClient : IManatimeWebClient
                 }
                 else
                 {
-                    return this.Log(BaseResult.Error<BaseResult>("PageParseMiss/CSRF", "Authentication prepare failed. "));
+                    return this.Log(BaseResult.Error<BaseResult>(ErrorCode.PageParseMissCsrf, "Authentication prepare failed. "));
                 }
             }
             else
             {
-                return this.Log(BaseResult.Error<LoginResult>("UnknownError", "Other error. "));
+                return this.Log(BaseResult.Error<LoginResult>(ErrorCode.UnknownError, "Other error. "));
             }
         }
         catch (Exception ex)
         {
             this.Log(nameof(this.PrepareEmailPasswordAuthenticate), ex);
-            return this.Log(BaseResult.Error<BaseResult>("UnknownError", "Authentication prepare failed. "));
+            return this.Log(BaseResult.Error<BaseResult>(ErrorCode.UnknownError, "Authentication prepare failed. "));
         }
     }
 
@@ -86,7 +86,7 @@ public class ManatimeWebClient : IManatimeWebClient
     {
         if (!this.canEmailPasswordAuthenticate || this.csrfToken == null)
         {
-            return BaseResult.Error<LoginResult>("MissingCsrfToken", "Cannot authenticate without the CSRF token. ");
+            return BaseResult.Error<LoginResult>(ErrorCode.MissingCsrfToken, "Cannot authenticate without the CSRF token. ");
         }
         /*
 <form action="/security/login" method="post">
@@ -121,7 +121,7 @@ public class ManatimeWebClient : IManatimeWebClient
 
             if (this.CheckPage(ManatimePage.SecurityLogin, contents, null))
             {
-                result.AddError(new BaseError("InvalidUsernameOrPassword", "Invalid credentials. "));
+                result.AddError(new BaseError(ErrorCode.InvalidUsernameOrPassword, "Invalid credentials. "));
                 return this.Log(result);
             }
 
@@ -131,7 +131,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<LoginResult>("UnknownError", "Other error. "));
+            return this.Log(BaseResult.Error<LoginResult>(ErrorCode.UnknownError, "Other error. "));
         }
     }
 
@@ -156,7 +156,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<HomeResult>("UnknownError", "Other error. "));
+            return this.Log(BaseResult.Error<HomeResult>(ErrorCode.UnknownError, "Other error. "));
         }
     }
 
@@ -179,7 +179,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<NewActivityItemPage>("UnknownError", "Other error. "));
+            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, "Other error. "));
         }
     }
 
@@ -211,7 +211,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<NewActivityItemPage>("UnknownError", "Other error. "));
+            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, "Other error. "));
         }
     }
 
@@ -369,7 +369,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            result.AddError(new BaseError("PageParseMiss/Identity", "Failed to extract user information. "));
+            result.AddError(new BaseError(ErrorCode.PageParseMissIdentity, "Failed to extract user information. "));
         }
             
         var groupJson = Regex.Match(contents, @"analytics\.group\(""(\d+)"",\s+\{(.*?)\}\)", RegexOptions.Singleline);
@@ -380,7 +380,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            result.AddError(new BaseError("PageParseMiss/Group", "Failed to extract group information. "));
+            result.AddError(new BaseError(ErrorCode.PageParseMissGroup, "Failed to extract group information. "));
         }
 
         return result.Succeed;

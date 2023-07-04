@@ -91,12 +91,12 @@ public sealed class ActivityStartStopManager
                 }
                 else
                 {
-                    this.errors.Add(new BaseError("StopNotFollowingStart", "Stop event " + currentEvent + " is not following a start event. "));
+                    this.errors.Add(new BaseError(ErrorCode.StopNotFollowingStart, "Stop event " + currentEvent + " is not following a start event. "));
                 }
             }
             else
             {
-                this.errors.Add(new BaseError("UnknownEventType", "Event " + currentEvent + " is of unknown type. "));
+                this.errors.Add(new BaseError(ErrorCode.UnknownEventType, "Event " + currentEvent + " is of unknown type. "));
             }
         }
 
@@ -123,11 +123,11 @@ public sealed class ActivityStartStopManager
             }
             else if (days == 2)
             {
-                this.warnings.Add(new BaseError("NightlyItem", "Nightly activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+                this.warnings.Add(new BaseError(ErrorCode.NightlyItem, "Nightly activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
             }
             else
             {
-                this.warnings.Add(new BaseError("ManyDaysItem", "Multiple days activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
+                this.warnings.Add(new BaseError(ErrorCode.ManyDaysItem, "Multiple days activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
             }
         }
     }

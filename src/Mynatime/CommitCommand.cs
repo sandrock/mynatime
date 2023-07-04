@@ -90,7 +90,7 @@ public sealed class CommitCommand : Command
         {
             // fine
         }
-        else if (homePage.Errors?.Any(x => x.Code == "LoggedOut") ?? false)
+        else if (homePage.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
         {
             // session expired: renew
             Console.Write("  Renewing session... ");

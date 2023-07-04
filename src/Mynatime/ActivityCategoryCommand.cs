@@ -195,7 +195,7 @@ public sealed class ActivityCategoryCommand : Command
         {
             // yeah!
         }
-        else if (page.Errors?.Any(x => x.Code == "LoggedOut") ?? false)
+        else if (page.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
         {
             // session expired: renew
             Console.WriteLine("  Renewing session... ");

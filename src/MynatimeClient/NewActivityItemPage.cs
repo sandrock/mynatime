@@ -112,7 +112,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         var formStart = Regex.Match(contents, "<form +name=\"create\" +method=\"post\" +action=\"/presences/create/advanced\">");
         if (!formStart.Success)
         {
-            this.AddError(new BaseError("InvalidPage/FormStartMissing"));
+            this.AddError(new BaseError(ErrorCode.InvalidPage.FormStartMissing));
             return;
         }
 
@@ -120,7 +120,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         var formEnd = Regex.Match(contents, "</form>");
         if (!formEnd.Success)
         {
-            this.AddError(new BaseError("InvalidPage/FormEndMissing"));
+            this.AddError(new BaseError(ErrorCode.InvalidPage.FormEndMissing));
             return;
         }
 
@@ -156,7 +156,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         }
         else
         {
-            this.AddError(new BaseError("InvalidPage/MissingCategories", "The webpage is not valid. "));
+            this.AddError(new BaseError(ErrorCode.InvalidPage.MissingCategories, "The webpage is not valid. "));
         }
         
         // read create[dateStart]
@@ -193,7 +193,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         }
         else
         {
-            this.AddError(new BaseError("InvalidPage/MissingToken", "The webpage is not valid. "));
+            this.AddError(new BaseError(ErrorCode.InvalidPage.MissingToken, "The webpage is not valid. "));
         }
     }
 
@@ -311,7 +311,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
         if (this.Duration != null && (this.InAt != null || this.OutAt != null))
         {
-            this.AddError(new BaseError("InvalidForm/DurationOrTimes", "Cannot set both duration and times. "));
+            this.AddError(new BaseError(ErrorCode.InvalidForm.DurationOrTimes, "Cannot set both duration and times. "));
         }
 
         if (this.Duration != null)
@@ -320,16 +320,16 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
             {
                 if (value <= 0)
                 {
-                    this.AddError(new BaseError("InvalidForm/Duration/Minimum", "Duration is set too low. "));
+                    this.AddError(new BaseError(ErrorCode.InvalidForm.DurationMinimum, "Duration is set too low. "));
                 }
                 else if (value > 200)
                 {
-                    this.AddError(new BaseError("InvalidForm/Duration/Maximum", "Duration is set too high. "));
+                    this.AddError(new BaseError(ErrorCode.InvalidForm.DurationMaximum, "Duration is set too high. "));
                 }
             }
             else
             {
-                this.AddError(new BaseError("InvalidForm/Duration/NotNumber", "Duration must be a number. "));
+                this.AddError(new BaseError(ErrorCode.InvalidForm.DurationNotNumber, "Duration must be a number. "));
             }
         }
     }

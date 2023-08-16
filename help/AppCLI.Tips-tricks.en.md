@@ -11,12 +11,14 @@ Daily use
 
 ### Undoing an operation before commiting
 
-Open the JSON file of the profile. Search for the element `Transaction`. It contains the pending actions. Each action type has a dedicated data representation. You might be able to tinker with the data to have the desired effect. You can also remove the transaction item to get rid of the problematic action. 
+Sometimes you can make a mistake while typing commands. The app does not have undo capabilities (for now) but you can change things the hard way before commiting. 
+
+Open the JSON file of the profile. Search for the element `Transaction`. It contains the pending actions. Each action type has a dedicated data representation. You might be able to tinker with the data to have the desired effect. You can also remove the transaction item to get rid of the problematic action. Use the `m status` command to verify your file is correct. 
 
 
 ### Looking at past actions
 
-Open the JSON file of the profile. Search for the element `Commits`. It contains the past actions.
+Open the JSON file of the profile. Search for the element `Commits`. It contains the past actions, grouped by commits.
 
 
 Developers
@@ -46,6 +48,7 @@ Open the JSON file of the profile to use by default and add a JSON entry `"IsDef
   ...
 }
 ```
+
 
 ---
 

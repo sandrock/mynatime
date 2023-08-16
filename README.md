@@ -12,7 +12,7 @@ Info
 | Relation to the service | unofficial app, use at your own risk                              |
 | CLI app status          | **beta test** (collecting user feedback)                          |
 | GUI app status          | **experimental**                                                  |
-| Build and run           | netcore6.0                                                        |
+| Build and run           | net6.0                                                            |
 | License                 | GNU General Public License Version 3                              |
 | Contributions           | **open to contributions**: use issues and PRs                     |
 | Main branch             | [![.NET](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml/badge.svg)](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml) |

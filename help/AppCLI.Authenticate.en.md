@@ -1,5 +1,5 @@
 
-[Index](AppCLI.0Index.en.md) - [Back: Commands overview](AppCLI.Commands-overview.en.md) - [Next: Add an activity](AppCLI.Add-activity.en.md) 
+[Index](AppCLI.0Index.en.md) - Back: [Commands overview](AppCLI.Commands-overview.en.md) - Next: [Tracking current activity](AppCLI.Tracking-activity.en.md)
 
 ---
 
@@ -11,8 +11,8 @@ The app supports multiple user profiles. When you set up a user profile, a JSON 
 Use one of these commands to look at the available user profiles.
 
 ```bash
-mynatime profiles
-mynatime pro
+m profiles
+m pro
 ```
 
 > MynatimeCLI  
@@ -22,8 +22,8 @@ You can add a profile using one of these commands.
 NOTE: your username and password will be saved in the profile file to help the app publish information to the service without asking the password each time.
 
 ```bash
-mynatime profile add
-mynatime pro add
+m profile add
+m pro add
 ```
 
 > MynatimeCLI   
@@ -39,4 +39,4 @@ List the profiles again to verify.
 
 ---
 
-[Index](AppCLI.0Index.en.md) - [Back: Commands overview](AppCLI.Commands-overview.en.md) - [Next: Add an activity](AppCLI.Add-activity.en.md) 
+[Index](AppCLI.0Index.en.md) - Back: [Commands overview](AppCLI.Commands-overview.en.md) - Next: [Tracking current activity](AppCLI.Tracking-activity.en.md)

@@ -13,7 +13,7 @@ The app will help you work offline with the service.  Some commands will do thin
 The first command to learn is the `help` command. It will list the available commands.
 
 ```bash
-mynatime help
+m help
 ```
 
 > MynatimeCLI  Mynatime help
@@ -60,6 +60,7 @@ mynatime help
 
 After updating the app, execute the `help` command to see the new commands available.
 
+If the `m` command is not available, please review [your mynatime installation](AppCLI.Install-from-sources.en.md). 
 
 
 ---

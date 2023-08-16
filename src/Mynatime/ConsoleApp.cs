@@ -98,12 +98,15 @@ public class ConsoleApp : IConsoleApp
 
         await this.DiscoverProfiles();
 
-        if (await this.SelectCurrentProfile())
+        if (this.Command == null || this.Command.AutoLoadProfile)
         {
-            var cookies = this.CurrentProfile!.Cookies;
-            if (cookies != null)
+            if (await this.SelectCurrentProfile())
             {
-                this.client.SetCookies(cookies);
+                var cookies = this.CurrentProfile!.Cookies;
+                if (cookies != null)
+                {
+                    this.client.SetCookies(cookies);
+                }
             }
         }
 
@@ -437,6 +440,10 @@ public class ConsoleApp : IConsoleApp
                         matches.Add(profile);
                     }
                     else if (fileNameWithoutExtension != null && fileNameWithoutExtension.Equals(this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches.Add(profile);
+                    }
+                    else if (fileNameWithoutExtension != null && fileNameWithoutExtension.Equals("profile." + this.OpenProfileName, StringComparison.OrdinalIgnoreCase))
                     {
                         matches.Add(profile);
                     }

@@ -19,6 +19,8 @@ public abstract class Command
 
     protected IConsoleApp App => this.app ?? throw new InvalidOperationException("App is not set. ");
 
+    public bool AutoLoadProfile { get; protected set; } = true;
+
     public abstract bool MatchArg(string arg);
 
     public abstract bool ParseArgs(IConsoleApp app, string[] args, out int consumedArgs, out Command? command);

@@ -14,6 +14,7 @@ public class ProfileAddCommand : Command
         : base(app)
     {
         this.client = client;
+        this.AutoLoadProfile = false;
     }
 
     public static string[] Args { get; } = new string[] { "add", "create", };
@@ -106,15 +107,16 @@ public class ProfileAddCommand : Command
             password = ConsoleApp.AskForPassword("Password>      ");
         }
 
-        Console.Write("Processing... ");
+        Console.WriteLine("Processing... ");
         var resultPage = await this.client.EmailPasswordAuthenticate(this.LoginUsername, password);
+        Console.WriteLine();
         if (resultPage.Succeed)
         {
             Console.WriteLine("OK. ");
         }
         else
         {
-            Console.WriteLine(loginPage);
+            Console.WriteLine(resultPage);
             return;
         }
 

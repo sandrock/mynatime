@@ -8,7 +8,7 @@
         Width="480" Height="340"
         x:Class="Mynatime.GUI.Views.MainWindow"
         x:Name="self"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/logo.ico"
         Title="MynatimeGUI"
         DataContextChanged="OnDataContextChanged">
 

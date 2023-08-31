@@ -88,6 +88,7 @@ namespace Mynatime.GUI.Views
                             // this crashes once the window closed :(
                             window.Activate();
                             window.Focus();
+                            this.IsVisible = false;
                         }
                         catch (Exception ex)
                         {

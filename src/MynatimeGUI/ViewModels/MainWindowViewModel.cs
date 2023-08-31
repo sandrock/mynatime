@@ -276,7 +276,15 @@ namespace Mynatime.GUI.ViewModels
                 }
             }
 
-            config.Cookies = profile.Client.GetCookies();
+            if (config.Cookies == null)
+            {
+                config.Cookies = new JArray();
+            }
+
+            foreach (var cookie in profile.Client.GetCookies())
+            {
+                var existing = config.GetCookie(cookie.)
+            }
 
             await config.SaveToFile(path);
         }

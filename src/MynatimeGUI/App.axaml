@@ -9,4 +9,16 @@
     <Application.Styles>
         <FluentTheme Mode="Light"/>
     </Application.Styles>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/logo.ico" ToolTipText="Mynatime">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Exit" Click="MenuExitItem_OnClick" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

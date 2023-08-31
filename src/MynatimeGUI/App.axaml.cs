@@ -1,6 +1,7 @@
 
 namespace Mynatime.GUI
 {
+    using System;
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
     using Avalonia.Markup.Xaml;
@@ -25,6 +26,11 @@ namespace Mynatime.GUI
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void MenuExitItem_OnClick(object? sender, EventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }

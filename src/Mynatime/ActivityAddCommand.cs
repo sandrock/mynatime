@@ -181,7 +181,7 @@ public class ActivityAddCommand : Command
             Console.WriteLine("Current profile does not allow changes. ");
             return;
         }
-        
+/*
         if (this.StartTimeLocal == null)
         {
             this.StartTimeLocal = this.App.TimeNowLocal;
@@ -194,7 +194,7 @@ public class ActivityAddCommand : Command
                 this.EndTimeLocal = this.StartTimeLocal;
             }
         }
-
+*/
         var page = new NewActivityItemPage();
         bool hasChanged = false, ok = true;
         MynatimeProfileDataActivityCategory category = null;
@@ -229,13 +229,18 @@ public class ActivityAddCommand : Command
         page.DateStart = this.StartTimeLocal;
         page.DateEnd = this.EndTimeLocal;
         page.Comment = this.Comment;
-        
-        if (this.DurationHours != null && this.StartTimeLocal != null && this.EndTimeLocal == null)
+
+        if (page.DateStart == null)
+        {
+            page.DateStart = this.App.TimeNowLocal;
+        }
+
+        if (this.DurationHours != null)
         {
             // by duration
             page.Duration = this.DurationHours.Value.ToInvariantString();
         }
-        else if (this.StartTimeLocal != null && this.EndTimeLocal != null && this.DurationHours == null)
+        else if (this.StartTimeLocal != null && this.EndTimeLocal != null)
         {
             // by time start and time end
             page.InAt = this.StartTimeLocal.Value.TimeOfDay;
@@ -246,7 +251,20 @@ public class ActivityAddCommand : Command
             Console.WriteLine("Please specify the start and end time (using the time format) or the duration (in decimal hours). ");
             return;
         }
-
+/*
+        if (this.DurationHours != null && this.StartTimeLocal != null && this.EndTimeLocal == null)
+        {
+            page.Duration = this.DurationHours.Value.ToInvariantString();
+        }
+        else if (this.StartTimeLocal != null && this.EndTimeLocal != null && this.DurationHours == null)
+        {
+        }
+        else
+        {
+            Console.WriteLine("Please specify the start and end time (using the time format) or the duration (in decimal hours). ");
+            return;
+        }
+*/
         transaction.Add(page.ToTransactionItem(null, this.App.TimeNowUtc));
         hasChanged = true;
 

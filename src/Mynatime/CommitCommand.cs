@@ -270,6 +270,7 @@ public sealed class CommitCommand : Command
             }
 
             thing.Token = page1.Token;
+            thing.User = page1.User ?? this.profile.UserId;
             var page2 = await this.client.PostNewActivityItemPage(thing);
             if (!page2.Succeed)
             {

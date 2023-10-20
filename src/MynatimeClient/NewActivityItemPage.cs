@@ -36,6 +36,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
      Accept-Language: en-GB,en;q=0.5
      Content-Type: application/x-www-form-urlencoded
     POST presences/create/advanced
+         create%5Buser%5D=67890
          create%5Btask%5D=12345
         &create%5BdateStart%5D=2022-09-20
         &create%5BdateEnd%5D=2022-09-20
@@ -54,6 +55,12 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     public bool IsEmptyCategoryAllowed { get; set; }
 
     public List<SelectItem> Categories { get; set; }
+
+    public string? User
+    {
+        get { return this.form.GetStringValue("create[user]"); }
+        set { this.form.SetStringValue("create[user]", value); }
+    }
 
     public string? Token
     {
@@ -107,6 +114,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     {
         var isOk = true;
         this.LoadTime = DateTime.UtcNow;
+        var page = contents;
         
         // locate form in page, reduce amount of string to parse
         var formStart = Regex.Match(contents, "<form +name=\"create\" +method=\"post\" +action=\"/presences/create/advanced\">");
@@ -194,6 +202,13 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         else
         {
             this.AddError(new BaseError(ErrorCode.InvalidPage.MissingToken, "The webpage is not valid. "));
+        }
+        
+        // find user id
+        var urlMatch = Regex.Match(page, @"forms\.office\.com/r/[\w\d]+\?user_id=(\d+)", RegexOptions.IgnoreCase);
+        if (urlMatch.Success)
+        {
+            this.User = urlMatch.Groups[1].Value;
         }
     }
 

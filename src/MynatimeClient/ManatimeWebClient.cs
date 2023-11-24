@@ -331,8 +331,12 @@ public class ManatimeWebClient : IManatimeWebClient
 
     private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult result)
     {
+        //
+        // current page is mostly detect using the javascript user tracking code
+        // amplitude.track("Page View", {page: "Page View", {page: "security_login"});
+        //
         bool isOkay = false, isLoggedOut = false;
-        if (contents.Contains(@"analytics.page(""security_login"");"))
+        if (IsAnalyticsPage(contents, "security_login"))
         {
             isLoggedOut = true;
             isOkay = desiredPage == ManatimePage.SecurityLogin;
@@ -341,7 +345,9 @@ public class ManatimeWebClient : IManatimeWebClient
         if (desiredPage == ManatimePage.Home)
         {
             // on 2023-07-03: this does not exist any more :(
-            isOkay = contents.Contains("analytics.page(\"legacy_home\");");
+            // on 2023-11: they changed from "analytics" to "amplitude"
+            //   amplitude.track("Page View", {page: "Page View", {page: "security_login"});
+            isOkay = IsAnalyticsPage(contents, "legacy_home");
 
             if (!isOkay)
             {
@@ -352,7 +358,7 @@ public class ManatimeWebClient : IManatimeWebClient
         else if (desiredPage == ManatimePage.PresenceCreateAdvanced)
         {
             // on 2023-07-03: this does not exist any more
-            isOkay = contents.Contains("analytics.page(\"presence_create_advanced\");");
+            isOkay = IsAnalyticsPage(contents, "presence_create_advanced");
             
             // 2023-07-03: <title>Créer une présence > Avancé</title>
             // <form name="create" method="post" action="/presences/create/advanced">
@@ -432,5 +438,28 @@ public class ManatimeWebClient : IManatimeWebClient
         }
 
         return result.Succeed;
+    }
+
+    // analytics.page(""security_login"")
+    private static readonly Regex analyticsPageNameRegex2 = new Regex("""analytics\.page\(\s*"([^"]+)"\s*\s*\)""");
+
+    // amplitude.track("Page View", {page: "security_login"});
+    private static readonly Regex analyticsPageNameRegex3 = new Regex("""amplitude\.track\(\s*"Page View"\s*,\s*\{\s*page\s*:\s*"([^"]+)"\s*\}\s*\)""");
+    
+    private static bool IsAnalyticsPage(string contents, string pageName)
+    {
+        Match match;
+        if ((match = analyticsPageNameRegex3.Match(contents)).Success)
+        {
+            return pageName.Equals(match.Groups[1].Value, StringComparison.OrdinalIgnoreCase);
+        }
+        else if ((match = analyticsPageNameRegex2.Match(contents)).Success)
+        {
+            return pageName.Equals(match.Groups[1].Value, StringComparison.OrdinalIgnoreCase);
+        }
+        else
+        {
+            return false;
+        }
     }
 }

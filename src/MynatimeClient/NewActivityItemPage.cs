@@ -292,7 +292,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         {
             var activity = data.GetActivityById(this.ActivityId);
             sb.Append(sep);
-            sb.Append("A:");
+            sb.Append("A: ");
             sb.Append(activity?.Name ?? this.ActivityId);
             sep = " ";
         }
@@ -301,7 +301,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         {
             var maxLength = 32 - 3;
             sb.Append(sep);
-            sb.Append("C:");
+            sb.Append("C: ");
             sb.Append(this.Comment.Length > maxLength ? (this.Comment.Substring(0, maxLength) + "...") : this.Comment);
             sep = " ";
         }

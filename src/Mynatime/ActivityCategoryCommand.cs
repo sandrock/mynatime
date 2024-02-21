@@ -149,7 +149,7 @@ public sealed class ActivityCategoryCommand : Command
             {
                 Console.Write(item.ToString());
 
-                if (newItems.Contains(item))
+                if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
                 {
                     Console.Write("\t\tNEW!");
                 }

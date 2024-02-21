@@ -193,16 +193,17 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
         // read create[_token]
         // <input type="hidden" id="create__token" name="create[_token]" value="xxxxxxxxxxxxxxxxxxxxxxxxx" />
-        regex = new Regex(@"<input type=""hidden"" id=""create__token"" name=""create\[_token\]"" value=""([^""]+)"" />");
-        var tokenMatch = regex.Match(contents);
-        if (tokenMatch.Success)
-        {
-            this.Token = tokenMatch.Groups[1].Value;
-        }
-        else
-        {
-            this.AddError(new BaseError(ErrorCode.InvalidPage.MissingToken, "The webpage is not valid. "));
-        }
+        // NOTE: this has been removed on 2024-02-??
+        ////regex = new Regex(@"<input type=""hidden"" id=""create__token"" name=""create\[_token\]"" value=""([^""]+)"" />");
+        ////var tokenMatch = regex.Match(contents);
+        ////if (tokenMatch.Success)
+        ////{
+        ////    this.Token = tokenMatch.Groups[1].Value;
+        ////}
+        ////else
+        ////{
+        ////    this.AddError(new BaseError(ErrorCode.InvalidPage.MissingToken, "The webpage is not valid. "));
+        ////}
         
         // find user id
         var urlMatch = Regex.Match(page, @"forms\.office\.com/r/[\w\d]+\?user_id=(\d+)", RegexOptions.IgnoreCase);

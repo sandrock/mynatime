@@ -13,7 +13,18 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 {
     const string TransactionObjectType = "Mynatime.Client.NewActivityItemPage";
 
-    private readonly WebForm form = new WebForm("create[task]", "create[dateStart]", "create[dateEnd]", "create[inAt]", "create[outAt]", "create[duration]", "create[comment]", "submitAdvanced", "create[_token]");
+    private readonly WebForm form = new WebForm(
+        "create[user]",
+        "create[task]",
+        "create[dateStart]",
+        "create[dateEnd]",
+        "create[inAt]",
+        "create[outAt]",
+        "create[duration]",
+        "create[comment]",
+        "submitAdvanced"
+        ////"create[_token]"  // NOTE: this has been removed on 2024-02-??
+        );
 
     static NewActivityItemPage()
     {
@@ -65,7 +76,17 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     public string? Token
     {
         get { return this.form.GetStringValue("create[_token]"); }
-        set { this.form.SetStringValue("create[_token]", value); }
+        set
+        {
+            if (value != null)
+            {
+                this.form.SetStringValue("create[_token]", value);
+            }
+            else
+            {
+                this.form.Remove("create[_token]");
+            }
+        }
     }
 
     public string? ActivityId

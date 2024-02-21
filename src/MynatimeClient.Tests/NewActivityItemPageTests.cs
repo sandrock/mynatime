@@ -18,7 +18,7 @@ public class NewActivityItemPageTests
         page.Comment = "comment\r\ncomment comment\r\ncomment";
         page.Token = "dfghjkfghjrftgy_h-uji";
         var result = page.GetFormData();
-        Assert.Equal("create%5Btask%5D=123456&create%5BdateStart%5D=2022-09-20&create%5BdateEnd%5D=2022-09-20&create%5BinAt%5D=22%3A21&create%5BoutAt%5D=22%3A22&create%5Bduration%5D=&create%5Bcomment%5D=comment%0D%0Acomment%20comment%0D%0Acomment&submitAdvanced=&create%5B_token%5D=dfghjkfghjrftgy_h-uji", result);
+        Assert.Equal("create%5Buser%5D=&create%5Btask%5D=123456&create%5BdateStart%5D=2022-09-20&create%5BdateEnd%5D=2022-09-20&create%5BinAt%5D=22%3A21&create%5BoutAt%5D=22%3A22&create%5Bduration%5D=&create%5Bcomment%5D=comment%0D%0Acomment%20comment%0D%0Acomment&submitAdvanced=&create%5B_token%5D=dfghjkfghjrftgy_h-uji", result);
     }
 
     [Fact]
@@ -32,6 +32,6 @@ public class NewActivityItemPageTests
         page.Comment = "comment\r\ncomment comment\r\ncomment";
         page.Token = "dfghjkfghjrftgy_h-uji";
         var result = page.GetFormData();
-        Assert.Equal("create%5Btask%5D=123456&create%5BdateStart%5D=2022-09-20&create%5BdateEnd%5D=2022-09-20&create%5BinAt%5D=&create%5BoutAt%5D=&create%5Bduration%5D=1.5&create%5Bcomment%5D=comment%0D%0Acomment%20comment%0D%0Acomment&submitAdvanced=&create%5B_token%5D=dfghjkfghjrftgy_h-uji", result);
+        Assert.Equal("create%5Buser%5D=&create%5Btask%5D=123456&create%5BdateStart%5D=2022-09-20&create%5BdateEnd%5D=2022-09-20&create%5BinAt%5D=&create%5BoutAt%5D=&create%5Bduration%5D=1.5&create%5Bcomment%5D=comment%0D%0Acomment%20comment%0D%0Acomment&submitAdvanced=&create%5B_token%5D=dfghjkfghjrftgy_h-uji", result);
     }
 }

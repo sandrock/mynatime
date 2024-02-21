@@ -25,6 +25,8 @@ public sealed class ActivityCategoryCommand : Command
     public bool DoRefresh { get; set; } = false;
 
     public string? Search { get; set; }
+    
+    public string Alias { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -58,7 +60,8 @@ public sealed class ActivityCategoryCommand : Command
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
-            var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
+            var nextArgs = new string[args.Length - i - 1];
+            Array.Copy(args, i + 1, nextArgs, 0, args.Length - i - 1);
 
             string? value = null;
             if (ConsoleApp.MatchArg(arg, "--refresh", "refresh") || ConsoleApp.MatchShortArg(arg, "-r"))
@@ -72,15 +75,29 @@ public sealed class ActivityCategoryCommand : Command
                     isSearching = true;
                     this.Search = value;
                 }
-                else if (nextArg != null)
+                else if (nextArgs.Length >= 1)
                 {
                     isSearching = true;
-                    this.Search = nextArg;
+                    this.Search = nextArgs[0];
                     i++;
                 }
                 else
                 {
                     Console.WriteLine("Search command requires a search expression. ");
+                }
+            }
+            else if (ConsoleApp.MatchArg(arg, "alias"))
+            {
+                if (nextArgs.Length >= 2)
+                {
+                    this.Search = nextArgs[0];
+                    this.Alias = nextArgs[1];
+                    i++;
+                    i++;
+                }
+                else
+                {
+                    Console.WriteLine("Alias command requires two values. ");
                 }
             }
             else

@@ -26,7 +26,7 @@ public sealed class ActivityCategoryCommand : Command
 
     public string? Search { get; set; }
     
-    public string Alias { get; set; }
+    public string? Alias { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -143,7 +143,7 @@ public sealed class ActivityCategoryCommand : Command
         var changedItems = new List<MynatimeProfileDataActivityCategory>();
 
         // refresh from service
-        var hasRefreshed = false;
+        bool hasRefreshed = false, hasChanged = false;
         if (this.DoRefresh)
         {
             hasRefreshed = await this.Refresh(profile, existingItems, newItems, deletedItems, changedItems);
@@ -156,24 +156,51 @@ public sealed class ActivityCategoryCommand : Command
             IList<MynatimeProfileDataActivityCategory> items = allItems;
             if (this.Search != null)
             {
-                var searchResult = await SearchItems(allItems, this.Search, false);
+                var searchResult = await SearchItems(allItems, this.Search, this.Alias != null);
                 items = searchResult
                    .Select(x => x.Item)
                    .ToList();
             }
-            
-            foreach (var item in items)
+
+            if (this.Alias != null)
             {
-                Console.Write(item.ToString());
+                if (items.Count == 0)
+                {
+                    Console.WriteLine($"Create alias: no such activity \"{this.Search}\"");
+                }
+                else if (items.Count > 1)
+                {
+                    Console.WriteLine($"Create alias: too many activities for \"{this.Search}\"");
+                }
+                else
+                {
+                    hasChanged = true;
+                    var item = items[0];
+                    item.Alias = this.Alias.Trim();
+                    Console.WriteLine($"Create alias: alias \"{item.Alias}\" set on \"{item.Name}\" ({item.Id})");
+                }
+            }
+
+            // display list
+            var itemDisplayNames = items.Select(x => (x.Name != null ? (" <" + x.Name + ">") : string.Empty) + (x.Alias != null ? (" <" + x.Alias + ">") : string.Empty)).ToArray();
+            var maxDisplayNameLength = itemDisplayNames.Length == 0 ? 0 : itemDisplayNames.Max(x => x.Length);
+            for (var i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                Console.Write("ActCategory");
+                Console.Write(itemDisplayNames[i].PadRight(maxDisplayNameLength));
+                Console.Write(" (");
+                Console.Write(item.Id);
+                Console.Write(")");
 
                 if (newItems.Contains(item))
                 {
-                    Console.Write("\t\tNEW!");
+                    Console.Write("\tNEW!");
                 }
 
                 if (changedItems.Contains(item))
                 {
-                    Console.Write("\t\tCHANGED!");
+                    Console.Write("\tCHANGED!");
                 }
 
                 Console.WriteLine();
@@ -182,13 +209,13 @@ public sealed class ActivityCategoryCommand : Command
             foreach (var item in deletedItems)
             {
                 Console.Write(item.ToString());
-                Console.Write("\t\tDELETED!");
+                Console.Write("\tDELETED!");
                 Console.WriteLine();
             }
         }
 
         // save store if changed
-        if (hasRefreshed)
+        if (hasRefreshed || hasChanged)
         {
             // TODO: this is not unit-testable :@
             Debug.Assert(profile.FilePath != null, "profile.FilePath != null");

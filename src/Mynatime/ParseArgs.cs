@@ -2,18 +2,24 @@
 namespace Mynatime.CLI;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
+// from <https://gist.github.com/sandrock/d1fb3040e1c9326d8dd16b3bad8930ac>
 
 /// <summary>
 /// Helps parse CLI arguments in a loop.
 /// </summary>
-public sealed class ParseArgs
+public sealed class ParseArgs : IEnumerator<string>
 {
     private readonly string[] args;
-    private int index;
     private readonly StringComparison defaultStringComparison;
+    private int index = -1;
 
+    /// <summary>
+    /// Helps parse CLI arguments in a loop.
+    /// </summary>
     public ParseArgs(StringComparison defaultStringComparison, string[] args)
     {
         if (args == null)
@@ -26,6 +32,9 @@ public sealed class ParseArgs
         this.index = -1;
     }
 
+    /// <summary>
+    /// Helps parse CLI arguments in a loop.
+    /// </summary>
     public ParseArgs(string[] args)
         : this(StringComparison.OrdinalIgnoreCase, args)
     {
@@ -36,10 +45,21 @@ public sealed class ParseArgs
     /// </summary>
     public int Index { get => this.index; }
 
+    object IEnumerator.Current => this.Current;
+
     /// <summary>
     /// Gets the current argument.
     /// </summary>
     public string Current { get => this.args[this.index]; }
+
+    public void Reset()
+    {
+        throw new NotSupportedException();
+    }
+
+    public void Dispose()
+    {
+    }
 
     /// <summary>
     /// Moves to the next argument.
@@ -79,9 +99,10 @@ public sealed class ParseArgs
     /// <returns></returns>
     public bool Is(StringComparison stringComparison,params string[] value)
     {
+        var current = this.Current;
         foreach (var value0 in value)
         {
-            if (this.Current.Equals(value0, stringComparison))
+            if (current.Equals(value0, stringComparison))
             {
                 return true;
             }
@@ -99,6 +120,16 @@ public sealed class ParseArgs
         var result = new string[this.args.Length - this.index];
         Array.Copy(this.args, this.index, result, 0, result.Length);
         return result;
+    }
+
+    /// <summary>
+    /// Checks whether a quantity of arguments are available from the current position.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public bool Remains(int value)
+    {
+        return this.args.Length - this.index - value > 0;
     }
 
     /// <summary>

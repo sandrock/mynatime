@@ -4,8 +4,61 @@ namespace Mynatime.CLI.Tests;
 using System;
 using Xunit;
 
+// from <https://gist.github.com/sandrock/d1fb3040e1c9326d8dd16b3bad8930ac>
+
 public class ParseArgsTests
 {
+    [Fact]
+    public void Loop_With0()
+    {
+        var inputArgs = new string[] { };
+        var parser = new ParseArgs(inputArgs);
+
+        Assert.False(parser.MoveNext());
+    }
+
+    [Fact]
+    public void Loop_With1()
+    {
+        var inputArgs = new string[] { "hello", };
+        var parser = new ParseArgs(inputArgs);
+
+        Assert.True(parser.MoveNext());
+        Assert.Equal(inputArgs[0], parser.Current);
+        Assert.Equal(0, parser.Index);
+        Assert.True(parser.Is(parser.Current));
+        Assert.False(parser.Is("other"));
+        Assert.True(parser.Remains(0));
+        Assert.False(parser.Remains(1));
+
+        Assert.False(parser.MoveNext());
+    }
+
+    [Fact]
+    public void Loop_With2()
+    {
+        var inputArgs = new string[] { "hello", "world", };
+        var parser = new ParseArgs(inputArgs);
+
+        Assert.True(parser.MoveNext());
+        Assert.Equal(0, parser.Index);
+        Assert.Equal(inputArgs[parser.Index], parser.Current);
+        Assert.True(parser.Is(parser.Current));
+        Assert.False(parser.Is("other"));
+        Assert.True(parser.Remains(1));
+        Assert.False(parser.Remains(2));
+
+        Assert.True(parser.MoveNext());
+        Assert.Equal(1, parser.Index);
+        Assert.Equal(inputArgs[parser.Index], parser.Current);
+        Assert.True(parser.Is(parser.Current));
+        Assert.False(parser.Is("other"));
+        Assert.True(parser.Remains(0));
+        Assert.False(parser.Remains(1));
+
+        Assert.False(parser.MoveNext());
+    }
+
     [Fact]
     public void LoopOnZero()
     {

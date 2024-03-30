@@ -21,6 +21,28 @@ Open the JSON file of the profile. Search for the element `Transaction`. It cont
 Open the JSON file of the profile. Search for the element `Commits`. It contains the past actions, grouped by commits.
 
 
+### Activity category alias #15
+
+When tracking activity, some categories are very long to type (and don't single match).
+
+```bash
+m act start interne
+Too many possibilities for category "interne": "Company-interne", "Customer2-interne", "Meeting-interne"
+```
+
+You can create an alias:
+
+```bash
+m act alias Company-interne interne
+```
+
+And use the alias for acticity adding/tracking:
+
+```bash
+m act start interne
+```
+
+
 Developers
 ---------------------
 

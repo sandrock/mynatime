@@ -6,8 +6,9 @@ public sealed class CommandDescription
 {
     private readonly List<SelectItem> commandPatterns;
 
-    public CommandDescription()
+    public CommandDescription(string title)
     {
+        this.Title = title;
         this.commandPatterns = new List<SelectItem>();
     }
 

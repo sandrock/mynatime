@@ -27,6 +27,9 @@ public sealed class ActivityStartStopManager
 
     public IReadOnlyList<ActivityStartStopEvent> UsedEvents { get => this.usedEvents; }
 
+    /// <summary>
+    /// Gets the generated activities.
+    /// </summary>
     public IReadOnlyList<ActivityItemWrapper> Activities { get => this.activities; }
 
     public void GenerateItems()

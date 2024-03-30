@@ -49,7 +49,7 @@ public sealed class ProfileListCommand : Command
             }
         }
 
-        ok:
+        ////ok:
         consumedArgs = args.Length;
         command = this;
         return true;

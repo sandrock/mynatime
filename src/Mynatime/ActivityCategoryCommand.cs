@@ -115,7 +115,7 @@ public sealed class ActivityCategoryCommand : Command
             }
         }
 
-        ok:
+        ////ok:
         consumedArgs = args.Length;
         command = this;
         return true;
@@ -136,7 +136,7 @@ public sealed class ActivityCategoryCommand : Command
             return;
         }
 
-        var store = profile.Data?.ActivityCategories;
+        var store = profile.Data?.ActivityCategories!;
         var existingItems = store.Items.ToList();
         var newItems = new List<MynatimeProfileDataActivityCategory>();
         var deletedItems = new List<MynatimeProfileDataActivityCategory>();
@@ -291,14 +291,14 @@ public sealed class ActivityCategoryCommand : Command
                 if (match != null)
                 {
                     match.LastUpdated = page.LoadTime;
-                    category.UpdateFrom(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime!.Value);
                     changedItems.Add(match);
                 }
                 else
                 {
                     match = new MynatimeProfileDataActivityCategory(category.Id, category.DisplayName);
                     match.Created = page.LoadTime;
-                    category.UpdateFrom(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime!.Value);
                     newItems.Add(match);
                 }
             }
@@ -359,7 +359,11 @@ public sealed class ActivityCategoryCommand : Command
             for (var i = 0; i < result.Count; i++)
             {
                 var item = result[i];
-                levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), item.Item.Name.ToUpperInvariant());
+                var name = item.Item.Name;
+                if (name != null)
+                {
+                    levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), name.ToUpperInvariant());
+                }
             }
 
             var sorted = levensteins.OrderBy(x => x.Value).ToArray();

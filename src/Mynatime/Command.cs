@@ -29,7 +29,7 @@ public abstract class Command
 
     public virtual CommandDescription Describe()
     {
-        var describe = new CommandDescription();
+        var describe = new CommandDescription(this.GetType().Name);
         return describe;
     }
 }

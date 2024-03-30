@@ -23,7 +23,7 @@ public class ActivityAddCommand : Command
     public DateTime? EndTimeLocal { get; set; }
     public decimal? DurationHours { get; set; }
     public string? CategoryArg { get; set; }
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -155,7 +155,7 @@ public class ActivityAddCommand : Command
             goto error;
         }
 
-        ok:
+        ////ok:
         consumedArgs = args.Length;
         command = this;
         return true;
@@ -196,8 +196,7 @@ public class ActivityAddCommand : Command
         }
 */
         var page = new NewActivityItemPage();
-        bool hasChanged = false, ok = true;
-        MynatimeProfileDataActivityCategory category = null;
+        MynatimeProfileDataActivityCategory? category = null;
         if (this.CategoryArg != null)
         {
             if (profile.Data?.ActivityCategories == null)
@@ -207,21 +206,42 @@ public class ActivityAddCommand : Command
             }
 
             var categories = profile.Data.ActivityCategories.Items.ToList();
-            var searchResult = await ActivityCategoryCommand.SearchItems(categories, this.CategoryArg, true);
-            var search = searchResult.Select(x => x.Item).ToList();
-            if (search.Count == 0)
+
+            var categoriesByAlias = categories
+               .Where(x => this.CategoryArg.Equals(x.Alias, StringComparison.OrdinalIgnoreCase))
+               .ToArray();
+            if (categoriesByAlias.Length == 1)
             {
-                Console.WriteLine("No such category " + this.CategoryArg);
-                return;
+                category = categoriesByAlias[0];
             }
-            else if (search.Count == 1)
+
+            if (category == null)
             {
-                category = search[0];
+                var searchResult = await ActivityCategoryCommand.SearchItems(categories, this.CategoryArg, true);
+                var search = searchResult.Select(x => x.Item).ToList();
+                if (search.Count == 0)
+                {
+                    Console.WriteLine("No such category " + this.CategoryArg);
+                    return;
+                }
+                else if (search.Count == 1)
+                {
+                    category = search[0];
+                }
+                else
+                {
+                    Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                    return;
+                }
+            }
+
+            if (category != null)
+            {
                 page.ActivityId = category.Id;
             }
             else
             {
-                Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                Console.WriteLine("Category selection failed");
                 return;
             }
         }
@@ -266,7 +286,6 @@ public class ActivityAddCommand : Command
         }
 */
         transaction.Add(page.ToTransactionItem(null, this.App.TimeNowUtc));
-        hasChanged = true;
 
         await this.App.PersistProfile(profile);
     }

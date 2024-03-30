@@ -196,7 +196,7 @@ public class ActivityTrackingCommand : Command
         }
 
         // find transaction item
-        MynatimeProfileTransactionItem transactionItem = null;
+        MynatimeProfileTransactionItem? transactionItem = null;
         foreach (var item in transaction.Items)
         {
             if (MynatimeProfileTransactionManager.Default.OfClass<ActivityStartStop>(item))
@@ -214,11 +214,10 @@ public class ActivityTrackingCommand : Command
             }
         }
 
-        bool hasChanged = false, exists = false;
-        ActivityStartStop state = null;
+        bool hasChanged = false;
+        ActivityStartStop state;
         if (transactionItem != null)
         {
-            exists = true;
             state = new ActivityStartStop(transactionItem);
         }
         else
@@ -226,7 +225,7 @@ public class ActivityTrackingCommand : Command
             state = new ActivityStartStop();
         }
 
-        MynatimeProfileDataActivityCategory category = null;
+        MynatimeProfileDataActivityCategory? category = null;
         if (this.CategoryArg != null)
         {
             if (profile.Data?.ActivityCategories == null)
@@ -236,27 +235,48 @@ public class ActivityTrackingCommand : Command
             }
 
             var categories = profile.Data.ActivityCategories.Items.ToList();
-            var searchResult = await ActivityCategoryCommand.SearchItems(categories, this.CategoryArg, true);
-            var search = searchResult.Select(x => x.Item).ToList();
-            if (search.Count == 0)
+
+            var categoriesByAlias = categories
+               .Where(x => this.CategoryArg.Equals(x.Alias, StringComparison.OrdinalIgnoreCase))
+               .ToArray();
+            if (categoriesByAlias.Length == 1)
             {
-                Console.WriteLine("No such category " + this.CategoryArg);
-                return;
+                category = categoriesByAlias[0];
             }
-            else if (search.Count == 1)
+
+            if (category == null)
             {
-                category = search[0];
+                var searchResult = await ActivityCategoryCommand.SearchItems(categories, this.CategoryArg, true);
+                var search = searchResult.Select(x => x.Item).ToList();
+                if (search.Count == 0)
+                {
+                    Console.WriteLine("No such category " + this.CategoryArg);
+                    return;
+                }
+                else if (search.Count == 1)
+                {
+                    category = search[0];
+                }
+                else
+                {
+                    Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                    return;
+                }
+            }
+
+            if (category != null)
+            {
             }
             else
             {
-                Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                Console.WriteLine("Category selection failed");
                 return;
             }
         }
 
         if (this.IsStart || this.IsStop)
         {
-            state.Add(this.TimeLocal.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id, this.Comment);
+            state.Add(this.TimeLocal!.Value, this.IsStart ? "Start" : this.IsStop ? "Stop" : "???", category?.Id, this.Comment);
             hasChanged = true;
         }
 
@@ -266,13 +286,14 @@ public class ActivityTrackingCommand : Command
             hasChanged = true;
         }
 
+        var manager = new ActivityStartStopManager(state);
+
         if (this.IsStatus)
         {
             Console.WriteLine("Events:");
             Console.WriteLine(state.GetSummary());
         }
 
-        var manager = new ActivityStartStopManager(state);
         manager.GenerateItems();
 
         if (manager.Errors.Any())

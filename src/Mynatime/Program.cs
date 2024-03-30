@@ -29,6 +29,6 @@ services.AddSingleton(MynatimeProfileTransactionManager.Default);
 
 var serviceProvider = services.BuildServiceProvider();
 
-var app = serviceProvider.GetService<ConsoleApp>();
+var app = serviceProvider.GetService<ConsoleApp>()!;
 app.Run(args).GetAwaiter().GetResult();
 return app.ExitCode;

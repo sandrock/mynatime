@@ -4,6 +4,9 @@ namespace Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using System;
 
+/// <summary>
+/// Allows conversion from domain objects (<see cref="ITransactionItem"/>) to transaction objects (<see cref="MynatimeProfileTransactionItem"/>) and back.
+/// </summary>
 public sealed class MynatimeProfileTransactionManager
 {
     private static MynatimeProfileTransactionManager? defaultInstance;
@@ -31,6 +34,13 @@ public sealed class MynatimeProfileTransactionManager
         transactionItemTypes.Add(new TransactionItemType(typeof(T), typeName, create));
     }
 
+    /// <summary>
+    /// Checks whether the transaction item corresponds to the type specified. 
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public bool OfClass<T>(MynatimeProfileTransactionItem item)
     {
         if (item == null)
@@ -50,6 +60,12 @@ public sealed class MynatimeProfileTransactionManager
         return false;
     }
 
+    /// <summary>
+    /// Creates an instance of the domain object (<see cref="ITransactionItem"/>) using the specified transaction object. 
+    /// </summary>
+    /// <param name="operation"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public ITransactionItem GetInstanceOf(MynatimeProfileTransactionItem operation)
     {
         foreach (var itemType in transactionItemTypes)

@@ -281,6 +281,12 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
             sb.Append(this.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
             sep = " ";
         }
+        else if (this.Duration != null)
+        {
+            sb.Append(sep);
+            sb.Append("00:00");
+            sep = " ";
+        }
 
         if (this.DateEnd != null && (this.DateStart == null || this.DateStart.Value != this.DateEnd.Value))
         {
@@ -299,7 +305,8 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         if (this.Duration != null)
         {
             sb.Append("->");
-            sb.Append(this.Duration);
+            var duration = TimeSpan.FromHours(double.Parse(this.Duration, NumberStyles.Float, CultureInfo.InvariantCulture));
+            sb.Append(duration.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
             sep = " ";
         }
 

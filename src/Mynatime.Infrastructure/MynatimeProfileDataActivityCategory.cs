@@ -46,9 +46,18 @@ public class MynatimeProfileDataActivityCategory : JsonObject
         set => this.Element["Deleted"] = value;
     }
 
+    public string? Alias
+    {
+        get => this.Element.Value<string>("Alias");
+        set => this.Element["Alias"] = value;
+    }
+
     public override string ToString()
     {
-        return "ActCategory " + this.Id + " <" + this.Name + ">"
-            + (this.Deleted != null ? " DISABLED/DELETED" : string.Empty);
+        return "ActCategory <" + this.Name + ">"
+            + (this.Alias != null ? (" <" + this.Alias + ">") : string.Empty)
+            + " (" + this.Id + ")" 
+            + (this.Deleted != null ? " DISABLED/DELETED" : string.Empty)
+            ;
     }
 }

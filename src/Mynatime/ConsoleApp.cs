@@ -18,14 +18,14 @@ public class ConsoleApp : IConsoleApp
     private readonly IManatimeWebClient client;
     private readonly List<string> consoleErrors = new List<string>();
     private readonly List<MynatimeProfile> availableProfiles = new ();
-    private readonly List<Command?> commands;
+    private readonly List<Command> commands;
 
     public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings, IManatimeWebClient client)
     {
         this.log = log;
         this.appSettings = appSettings;
         this.client = client;
-        this.commands = new List<Command?>();
+        this.commands = new List<Command>();
         this.commands.Add(new HelpCommand(this));
         this.commands.Add(new ProfileListCommand(this));
         this.commands.Add(new ProfileAddCommand(this, this.client));
@@ -77,7 +77,7 @@ public class ConsoleApp : IConsoleApp
 
     public TimeZoneInfo TimeZoneLocal { get => TimeZoneInfo.Local; }
 
-    public IEnumerable<Command> Commands { get => this.commands.AsReadOnly(); }
+    public IEnumerable<Command> Commands { get => this.commands.AsEnumerable(); }
 
     /// <summary>
     /// Parse CLI arguments and run the specified command. 
@@ -129,7 +129,7 @@ public class ConsoleApp : IConsoleApp
         }
     }
 
-    public static string AskForPassword(string label)
+    public static string? AskForPassword(string label)
     {
         var consoleOut = Console.Out;
         var consoleIn = Console.In;

@@ -73,7 +73,7 @@ public sealed class HelpCommand : Command
             }
 
             Console.WriteLine("  ## " + (describe?.Title ??  item.GetType().Name));
-            foreach (var pattern in describe.CommandPatterns)
+            foreach (var pattern in describe!.CommandPatterns)
             {
                 if (pattern.Id.Length > patternLength)
                 {

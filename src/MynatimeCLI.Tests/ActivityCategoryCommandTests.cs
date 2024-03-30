@@ -200,6 +200,19 @@ public class ActivityCategoryCommandTests
             x => Assert.Equal("Prospects", x.Name));
     }
 
+    [Fact]
+    public Task MatchArgs_Alias()
+    {
+        var app = GetAppMock();
+        var client = GetClientMock();
+        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "alias", "tôo-long-àctivîty-name", "short-name", }, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.Equal("tôo-long-àctivîty-name", target.Search);
+        Assert.Equal("short-name", target.Alias);
+        return Task.CompletedTask;
+    }
+
     private Mock<IManatimeWebClient> GetClientMock()
     {
         var mock = this.mocks.Create<IManatimeWebClient>();

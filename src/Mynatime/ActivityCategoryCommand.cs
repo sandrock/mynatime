@@ -25,6 +25,8 @@ public sealed class ActivityCategoryCommand : Command
     public bool DoRefresh { get; set; } = false;
 
     public string? Search { get; set; }
+    
+    public string? Alias { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -58,7 +60,8 @@ public sealed class ActivityCategoryCommand : Command
         for (++i; i < args.Length; i++)
         {
             var arg = args[i];
-            var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
+            var nextArgs = new string[args.Length - i - 1];
+            Array.Copy(args, i + 1, nextArgs, 0, args.Length - i - 1);
 
             string? value = null;
             if (ConsoleApp.MatchArg(arg, "--refresh", "refresh") || ConsoleApp.MatchShortArg(arg, "-r"))
@@ -72,15 +75,29 @@ public sealed class ActivityCategoryCommand : Command
                     isSearching = true;
                     this.Search = value;
                 }
-                else if (nextArg != null)
+                else if (nextArgs.Length >= 1)
                 {
                     isSearching = true;
-                    this.Search = nextArg;
+                    this.Search = nextArgs[0];
                     i++;
                 }
                 else
                 {
                     Console.WriteLine("Search command requires a search expression. ");
+                }
+            }
+            else if (ConsoleApp.MatchArg(arg, "alias"))
+            {
+                if (nextArgs.Length >= 2)
+                {
+                    this.Search = nextArgs[0];
+                    this.Alias = nextArgs[1];
+                    i++;
+                    i++;
+                }
+                else
+                {
+                    Console.WriteLine("Alias command requires two values. ");
                 }
             }
             else
@@ -98,7 +115,7 @@ public sealed class ActivityCategoryCommand : Command
             }
         }
 
-        ok:
+        ////ok:
         consumedArgs = args.Length;
         command = this;
         return true;
@@ -119,14 +136,14 @@ public sealed class ActivityCategoryCommand : Command
             return;
         }
 
-        var store = profile.Data?.ActivityCategories;
+        var store = profile.Data?.ActivityCategories!;
         var existingItems = store.Items.ToList();
         var newItems = new List<MynatimeProfileDataActivityCategory>();
         var deletedItems = new List<MynatimeProfileDataActivityCategory>();
         var changedItems = new List<MynatimeProfileDataActivityCategory>();
 
         // refresh from service
-        var hasRefreshed = false;
+        bool hasRefreshed = false, hasChanged = false;
         if (this.DoRefresh)
         {
             hasRefreshed = await this.Refresh(profile, existingItems, newItems, deletedItems, changedItems);
@@ -139,24 +156,51 @@ public sealed class ActivityCategoryCommand : Command
             IList<MynatimeProfileDataActivityCategory> items = allItems;
             if (this.Search != null)
             {
-                var searchResult = await SearchItems(allItems, this.Search, false);
+                var searchResult = await SearchItems(allItems, this.Search, this.Alias != null);
                 items = searchResult
                    .Select(x => x.Item)
                    .ToList();
             }
-            
-            foreach (var item in items)
+
+            if (this.Alias != null)
             {
-                Console.Write(item.ToString());
+                if (items.Count == 0)
+                {
+                    Console.WriteLine($"Create alias: no such activity \"{this.Search}\"");
+                }
+                else if (items.Count > 1)
+                {
+                    Console.WriteLine($"Create alias: too many activities for \"{this.Search}\"");
+                }
+                else
+                {
+                    hasChanged = true;
+                    var item = items[0];
+                    item.Alias = this.Alias.Trim();
+                    Console.WriteLine($"Create alias: alias \"{item.Alias}\" set on \"{item.Name}\" ({item.Id})");
+                }
+            }
+
+            // display list
+            var itemDisplayNames = items.Select(x => (x.Name != null ? (" <" + x.Name + ">") : string.Empty) + (x.Alias != null ? (" <" + x.Alias + ">") : string.Empty)).ToArray();
+            var maxDisplayNameLength = itemDisplayNames.Length == 0 ? 0 : itemDisplayNames.Max(x => x.Length);
+            for (var i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                Console.Write("ActCategory");
+                Console.Write(itemDisplayNames[i].PadRight(maxDisplayNameLength));
+                Console.Write(" (");
+                Console.Write(item.Id);
+                Console.Write(")");
 
                 if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
                 {
-                    Console.Write("\t\tNEW!");
+                    Console.Write("\tNEW!");
                 }
 
                 if (changedItems.Contains(item))
                 {
-                    Console.Write("\t\tCHANGED!");
+                    Console.Write("\tCHANGED!");
                 }
 
                 Console.WriteLine();
@@ -165,13 +209,13 @@ public sealed class ActivityCategoryCommand : Command
             foreach (var item in deletedItems)
             {
                 Console.Write(item.ToString());
-                Console.Write("\t\tDELETED!");
+                Console.Write("\tDELETED!");
                 Console.WriteLine();
             }
         }
 
         // save store if changed
-        if (hasRefreshed)
+        if (hasRefreshed || hasChanged)
         {
             // TODO: this is not unit-testable :@
             Debug.Assert(profile.FilePath != null, "profile.FilePath != null");
@@ -247,14 +291,14 @@ public sealed class ActivityCategoryCommand : Command
                 if (match != null)
                 {
                     match.LastUpdated = page.LoadTime;
-                    category.UpdateFrom(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime!.Value);
                     changedItems.Add(match);
                 }
                 else
                 {
                     match = new MynatimeProfileDataActivityCategory(category.Id, category.DisplayName);
                     match.Created = page.LoadTime;
-                    category.UpdateFrom(match, page.LoadTime.Value);
+                    category.UpdateFrom(match, page.LoadTime!.Value);
                     newItems.Add(match);
                 }
             }
@@ -315,7 +359,11 @@ public sealed class ActivityCategoryCommand : Command
             for (var i = 0; i < result.Count; i++)
             {
                 var item = result[i];
-                levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), item.Item.Name.ToUpperInvariant());
+                var name = item.Item.Name;
+                if (name != null)
+                {
+                    levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), name.ToUpperInvariant());
+                }
             }
 
             var sorted = levensteins.OrderBy(x => x.Value).ToArray();

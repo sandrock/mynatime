@@ -292,6 +292,15 @@ public class ActivityTrackingCommand : Command
         {
             Console.WriteLine("Events:");
             Console.WriteLine(state.GetSummary());
+
+            foreach (var item in transaction.Items)
+            {
+                if (MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item))
+                {
+                    var activityPage = (NewActivityItemPage)MynatimeProfileTransactionManager.Default.GetInstanceOf(item);
+                    manager.ExtraActivities.Add(new ActivityItemWrapper(activityPage));
+                }
+            }
         }
 
         manager.GenerateItems();
@@ -307,9 +316,9 @@ public class ActivityTrackingCommand : Command
 
         Console.WriteLine();
         Console.WriteLine("Activities:");
-        foreach (var entry in manager.Activities)
+        foreach (var entry in manager.AllActivities)
         {
-            Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data));
+            Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!) + (entry.IsStartAndStop ? " (start-stop)" : " (activity)"));
         }
 
         ////{

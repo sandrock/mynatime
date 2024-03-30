@@ -15,6 +15,7 @@ public sealed class ActivityStartStopManager
     private readonly List<BaseError> warnings = new ();
     private readonly List<ActivityStartStopEvent> usedEvents = new ();
     private readonly List<ActivityItemWrapper> activities = new();
+    private List<ActivityItemWrapper> extraActivities = new();
 
     public ActivityStartStopManager(ActivityStartStop source)
     {
@@ -31,6 +32,23 @@ public sealed class ActivityStartStopManager
     /// Gets the generated activities.
     /// </summary>
     public IReadOnlyList<ActivityItemWrapper> Activities { get => this.activities; }
+
+    public IEnumerable<ActivityItemWrapper> AllActivities
+    {
+        get
+        {
+            var query = this.activities
+               .Concat(this.extraActivities)
+               .OrderBy(x => x.Item.InAt ?? TimeSpan.Zero)
+               .OrderBy(x => x.Item.DateStart ?? x.Item.DateEnd ?? DateTime.MinValue);
+            return query;
+        }
+    }
+
+    /// <summary>
+    /// Allow generating a merged list of activities: from tracking and from another list. 
+    /// </summary>
+    public IList<ActivityItemWrapper> ExtraActivities { get => this.extraActivities; }
 
     public void GenerateItems()
     {

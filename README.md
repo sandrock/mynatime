@@ -9,7 +9,7 @@ Info
 |--|--|
 | Project status          | **beta test** (collecting user feedback)                          |
 | Goal                    | **provide a fast GUI to update my activities into the service**.  |
-| Relation to the service | unofficial app, use at your own risk                              |
+| Relation to the service | unofficial CLI and GUI app for Manatime, use at your own risk     |
 | CLI app status          | **beta test** (collecting user feedback)                          |
 | GUI app status          | **experimental**                                                  |
 | Build and run           | net6.0                                                            |

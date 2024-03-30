@@ -35,6 +35,7 @@ public sealed class ActivityCategoryCommand : Command
         describe.AddCommandPattern(prefix, "lists activity categories");
         describe.AddCommandPattern(prefix + "refresh", "updates activity categories from service");
         describe.AddCommandPattern(prefix + "search <q>", "searches categories");
+        describe.AddCommandPattern(prefix + "alias <name> <alias>", "creates an alias for a category");
         return describe;
     }
 

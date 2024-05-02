@@ -36,7 +36,7 @@ You can create an alias:
 m act alias Company-interne interne
 ```
 
-And use the alias for acticity adding/tracking:
+And use the alias for activity adding/tracking:
 
 ```bash
 m act start interne

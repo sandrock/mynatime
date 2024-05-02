@@ -40,15 +40,16 @@ m help
 >   ActivityCategoryCommand  
 >   `act cat`                          lists activity categories  
 >   `act cat refresh`                  updates activity categories from service  
->   `act cat search <q>`               searches categories
+>   `act cat search <q>`               searches categories  
+>   `act cat alias <name> <alias>`     creates an alias for a category  
 >
 >   Add activity   
 >   `act add [date] <duration> [category]`                         adds an activity  
 >   `act add <date> <time-start> [date-end] <time-end> [category]` adds an activity
 >
 >   Activity tracker  
->   `act start [time] [category]`      starts an activity  
->   `act stop [time] [category]`       stops  an activity   
+>   `act start [date] [time] [category]`      starts an activity  
+>   `act stop [date] [time] [category]`       stops  an activity   
 >   `act status`                       lists current activities
 >
 >   StatusCommand  

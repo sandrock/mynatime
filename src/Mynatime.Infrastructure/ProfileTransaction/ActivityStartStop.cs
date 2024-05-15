@@ -6,6 +6,7 @@ using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 public sealed class ActivityStartStop : ITransactionItem
@@ -81,7 +82,7 @@ public sealed class ActivityStartStop : ITransactionItem
     public string GetSummary()
     {
         var sb = new StringBuilder();
-        foreach (var item in this.items)
+        foreach (var item in this.items.OrderBy(x => x.TimeLocal))
         {
             sb.Append("  - ");
             sb.Append(item.TimeLocal.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));

@@ -18,4 +18,6 @@ public interface IManatimeWebClient
     Task<NewActivityItemPage> GetNewActivityItemPage();
 
     Task<NewActivityItemPage> PostNewActivityItemPage(NewActivityItemPage form);
+
+    Task<ActivityListPage> GetActivityListPage();
 }

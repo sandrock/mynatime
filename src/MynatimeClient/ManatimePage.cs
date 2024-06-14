@@ -6,4 +6,5 @@ public enum ManatimePage
     Home,
     SecurityLogin,
     PresenceCreateAdvanced,
+    PresenceSearch,
 }

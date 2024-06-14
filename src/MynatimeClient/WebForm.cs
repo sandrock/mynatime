@@ -15,6 +15,8 @@ using System.Text;
 public sealed class WebForm
 {
     private readonly Dictionary<string, WebFormValues> keys = new Dictionary<string, WebFormValues>();
+    private readonly string method;
+    private readonly string action;
 
     /// <summary>
     /// Creates a new empty web form.
@@ -34,6 +36,24 @@ public sealed class WebForm
             this.keys.Add(key, new WebFormValues());
         }
     }
+
+    /// <summary>
+    /// Creates a web form with preset keys. 
+    /// </summary>
+    /// <param name="keys"></param>
+    public WebForm(string method, string action, string[] keys)
+    {
+        this.method = method;
+        this.action = action;
+        foreach (var key in keys)
+        {
+            this.keys.Add(key, new WebFormValues());
+        }
+    }
+
+    public string FormMethod { get => this.method; }
+
+    public string FormACtion { get => this.action; }
 
     /// <summary>
     /// Gets the form keys.

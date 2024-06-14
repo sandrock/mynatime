@@ -215,6 +215,37 @@ public class ManatimeWebClient : IManatimeWebClient
         }
     }
 
+    public async Task<ActivityListPage> GetActivityListPage()
+    {
+        var request = this.CreateRequest(HttpMethod.Get, "presences/search");
+        var response = await this.Send(nameof(GetActivityListPage), request);
+        var result = new ActivityListPage();
+        if (response.IsSuccessStatusCode)
+        {
+            result.LoadTime = DateTime.UtcNow;
+            var contents = await response.Content.ReadAsStringAsync();
+            if (!this.CheckPage(ManatimePage.PresenceSearch, contents, result))
+            {
+                return this.Log(result);
+            }
+
+            try
+            {
+                result.ReadPage(contents);
+            }
+            catch (Exception ex)
+            {
+                result.AddError(new BaseError(ErrorCode.InvalidPage.Generic, "Loaded page is wrong. "));
+            }
+        }
+        else
+        {
+            result.AddError(new BaseError(ErrorCode.UnknownError, "Other error. "));
+        }
+
+        return this.Log(result);
+    }
+
     public JArray GetCookies()
     {
         var array = new JArray();
@@ -332,7 +363,7 @@ public class ManatimeWebClient : IManatimeWebClient
     private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult result)
     {
         //
-        // current page is mostly detect using the javascript user tracking code
+        // current page is mostly detected using the javascript user tracking code
         // amplitude.track("Page View", {page: "Page View", {page: "security_login"});
         //
         bool isOkay = false, isLoggedOut = false;
@@ -364,6 +395,11 @@ public class ManatimeWebClient : IManatimeWebClient
             // <form name="create" method="post" action="/presences/create/advanced">
             isOkay = contents.Contains("<title>Créer une présence > Avancé</title>")
                   || contents.Contains("""<form name="create" method="post" action="/presences/create/advanced">""");
+        }
+        else if (desiredPage == ManatimePage.PresenceSearch)
+        {
+            // 2024-06-13: """amplitude.track("Presence", {"""
+            isOkay = IsAnalyticsPage(contents, "Presence");
         }
 
         if (!isOkay)

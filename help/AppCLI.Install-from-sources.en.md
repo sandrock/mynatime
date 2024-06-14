@@ -14,6 +14,9 @@ Install these things from your package manager:
 - dotnet-sdk (>=6)
 - dotnet-runtime (>=6)
 
+Pop!OS: `sudo apt install dotnet-runtime-6.0 dotnet-sdk-6.0`  
+Manjaro: `sudo pacman -S dotnet-runtime-6.0 dotnet-sdk-6.0`  
+
 NOTE: there are pending work tasks to publish the app on [winget](https://github.com/sandrock/mynatime/issues/8) and [flatpak](https://github.com/sandrock/mynatime/issues/7)
 
 
@@ -23,7 +26,6 @@ Notes on operating system
 The commands here are for GNU/Linux users. 
 
 Windows users: use *git bash* or WSL or powershell or anything else.
-
 
 
 Install from sources
@@ -45,7 +47,7 @@ alias "m=~/.opt/mynatime/src/Mynatime/bin/Release/net6.0/Mynatime.CLI"
 which m
 m help
 ```
-4. Add the alias to your `~/.bashrc` / `~/.zshrc`
+4. Add the alias to your `~/.bashrc` / `~/.zshrc` / `~/.oh-my-zsh/custom/my-aliases.zsh`
 
 
 Update from sources

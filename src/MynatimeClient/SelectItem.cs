@@ -4,6 +4,16 @@ using Mynatime.Infrastructure;
 
 public sealed class SelectItem
 {
+    public SelectItem()
+    {
+    }
+
+    public SelectItem(string id, string displayName)
+    {
+        this.Id = id;
+        this.DisplayName = displayName;
+    }
+
     public string DisplayName { get; set; }
 
     public string Id { get; set; }

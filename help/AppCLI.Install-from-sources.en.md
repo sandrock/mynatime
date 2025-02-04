@@ -11,8 +11,8 @@ Get build tools
 
 Install these things from your package manager:
 
-- dotnet-sdk (>=6)
-- dotnet-runtime (>=6)
+- dotnet-sdk (>=8)
+- dotnet-runtime (>=8)
 
 NOTE: there are pending work tasks to publish the app on [winget](https://github.com/sandrock/mynatime/issues/8) and [flatpak](https://github.com/sandrock/mynatime/issues/7)
 

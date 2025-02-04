@@ -5,16 +5,16 @@ Mynatime
 Info
 -------------
 
-|||
-|--|--|
-| Project status          | **beta test** (collecting user feedback)                          |
-| Goal                    | **provide a fast GUI to update my activities into the service**.  |
-| Relation to the service | unofficial CLI and GUI app for Manatime, use at your own risk     |
-| CLI app status          | **beta test** (collecting user feedback)                          |
-| GUI app status          | **experimental**                                                  |
-| Build and run           | net6.0                                                            |
-| License                 | GNU General Public License Version 3                              |
-| Contributions           | **open to contributions**: use issues and PRs                     |
+||                                                                                                                                                           |
+|--|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Project status          | **beta test** (collecting user feedback)                                                                                                                  |
+| Goal                    | **provide a fast GUI to update my activities into the service**.                                                                                          |
+| Relation to the service | unofficial CLI and GUI app for Manatime, use at your own risk                                                                                             |
+| CLI app status          | **beta test** (collecting user feedback)                                                                                                                  |
+| GUI app status          | **experimental**                                                                                                                                          |
+| Build and run           | net8.0                                                                                                                                                    |
+| License                 | GNU General Public License Version 3                                                                                                                      |
+| Contributions           | **open to contributions**: use issues and PRs                                                                                                             |
 | Main branch             | [![.NET](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml/badge.svg)](https://github.com/sandrock/mynatime/actions/workflows/dotnet.yml) |
 
 See also: [TODO list](TODO.md)

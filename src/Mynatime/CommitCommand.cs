@@ -232,17 +232,44 @@ public sealed class CommitCommand : Command
                 return;
             }
 
+            int activitiesSaved = 0;
+            var failedActivities = new List<NewActivityItemPage>();
             foreach (var activity in manager.Activities)
             {
                 if (activity.IsStartAndStop)
                 {
                     await this.Visit(activity.Item);
+                    if (activity.Item.HasError())
+                    {
+                        if (activitiesSaved == 0)
+                        {
+                            // fail early
+                            this.Committed = false;
+                            this.IsRemovable = false;
+                            return;
+                        }
+                        else
+                        {
+                            failedActivities.Add(activity.Item);
+                        }
+                    }
+                    else
+                    {
+                        activitiesSaved++;
+                    }
                 }
             }
 
             foreach (var usedEvent in manager.UsedEvents)
             {
-                thing.Remove(usedEvent);
+                if (failedActivities.Any(a => manager.IsEventFor(usedEvent, a)))
+                {
+                    // keep this one because we failed to save a related activity
+                }
+                else
+                {
+                    thing.Remove(usedEvent);
+                }
             }
 
             this.Committed = true;
@@ -265,6 +292,7 @@ public sealed class CommitCommand : Command
             var page1 = await this.client.GetNewActivityItemPage();
             if (!page1.Succeed)
             {
+                thing.AddError(page1.Errors!.First());
                 Console.WriteLine("FAILED: " + page1);
                 return;
             }
@@ -274,6 +302,7 @@ public sealed class CommitCommand : Command
             var page2 = await this.client.PostNewActivityItemPage(thing);
             if (!page2.Succeed)
             {
+                thing.AddError(page2.Errors!.First());
                 Console.WriteLine("FAILED: " + page2);
                 return;
             }

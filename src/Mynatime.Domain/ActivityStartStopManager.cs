@@ -196,4 +196,9 @@ public sealed class ActivityStartStopManager
             currentActivity.Item.Comment = currentEvent.Comment;
         }
     }
+
+    public bool IsEventFor(ActivityStartStopEvent item, NewActivityItemPage activity)
+    {
+        return item.TimeLocal == activity.GetEndTime() || item.TimeLocal == activity.GetBeginTime();
+    }
 }

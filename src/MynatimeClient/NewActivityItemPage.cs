@@ -157,7 +157,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
         // read categories
         // <select id="create_task" name="create[task]" class="select2-allow-clear form-control"><option value=""></option><option value="1234">Absence xxx</option><option value="1235">Xxxxx</option><option value="1236">Interne</option>...</select>
-        var regex = new Regex(@"<select id=""create_task"" name=""create\[task\]""[^<>]*>(.*)</select>");
+        var regex = new Regex(@"<select id=""create_task"" name=""create\[task\]""[^<>]*>(.*)</select>", RegexOptions.Singleline);
         var selectMatch = regex.Match(contents);
         this.Categories = new List<SelectItem>();
         if (selectMatch.Success)
@@ -375,6 +375,18 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
             {
                 this.AddError(new BaseError(ErrorCode.InvalidForm.DurationNotNumber, "Duration must be a number. "));
             }
+        }
+    }
+
+    public DateTime? GetBeginTime()
+    {
+        if (this.DateStart != null && this.InAt != null)
+        {
+            return this.DateStart.Value.Add(this.InAt.Value);
+        }
+        else
+        {
+            return null;
         }
     }
 

@@ -164,11 +164,14 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         {
             regex = new Regex(@"<option[^<>]+value=""([^""]*)""[^<>]*>([^<>]*)</option>");
             int i = -1;
-            foreach (Match optionMatch in regex.Matches(selectMatch.Groups[1].Value))
+            foreach (var option in HtmlTools.EnumerateOptions(selectMatch.Groups[1].Value))
+            ////foreach (Match optionMatch in regex.Matches(selectMatch.Groups[1].Value))
             {
                 i++;
-                var id = WebUtility.HtmlDecode(optionMatch.Groups[1].Value);
-                var name = WebUtility.HtmlDecode(optionMatch.Groups[2].Value);
+                ////var id = WebUtility.HtmlDecode(optionMatch.Groups[1].Value);
+                ////var name = WebUtility.HtmlDecode(optionMatch.Groups[2].Value);
+                var id = option.Value;
+                var name = option.Name;
                 if (i == 0)
                 {
                     this.ActivityId = id;

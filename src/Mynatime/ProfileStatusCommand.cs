@@ -43,11 +43,9 @@ public sealed class ProfileStatusCommand : Command
             goto error;
         }
 
-        for (++i; i < args.Length; i++)
+        if (++i < args.Length)
         {
-            {
-                goto error;
-            }
+            goto error;
         }
 
         consumedArgs = args.Length;

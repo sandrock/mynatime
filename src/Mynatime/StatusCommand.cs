@@ -44,18 +44,11 @@ public class StatusCommand : Command
             goto error;
         }
 
-        for (++i; i < args.Length; i++)
+        if (++i < args.Length)
         {
-            var arg = args[i];
-            var nextArg = (i + 1) < args.Length ? args[i + 1] : default(string);
-
-            string? value = null;
-            {
-                goto error;
-            }
+            goto error;
         }
 
-        ok:
         consumedArgs = args.Length;
         command = this;
         return true;

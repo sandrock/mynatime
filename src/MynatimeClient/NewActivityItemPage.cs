@@ -133,7 +133,6 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
 
     public void ReadPage(string contents)
     {
-        var isOk = true;
         this.LoadTime = DateTime.UtcNow;
         var page = contents;
         

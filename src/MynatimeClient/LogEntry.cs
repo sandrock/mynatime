@@ -14,11 +14,11 @@ internal class LogEntry
 
     public string MethodName { get; private set; }
 
-    public string Message { get; private set; }
+    public string? Message { get; private set; }
 
-    public BaseResult Result { get; set; }
+    public BaseResult? Result { get; set; }
 
-    public string Exception { get; set; }
+    public string? Exception { get; set; }
 
     public void SetRequest(HttpRequestMessage request)
     {

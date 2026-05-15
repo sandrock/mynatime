@@ -75,7 +75,6 @@ public class ProfileAddCommand : Command
             }
         }
 
-        ok:
         consumedArgs = args.Length;
         command = this;
         return true;

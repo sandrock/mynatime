@@ -8,7 +8,6 @@ public class ActivityTesting
 {
     public static void PopulateCategories0(MynatimeProfileDataActivityCategories list)
     {
-        var id = 1000;
         list.Add(new MynatimeProfileDataActivityCategory("1001", "proj1"));
     }
 

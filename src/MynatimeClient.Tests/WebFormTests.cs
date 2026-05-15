@@ -103,7 +103,6 @@ public class WebFormTests
     [Fact]
     public void GetSetDateValue_Null()
     {
-        var kind = DateTimeKind.Unspecified;
         var input = default(DateTime?);
         var form = new SampleForm1();
         
@@ -176,7 +175,6 @@ public class WebFormTests
     [Fact]
     public void GetSetStringValues()
     {
-        var input = "John";
         var form = new SampleForm1();
         
         // set values

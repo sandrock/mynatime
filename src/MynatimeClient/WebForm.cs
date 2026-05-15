@@ -86,8 +86,6 @@ public sealed class WebForm
         }
 
         return values.AsStringList();
-        var list = new List<string>(values.Select(x => x.Value));
-        return list;
     }
 
     /// <summary>
@@ -462,7 +460,6 @@ public sealed class WebForm
             protected override void SetItem(int index, string item)
             {
                 throw new NotSupportedException();
-                base.SetItem(index, item);
             }
         }
     }

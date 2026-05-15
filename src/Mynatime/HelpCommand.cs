@@ -30,7 +30,6 @@ public sealed class HelpCommand : Command
             goto error;
         }
 
-        ok:
         consumedArgs = args.Length;
         command = this;
         return true;

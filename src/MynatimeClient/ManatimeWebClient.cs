@@ -31,7 +31,8 @@ public class ManatimeWebClient : IManatimeWebClient
         this.Http = new HttpClient(this.HttpHandler);
     }
 
-    public ManatimeWebClient() : this(default(ILogger<ManatimeWebClient>))
+    public ManatimeWebClient()
+        : this(Microsoft.Extensions.Logging.Abstractions.NullLogger<ManatimeWebClient>.Instance)
     {
     }
 
@@ -335,7 +336,7 @@ public class ManatimeWebClient : IManatimeWebClient
         this.log.LogInformation(entry.ToString());
     }
 
-    private T Log<T>(T result, [CallerMemberName] string methodName = null)
+    private T Log<T>(T result, [CallerMemberName] string? methodName = null)
         where T : BaseResult
     {
         var entry = new LogEntry(methodName);
@@ -389,7 +390,7 @@ public class ManatimeWebClient : IManatimeWebClient
     /// <param name="contents"></param>
     /// <param name="result"></param>
     /// <returns></returns>
-    private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult result)
+    private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult? result)
     {
         //
         // current page is mostly detected using the javascript user tracking code

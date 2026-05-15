@@ -13,13 +13,11 @@ public class MynatimeProfileTransaction : JsonObject
     public MynatimeProfileTransaction()
         : base("Transaction", new JObject())
     {
-        dateTime = dateTime;
     }
 
     internal MynatimeProfileTransaction(JObject element)
         : base("Transaction", element)
     {
-        dateTime = dateTime;
     }
 
     public IEnumerable<MynatimeProfileTransactionItem> Items

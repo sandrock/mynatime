@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write  # needed to upload release assets
+
+jobs:
+  build-tarball:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # required for MinVer to read git tags
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore
+      run: dotnet restore src/Mynatime/Mynatime.CLI.csproj
+
+    - name: Read version
+      id: version
+      run: |
+        VERSION=$(dotnet build src/Mynatime/Mynatime.CLI.csproj -c Release --nologo -getProperty:Version)
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Publish
+      run: |
+        dotnet publish src/Mynatime/Mynatime.CLI.csproj \
+          -c Release \
+          -r linux-x64 \
+          --no-self-contained \
+          -o dist/publish
+
+    - name: Build tarball
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        mv dist/publish/Mynatime.CLI dist/publish/mynatime
+        mkdir -p dist
+        tar -czf "dist/mynatime-${VERSION}-linux-x64.tar.gz" \
+          -C dist/publish \
+          --transform 's,^,mynatime/,' \
+          .
+        echo "TARBALL=dist/mynatime-${VERSION}-linux-x64.tar.gz" >> "$GITHUB_ENV"
+
+    - name: Upload to release
+      run: gh release upload "${{ github.ref_name }}" "$TARBALL"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

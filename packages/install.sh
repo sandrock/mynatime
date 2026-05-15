@@ -89,13 +89,23 @@ has_dotnet || NEED_DOTNET=true
 
 # ── fetch latest release info ─────────────────────────────────────────────────
 
+fetch_releases_list() {
+    curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
+        | grep -A5 '"tag_name"' | head -20
+}
+
 if $PRERELEASE; then
-    # most recent release of any kind
-    RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
-        | grep -A5 '"tag_name"' | head -20)
+    RELEASE_JSON=$(fetch_releases_list)
 else
-    # most recent stable release only
-    RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest")
+    # try stable release first; fall back to any release if none exists yet
+    RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null) || true
+    if echo "$RELEASE_JSON" | grep -q '"tag_name"'; then
+        : # stable release found
+    else
+        info "No stable release found. Installing latest pre-release."
+        RELEASE_JSON=$(fetch_releases_list)
+        PRERELEASE=true
+    fi
 fi
 
 RELEASE_TAG=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -1 | cut -d '"' -f4)

@@ -26,21 +26,13 @@ public class ManatimeWebClient : IManatimeWebClient
         {
             UseCookies = true,
             CookieContainer = new CookieContainer(),
-            AllowAutoRedirect = true,
+            AllowAutoRedirect = false,
         };
         this.Http = new HttpClient(this.HttpHandler);
     }
 
-    public ManatimeWebClient()
+    public ManatimeWebClient() : this(default(ILogger<ManatimeWebClient>))
     {
-        this.log = Mynatime.Infrastructure.Log.GetLogger<ManatimeWebClient>();
-        this.HttpHandler = new HttpClientHandler()
-        {
-            UseCookies = true,
-            CookieContainer = new CookieContainer(),
-            AllowAutoRedirect = true,
-        };
-        this.Http = new HttpClient(this.HttpHandler);
     }
 
     public HttpClientHandler HttpHandler { get; set; }
@@ -107,25 +99,49 @@ public class ManatimeWebClient : IManatimeWebClient
         var requestContent = new FormUrlEncodedContent(requestData);
         request.Content = requestContent;
 
-        // NOTE: on success, we get a HTTP 302, redirecting to "/utilisateur/", redirecting to "/home" (200)
+        // NOTE: on success, we get a HTTP 302 (cookies are set at this point) redirecting to "/utilisateur/", redirecting to "/home" (200)
         // NOTE: remember_me will generate a long-lived cookie
         // set-cookie: PHPSESSID=xxxxx; path=/; HttpOnly
         // set-cookie: REMEMBERME=deleted; expires=Mon, 24-May-2021 16:13:12 GMT; Max-Age=0;       path=/; httponly
         // set-cookie: REMEMBERME=xxxxxxx; expires=Thu, 23-Jun-2022 16:53:17 GMT; Max-Age=2592000; path=/; httponly
         var response = await this.Send(nameof(this.EmailPasswordAuthenticate), request);
-        if (response.IsSuccessStatusCode)
+        if (response.StatusCode == HttpStatusCode.Found)
         {
+            // maybe success! follow redirects...
             var result = new LoginResult();
+            if (response.Headers.Location != null
+                && "/utilisateur/".Equals(response.Headers.Location.LocalPath, StringComparison.OrdinalIgnoreCase))
+            {
+                // fine!
+            }
 
+            var finalResponse = await this.FollowRedirects(nameof(this.EmailPasswordAuthenticate), response);
+            if (finalResponse.IsSuccessStatusCode)
+            {
+                // and look where we are
+                var contents = await finalResponse.Content.ReadAsStringAsync();
+                if (this.CheckPage(ManatimePage.Home, contents, result))
+                {
+                    this.ParsePageResult(contents, result);
+                }
+            }
+            else
+            {
+                result.AddError(new BaseError(ErrorCode.InvalidPage.UnexpectedRedirect, "Login redirect failed with status " + (int)finalResponse.StatusCode + "."));
+            }
+
+            return this.Log(result);
+        }
+        else if (response.IsSuccessStatusCode)
+        {
+            // validation error?
+            // this is probably obsolete
+            var result = new LoginResult();
             var contents = await response.Content.ReadAsStringAsync();
-
             if (this.CheckPage(ManatimePage.SecurityLogin, contents, null))
             {
                 result.AddError(new BaseError(ErrorCode.InvalidUsernameOrPassword, "Invalid credentials. "));
-                return this.Log(result);
             }
-
-            this.ParsePageResult(contents, result);
 
             return this.Log(result);
         }
@@ -196,8 +212,23 @@ public class ManatimeWebClient : IManatimeWebClient
         request.Content = requestContent;
 
         var response = await this.Send(nameof(PostNewActivityItemPage), request);
-        if (response.IsSuccessStatusCode)
+
+        if (response.StatusCode == HttpStatusCode.Found)
         {
+            // 302 = form accepted and redirected to the blank create page 
+            var result = new NewActivityItemPage();
+            result.LoadTime = DateTime.UtcNow;
+            var location = response.Headers.Location?.OriginalString ?? string.Empty;
+            if (!location.StartsWith("/presences/create/", StringComparison.OrdinalIgnoreCase))
+            {
+                result.AddError(new BaseError(ErrorCode.InvalidPage.UnexpectedRedirect, "Unexpected redirect after form submit: " + location));
+            }
+
+            return this.Log(result);
+        }
+        else if (response.IsSuccessStatusCode)
+        {
+            // 200 = form rejected and returned it with validation errors
             var result = new NewActivityItemPage();
             result.LoadTime = DateTime.UtcNow;
             var contents = await response.Content.ReadAsStringAsync();
@@ -322,6 +353,28 @@ public class ManatimeWebClient : IManatimeWebClient
         return response;
     }
 
+    private async Task<HttpResponseMessage> FollowRedirects(string methodName, HttpResponseMessage response, int maxHops = 5)
+    {
+        for (int i = 0; i < maxHops && response.StatusCode == HttpStatusCode.Found || response.StatusCode == HttpStatusCode.MovedPermanently; i++)
+        {
+            var location = response.Headers.Location;
+            if (location == null)
+            {
+                break;
+            }
+
+            if (!location.IsAbsoluteUri)
+            {
+                location = new Uri(new Uri(this.baseUrl), location);
+            }
+
+            var request = this.CreateRequest(HttpMethod.Get, location.PathAndQuery.TrimStart('/'));
+            response = await this.Send(methodName, request);
+        }
+
+        return response;
+    }
+
     private void Log(string methodName, Exception exception)
     {
         var entry = new LogEntry(methodName);
@@ -329,10 +382,17 @@ public class ManatimeWebClient : IManatimeWebClient
         this.logs.Add(entry);
     }
 
+    /// <summary>
+    /// Identifies the current page based on HTTP response body. 
+    /// </summary>
+    /// <param name="desiredPage"></param>
+    /// <param name="contents"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
     private bool CheckPage(ManatimePage desiredPage, string contents, BaseResult result)
     {
         //
-        // current page is mostly detect using the javascript user tracking code
+        // current page is mostly detected using the javascript user tracking code
         // amplitude.track("Page View", {page: "Page View", {page: "security_login"});
         //
         bool isOkay = false, isLoggedOut = false;
@@ -340,6 +400,18 @@ public class ManatimeWebClient : IManatimeWebClient
         {
             isLoggedOut = true;
             isOkay = desiredPage == ManatimePage.SecurityLogin;
+
+            var alertMatch = Regex.Match(contents, @"<div\s+class=""alert alert-danger"">(.*?)</div>", RegexOptions.Singleline);
+            if (alertMatch.Success)
+            {
+                var alertText = Regex.Replace(alertMatch.Groups[1].Value, @"<[^>]+>", "");
+                alertText = WebUtility.HtmlDecode(alertText).Trim();
+                if (!string.IsNullOrEmpty(alertText))
+                {
+                    result?.AddError(new BaseError(ErrorCode.InvalidUsernameOrPassword, alertText));
+                    isLoggedOut = false;
+                }
+            }
         }
 
         if (desiredPage == ManatimePage.Home)
@@ -359,13 +431,31 @@ public class ManatimeWebClient : IManatimeWebClient
         {
             // on 2023-07-03: this does not exist any more
             isOkay = IsAnalyticsPage(contents, "presence_create_advanced");
-            
+
             // 2023-07-03: <title>Créer une présence > Avancé</title>
             // 2026-04: title changed to "Déclaratif", form action unchanged
             // <form name="create" method="post" action="/presences/create/advanced">
             isOkay = contents.Contains("<title>Créer une présence > Avancé</title>")
                   || contents.Contains("<title>Créer une présence > Déclaratif</title>")
                   || contents.Contains("""<form name="create" method="post" action="/presences/create/advanced">""");
+
+            if (isOkay)
+            {
+                var errorMatches = Regex.Matches(contents, @"<span class=""form-error-message"">([^<]+)</span>");
+                if (errorMatches.Count > 0)
+                {
+                    foreach (Match m in errorMatches)
+                    {
+                        var msg = WebUtility.HtmlDecode(m.Groups[1].Value.Trim());
+                        if (!string.IsNullOrEmpty(msg))
+                        {
+                            result?.AddError(new BaseError(ErrorCode.InvalidForm.ValidationError, msg));
+                        }
+                    }
+
+                    isOkay = false;
+                }
+            }
         }
 
         if (!isOkay)
@@ -376,7 +466,7 @@ public class ManatimeWebClient : IManatimeWebClient
             }
             else
             {
-                result?.AddError(new BaseError(ErrorCode.InvalidPage.Generic, "Loaded page is wrong. "));
+                result?.AddError(new BaseError(ErrorCode.InvalidPage.UnexpectedRedirect, "Loaded page is wrong. "));
             }
         }
 

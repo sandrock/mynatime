@@ -108,6 +108,7 @@ public class ProfileAddCommand : Command
             password = ConsoleApp.AskForPassword("Password>      ");
         }
 
+        Console.WriteLine();
         Console.WriteLine("Processing... ");
         var resultPage = await this.client.EmailPasswordAuthenticate(this.LoginUsername, password);
         Console.WriteLine();

@@ -13,6 +13,7 @@ public sealed class ProfileListCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Profiles";
         describe.AddCommandPattern(ProfileCommand.Args[0] + " " + Args[0], "lists user profiles");
         return describe;
     }

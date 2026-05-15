@@ -28,17 +28,16 @@ m help
 >
 > Commands:
 >
->   HelpCommand  
+>   Help  
 >   `help`                             displays help
 >
->   ProfileListCommand  
->   `pro list`                         lists user profiles
+>   Profiles  
+>   `pro list`                         lists user profiles  
+>   `pro add`                          adds user profiles  
+>   `pro status`                       displays current profile status
 >
->   ProfileAddCommand  
->   `pro add`                          adds user profiles
->
->   ActivityCategoryCommand  
->   `act cat`                          lists activity categories  
+>   Activity categories  
+>   `act cat `                         lists activity categories  
 >   `act cat refresh`                  updates activity categories from service  
 >   `act cat search <q>`               searches categories  
 >   `act cat alias <name> <alias>`     creates an alias for a category  
@@ -52,10 +51,10 @@ m help
 >   `act stop [date] [time] [category]`       stops  an activity   
 >   `act status`                       lists current activities
 >
->   StatusCommand  
+>   Status  
 >   `status`                           lists pending changes
 >
->   CommitCommand  
+>   Commit  
 >   `commit`                           saves pending changes
 >
 

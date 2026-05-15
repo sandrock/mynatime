@@ -31,6 +31,7 @@ public sealed class ActivityCategoryCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Activity categories";
         var prefix = ActivityCommand.Args[0] + " " + Args[0] + " ";
         describe.AddCommandPattern(prefix, "lists activity categories");
         describe.AddCommandPattern(prefix + "refresh", "updates activity categories from service");

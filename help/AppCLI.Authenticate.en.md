@@ -36,6 +36,33 @@ Profile saved to: /home/me/.config/mynatime/profile.20221009T121214008Z.json
 List the profiles again to verify.
 
 
+Checking profile status
+-----------------------------------
+
+Once a profile is loaded, you can inspect what it contains.
+
+```bash
+m profile status
+m pro status
+```
+
+> Profile:    profile.20221009T121214008Z.json  
+>   File:     /home/me/.config/mynatime/profile.20221009T121214008Z.json  
+>   Username: test@test.com  
+>   Name:     John DOE  
+>   User ID:  12345  
+>   Roles:    ROLE_USER_MT, ROLE_MANAGER_MT  
+>   Session:  active (2 cookies)  
+>   Categories: 12 categories, last refreshed 2022-10-01  
+>   Pending:    0 items  
+>   Commits:    3 items  
+
+The **Session** line tells you whether the app has a valid session with the service. If it shows `none`, the app will try to authenticate automatically when needed.
+
+The **Categories** line shows the activity categories downloaded from the service. If it shows `none`, run `m act cat refresh` first.
+
+The **Pending** line counts activities staged locally but not yet published. Run `m status` for details and `m commit` to publish.
+
 
 ---
 

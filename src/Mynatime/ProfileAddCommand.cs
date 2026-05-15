@@ -24,6 +24,7 @@ public class ProfileAddCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Profiles";
         describe.AddCommandPattern(ProfileCommand.Args[0] + " " + Args[0], "adds user profiles");
         return describe;
     }

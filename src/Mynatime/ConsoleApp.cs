@@ -28,6 +28,7 @@ public class ConsoleApp : IConsoleApp
         this.commands = new List<Command>();
         this.commands.Add(new HelpCommand(this));
         this.commands.Add(new ProfileListCommand(this));
+        this.commands.Add(new ProfileStatusCommand(this));
         this.commands.Add(new ProfileAddCommand(this, this.client));
         ////this.commands.Add(new ActivityCommand(this));
         this.commands.Add(new ActivityCategoryCommand(this, this.client));

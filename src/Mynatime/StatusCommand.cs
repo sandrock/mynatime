@@ -26,6 +26,7 @@ public class StatusCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Status";
         describe.AddCommandPattern(Args[0], "lists pending changes");
         return describe;
     }

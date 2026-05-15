@@ -12,6 +12,7 @@ public sealed class HelpCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Help";
         describe.AddCommandPattern(Args[0], "displays help");
         return describe;
     }

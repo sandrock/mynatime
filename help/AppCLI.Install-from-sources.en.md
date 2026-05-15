@@ -16,12 +16,12 @@ The easiest way. Works on GNU/Linux x86-64. The script installs .NET if needed.
 
 **With sudo** (installs system-wide to `/usr/local/`):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/master/packages/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | sudo bash
 ```
 
 **Without sudo** (installs to `~/.local/`):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/master/packages/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | bash
 ```
 
 Both commands create two aliases: `mynatime` and `m`.

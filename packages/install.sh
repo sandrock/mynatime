@@ -208,7 +208,7 @@ if [ "$MODE" = system ]; then
     $PRERELEASE && UPDATE_ARGS="$UPDATE_ARGS --prerelease"
     elevate tee "$BIN_DIR/${APP_NAME}-update" > /dev/null << EOF
 #!/usr/bin/env bash
-curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/master/packages/install.sh | sudo bash -s -- $UPDATE_ARGS
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | sudo bash -s -- $UPDATE_ARGS
 EOF
     elevate chmod +x "$BIN_DIR/${APP_NAME}-update"
 else
@@ -222,7 +222,7 @@ else
     $PRERELEASE && UPDATE_ARGS="$UPDATE_ARGS --prerelease"
     cat > "$BIN_DIR/${APP_NAME}-update" << EOF
 #!/usr/bin/env bash
-curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/master/packages/install.sh | bash -s -- $UPDATE_ARGS
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | bash -s -- $UPDATE_ARGS
 EOF
     chmod +x "$BIN_DIR/${APP_NAME}-update"
 

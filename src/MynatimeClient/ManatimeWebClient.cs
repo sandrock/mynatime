@@ -361,8 +361,10 @@ public class ManatimeWebClient : IManatimeWebClient
             isOkay = IsAnalyticsPage(contents, "presence_create_advanced");
             
             // 2023-07-03: <title>Créer une présence > Avancé</title>
+            // 2026-04: title changed to "Déclaratif", form action unchanged
             // <form name="create" method="post" action="/presences/create/advanced">
             isOkay = contents.Contains("<title>Créer une présence > Avancé</title>")
+                  || contents.Contains("<title>Créer une présence > Déclaratif</title>")
                   || contents.Contains("""<form name="create" method="post" action="/presences/create/advanced">""");
         }
 

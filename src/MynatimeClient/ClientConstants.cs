@@ -13,7 +13,7 @@ public static class ClientConstants
 internal static class ClientConstants
 #endif
 {
-    public const string DateInputFormat = "yyyy-MM-dd";
+    public const string DateInputFormat = "dd/MM/yyyy";
     public const string HourMinuteTimeFormat = "hh\\:mm";
     public static CultureInfo NumberLang { get; } = CultureInfo.InvariantCulture;
 }

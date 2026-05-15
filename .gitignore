@@ -455,3 +455,8 @@ $RECYCLE.BIN/
 
 *.md.html
 
+# Original HTML files before sanitization (see Sanitize-HtmlRef.ps1)
+*.html.orig
+
+
+/claude.*

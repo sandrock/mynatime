@@ -25,6 +25,7 @@ public sealed class CommitCommand : Command
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
+        describe.Title = "Commit";
         describe.AddCommandPattern(Args[0], "saves pending changes");
         return describe;
     }

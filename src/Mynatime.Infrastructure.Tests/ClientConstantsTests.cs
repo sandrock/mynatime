@@ -13,7 +13,7 @@ public class ClientConstantsTests
     {
         var time = new DateTime(2023, 11, 16, 14, 15, 16, 123, DateTimeKind.Utc);
         var result = time.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture);
-        Assert.Equal("2023-11-16", result);
+        Assert.Equal("16/11/2023", result);
     }
 
     [Fact]

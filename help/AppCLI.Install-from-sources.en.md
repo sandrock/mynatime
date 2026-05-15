@@ -41,7 +41,7 @@ dotnet build src/Mynatime.sln -c Release -v q
 ```
 3. Alias the CLI app and verify
 ```bash
-alias "m=~/.opt/mynatime/src/Mynatime/bin/Release/net6.0/Mynatime.CLI"
+alias "m=~/.opt/mynatime/src/Mynatime/bin/Release/net8.0/Mynatime.CLI"
 which m
 m help
 ```

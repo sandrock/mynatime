@@ -27,7 +27,7 @@ public static class ErrorCode
 
     public static class InvalidPage
     {
-        public const string Generic = "InvalidPage";
+        public const string UnexpectedRedirect = "InvalidPage/UnexpectedRedirect";
         public const string MissingCategories = "InvalidPage/MissingCategories";
         public const string MissingToken = "InvalidPage/MissingToken";
         public const string FormStartMissing = "InvalidPage/FormStartMissing";
@@ -36,6 +36,7 @@ public static class ErrorCode
     
     public static class InvalidForm
     {
+        public const string ValidationError = "InvalidForm/ValidationError";
         public const string DurationOrTimes = "InvalidForm/DurationOrTimes";
         public const string DurationMinimum = "InvalidForm/Duration/Minimum";
         public const string DurationMaximum = "InvalidForm/Duration/Maximum";

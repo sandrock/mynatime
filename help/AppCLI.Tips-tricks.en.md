@@ -72,6 +72,18 @@ Open the JSON file of the profile to use by default and add a JSON entry `"IsDef
 ```
 
 
+### Profile options
+
+Profile files are JSON and support additional options you can set manually:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `ConfirmLocalSave` | false | Prompt before saving the profile file locally. Recommended during development to avoid accidental writes. |
+| `ConfirmServiceSave` | false | Prompt before sending each transaction item to the service. Useful to review items one by one before they are committed. |
+
+These options are also offered interactively when creating a profile with `pro add`.
+
+
 ---
 
 [Back: Index](AppCLI.0Index.en.md) - Back: [Add an activity](AppCLI.Add-activity.en.md) - Next: nothing here yet

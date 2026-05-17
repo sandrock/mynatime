@@ -1,0 +1,22 @@
+title: Mynatime
+description: Unofficial CLI app for Manatime time tracking
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+
+url: https://sandrock.github.io/mynatime
+
+color_scheme: light
+
+nav_external_links:
+  - title: GitHub
+    url: https://github.com/sandrock/mynatime
+  - title: Releases
+    url: https://github.com/sandrock/mynatime/releases
+
+exclude:
+  - src/
+  - packages/
+  - ref/
+  - TODO.md
+  - CONTRIBUTING.md
+  - Gemfile
+  - Gemfile.lock

@@ -1,10 +1,11 @@
 
-[Index](AppCLI.0Index.en.md) - [Back: Installing from sources](AppCLI.Install-from-sources.en.md) - [Next: Authenticate with service](AppCLI.Authenticate.en.md)
-
+---
+title: Commands overview
+parent: Documentation
+nav_order: 2
 ---
 
-Commands overview - Mynatime CLI app documentation
-====================================
+# Commands overview
 
 The app is built around command line instructions. Each command has a long name and a short name. The long name is more expressive, the short name is faster to type. Use the command you want.
 
@@ -63,9 +64,4 @@ m help
 
 After updating the app, execute the `help` command to see the new commands available.
 
-If the `m` command is not available, please review [your mynatime installation](AppCLI.Install-from-sources.en.md). 
-
-
----
-
-[Index](AppCLI.0Index.en.md) - [Back: Installing from sources](AppCLI.Install-from-sources.en.md) - [Next: Authenticate with service](AppCLI.Authenticate.en.md)
+If the `m` command is not available, please review [your mynatime installation](AppCLI.Install-from-sources.en.md).

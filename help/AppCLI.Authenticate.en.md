@@ -1,10 +1,11 @@
 
-[Index](AppCLI.0Index.en.md) - Back: [Commands overview](AppCLI.Commands-overview.en.md) - Next: [Tracking current activity](AppCLI.Tracking-activity.en.md)
-
+---
+title: Authenticate with service
+parent: Documentation
+nav_order: 3
 ---
 
-Authenticate with service - Mynatime CLI app documentation
-====================================
+# Authenticate with service
 
 The app supports multiple user profiles. When you set up a user profile, a JSON file will be saved at location `~/.config/mynatime/profile.xxxx.json`. You typically need only one profile for most scenarios.
 
@@ -80,8 +81,3 @@ The **Session** line tells you whether the app has a valid session with the serv
 The **Categories** line shows the activity categories downloaded from the service. If it shows `none`, run `m act cat refresh` first.
 
 The **Pending** line counts activities staged locally but not yet published. Run `m status` for details and `m commit` to publish.
-
-
----
-
-[Index](AppCLI.0Index.en.md) - Back: [Commands overview](AppCLI.Commands-overview.en.md) - Next: [Tracking current activity](AppCLI.Tracking-activity.en.md)

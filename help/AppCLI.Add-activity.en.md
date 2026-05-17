@@ -1,10 +1,11 @@
 
-[Index](AppCLI.0Index.en.md) - Back: [Tracking current activity](AppCLI.Tracking-activity.en.md) - Next: [Tips and tricks](AppCLI.Tips-tricks.en.md)
-
+---
+title: Add an activity
+parent: Documentation
+nav_order: 5
 ---
 
-Add an activity - Mynatime CLI app documentation
-====================================
+# Add an activity
 
 Refresh the activity categories
 -----------------------------------
@@ -96,8 +97,3 @@ If it looks okay, you can publish to the service:
 ```bash
 m commit
 ```
-
-
----
-
-[Index](AppCLI.0Index.en.md) - Back: [Tracking current activity](AppCLI.Tracking-activity.en.md) - Next: [Tips and tricks](AppCLI.Tips-tricks.en.md)

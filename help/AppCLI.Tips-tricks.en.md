@@ -1,10 +1,10 @@
-
-[Back: Index](AppCLI.0Index.en.md) - Back: [Add an activity](AppCLI.Add-activity.en.md) - Next: nothing here yet
-
+---
+title: Tips and tricks
+parent: Documentation
+nav_order: 6
 ---
 
-Tips and tricks - Mynatime CLI app documentation
-====================================
+# Tips and tricks
 
 Daily use
 ---------------------
@@ -82,8 +82,3 @@ Profile files are JSON and support additional options you can set manually:
 | `ConfirmServiceSave` | false | Prompt before sending each transaction item to the service. Useful to review items one by one before they are committed. |
 
 These options are also offered interactively when creating a profile with `pro add`.
-
-
----
-
-[Back: Index](AppCLI.0Index.en.md) - Back: [Add an activity](AppCLI.Add-activity.en.md) - Next: nothing here yet

@@ -1,6 +1,10 @@
+---
+title: Documentation
+nav_order: 2
+has_children: true
+---
 
-Index - Mynatime CLI app documentation
-====================================
+# Mynatime CLI app documentation
 
 ### Quick start
 

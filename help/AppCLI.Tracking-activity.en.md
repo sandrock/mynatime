@@ -1,10 +1,11 @@
 
-[Index](AppCLI.0Index.en.md) - Back: [Authenticate with service](AppCLI.Authenticate.en.md) - Next: [Add an activity](AppCLI.Add-activity.en.md)
-
+---
+title: Tracking activity
+parent: Documentation
+nav_order: 4
 ---
 
-Tracking activity - Mynatime CLI app documentation
-====================================
+# Tracking activity
 
 Refresh the activity categories
 -----------------------------------
@@ -163,9 +164,3 @@ m act clear                                # removes all events
 m act start/stop [date] [time] [category]  # you can specify a date
                  [--message|-m <message>]  # you can add a comment
 ```
-
-
-
----
-
-[Index](AppCLI.0Index.en.md) - Back: [Authenticate with service](AppCLI.Authenticate.en.md) - Next: [Add an activity](AppCLI.Add-activity.en.md)

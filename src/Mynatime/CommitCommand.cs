@@ -80,6 +80,23 @@ public sealed class CommitCommand : Command
             return;
         }
 
+        var latestTag = await UpdateChecker.GetLatestTagAsync();
+        if (UpdateChecker.IsNewer(latestTag, UpdateChecker.GetCurrentVersion()))
+        {
+            var current = UpdateChecker.GetCurrentVersion() ?? "unknown";
+            this.Console.MarkupLine($"[yellow]A new version is available: {Markup.Escape(latestTag!)} (current: {Markup.Escape(current)})[/]");
+            this.Console.MarkupLine("[yellow]The update may include important fixes. Please update before committing.[/]");
+            this.Console.MarkupLine("[dim]Run mynatime-update to upgrade.[/]");
+            this.Console.WriteLine(string.Empty);
+            var proceed = this.Console.Prompt(new ConfirmationPrompt("Proceed anyway?") { DefaultValue = false });
+            if (!proceed)
+            {
+                return;
+            }
+
+            this.Console.WriteLine(string.Empty);
+        }
+
         BaseResult? homePage = null;
         string? sessionError = null;
         await this.Console.Status().StartAsync("Connecting...", async ctx =>

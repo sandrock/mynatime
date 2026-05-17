@@ -91,28 +91,29 @@ has_dotnet || NEED_DOTNET=true
 
 fetch_releases_list() {
     curl -fsSL "https://api.github.com/repos/${REPO}/releases" \
-        | grep -A5 '"tag_name"' | head -20
+        | grep -A5 '"tag_name"' | head -20 || true
 }
+
+parse_tag()  { echo "$1" | grep '"tag_name"'          | head -1 | cut -d '"' -f4 || true; }
+parse_url()  { echo "$1" | grep 'browser_download_url' | grep 'linux-x64.tar.gz' | head -1 | cut -d '"' -f4 || true; }
 
 if $PRERELEASE; then
     RELEASE_JSON=$(fetch_releases_list)
 else
     # try stable release first; fall back to any release if none exists yet
-    RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null) || true
-    if echo "$RELEASE_JSON" | grep -q '"tag_name"'; then
-        : # stable release found
-    else
+    RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)
+    if ! echo "$RELEASE_JSON" | grep -q '"tag_name"'; then
         info "No stable release found. Installing latest pre-release."
         RELEASE_JSON=$(fetch_releases_list)
         PRERELEASE=true
     fi
 fi
 
-RELEASE_TAG=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -1 | cut -d '"' -f4)
-RELEASE_URL=$(echo "$RELEASE_JSON" | grep 'browser_download_url' | grep 'linux-x64.tar.gz' | head -1 | cut -d '"' -f4)
+RELEASE_TAG=$(parse_tag "$RELEASE_JSON")
+RELEASE_URL=$(parse_url "$RELEASE_JSON")
 
 [ -z "$RELEASE_TAG" ] && die "Could not determine latest release tag from GitHub."
-[ -z "$RELEASE_URL" ] && die "Could not find a linux-x64 tarball in release $RELEASE_TAG."
+[ -z "$RELEASE_URL" ] && die "Could not find a linux-x64 tarball in release $RELEASE_TAG. The release workflow may not have run for this tag — attach the asset manually or publish a new release."
 
 # ── summary + confirmation ────────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@ fi
 echo ""
 
 if ! $YES; then
-    read -r -p "Continue? [Y/n] " REPLY
+    read -r -p "Continue? [Y/n] " REPLY </dev/tty || REPLY="y"
     case "$REPLY" in
         [nN]*) echo "Aborted."; exit 0 ;;
     esac

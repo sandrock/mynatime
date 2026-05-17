@@ -31,6 +31,18 @@ Verify the install:
 m help
 ```
 
+**More options:**
+```bash
+# install the latest pre-release
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | bash -s -- --prerelease
+
+# system install, skip confirmation prompt
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | sudo bash -s -- --system --yes
+
+# see all available options without installing anything
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | bash -s -- --help
+```
+
 
 Update from pre-built binary
 -----------------------------

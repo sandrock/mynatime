@@ -12,7 +12,7 @@ NOTE: there are pending work tasks to publish the app on [winget](https://github
 Install from pre-built binary (recommended)
 -----------------------------
 
-The easiest way. Works on GNU/Linux x86-64. The script installs .NET if needed.
+The easiest way. The script installs .NET if needed.
 
 **With sudo** (installs system-wide to `/usr/local/`):
 ```bash
@@ -44,12 +44,46 @@ curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master
 ```
 
 
+### Windows
+
+Works on Windows x86-64. The script installs .NET if needed. Open **PowerShell** and run:
+
+```powershell
+irm https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.ps1 | iex
+```
+
+This installs to `%LOCALAPPDATA%\mynatime\` and adds it to your user PATH. Both `mynatime` and `m` commands will be available after restarting your terminal.
+
+**More options:**
+```powershell
+# system-wide install (requires administrator PowerShell)
+irm https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.ps1 | iex -- -System
+
+# install the latest pre-release
+irm https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.ps1 | iex -- -Prerelease
+
+# skip confirmation prompt
+irm https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.ps1 | iex -- -Yes
+```
+
+If you see an execution policy error, run this first:
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+
 Update from pre-built binary
 -----------------------------
 
 Please keep the app up-to-date because the service can change its API anytime.
 
+**Linux:**
 ```bash
+mynatime-update
+```
+
+**Windows:**
+```powershell
 mynatime-update
 ```
 

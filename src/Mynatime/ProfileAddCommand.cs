@@ -96,7 +96,13 @@ public class ProfileAddCommand : Command
 
         if (!loginPage.Succeed)
         {
-            this.Console.MarkupLine("[red]" + Markup.Escape(loginPage.ToString()!) + "[/]");
+            this.Console.MarkupLine("[red]Could not connect to the service.[/]");
+            var msg = loginPage.GetErrorMessage();
+            if (msg != null)
+            {
+                this.Console.MarkupLine("[red]" + Markup.Escape(msg) + "[/]");
+            }
+
             return;
         }
 
@@ -122,11 +128,17 @@ public class ProfileAddCommand : Command
         this.Console.WriteLine(string.Empty);
         if (resultPage.Succeed)
         {
-            this.Console.MarkupLine("[green]OK.[/]");
+            this.Console.MarkupLine("[green]Authentication successful.[/]");
         }
         else
         {
-            this.Console.MarkupLine("[red]" + Markup.Escape(resultPage.ToString()!) + "[/]");
+            this.Console.MarkupLine("[red]Authentication failed.[/]");
+            var msg = resultPage.GetErrorMessage();
+            if (msg != null)
+            {
+                this.Console.MarkupLine("[red]" + Markup.Escape(msg) + "[/]");
+            }
+
             return;
         }
 

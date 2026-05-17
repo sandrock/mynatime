@@ -229,6 +229,16 @@ public class ConsoleApp : IConsoleApp
             filePath = Path.Combine(directory.FullName, name);
         }
 
+        if (profile.ConfirmLocalSave == true)
+        {
+            var confirmed = this.console.Prompt(new ConfirmationPrompt("Save profile to " + filePath + "?"));
+            if (!confirmed)
+            {
+                this.console.WriteLine("Profile save skipped.");
+                return;
+            }
+        }
+
         await profile.SaveToFile(filePath);
 
         this.console.WriteLine("Profile saved to: " + filePath);

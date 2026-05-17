@@ -150,6 +150,15 @@ public sealed class MynatimeProfile : JsonObject
         }
     }
 
+    /// <summary>
+    /// When true, a confirmation prompt is shown before saving the profile locally.
+    /// </summary>
+    public bool? ConfirmLocalSave
+    {
+        get => this.Element.Value<bool?>("ConfirmLocalSave");
+        set => this.Element["ConfirmLocalSave"] = value;
+    }
+
     public bool? IsDefault
     {
         get => this.Element.Value<bool?>("IsDefault");

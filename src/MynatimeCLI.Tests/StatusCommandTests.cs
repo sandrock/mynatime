@@ -5,6 +5,7 @@ using Moq;
 using Mynatime.Infrastructure;
 using Mynatime.CLI.Tests.Resources;
 using Mynatime.Client;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ using Xunit;
 public class StatusCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? _console;
+    private IAnsiConsole Console => _console ??= this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object;
 
     public static IEnumerable<object[]> ValidInitialArgument()
     {
@@ -36,7 +39,7 @@ public class StatusCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new StatusCommand(app.Object, client.Object);
+        var target = new StatusCommand(app.Object, client.Object, this.Console);
         var result = target.MatchArg(arg0);
         Assert.True(result);
         result = target.ParseArgs(app.Object, new string[] { arg0, }, out int consumedArgs, out Command? command);
@@ -48,7 +51,7 @@ public class StatusCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new StatusCommand(app.Object, client.Object);
+        var target = new StatusCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
     }
@@ -58,7 +61,7 @@ public class StatusCommandTests
     {
         var app = GetAppMock(withProfile: true);
         var client = GetClientMock();
-        var target = new StatusCommand(app.Object, client.Object);
+        var target = new StatusCommand(app.Object, client.Object, this.Console);
         await target.Run();
     }
 

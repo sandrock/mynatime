@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Mynatime.CLI;
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Spectre.Console;
 using System;
 
 var configuration = new ConfigurationBuilder()
@@ -17,6 +18,12 @@ var configuration = new ConfigurationBuilder()
 var services = new ServiceCollection();
 services.AddTransient<ConsoleApp>();
 services.AddOptions();
+services.AddSingleton<IAnsiConsole>(_ => AnsiConsole.Create(new AnsiConsoleSettings
+{
+    Ansi = AnsiSupport.Detect,
+    ColorSystem = ColorSystemSupport.Detect,
+    Out = new AnsiConsoleOutput(System.Console.Out),
+}));
 services.Configure<AppSettings>(configuration.GetSection("App"));
 services.AddSingleton(new LoggerFactory());
 services.AddLogging(builder =>

@@ -3,6 +3,7 @@ namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Infrastructure;
+using Spectre.Console;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -10,8 +11,8 @@ using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityAddCommand : Command
 {
-    public ActivityAddCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ActivityAddCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
     }
@@ -76,7 +77,7 @@ public class ActivityAddCommand : Command
                 else
                 {
                     errors++;
-                    Console.WriteLine("Argument must be followed by a message. ");
+                    this.Console.WriteLine("Argument must be followed by a message. ");
                 }
             }
             else if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
@@ -201,7 +202,7 @@ public class ActivityAddCommand : Command
         {
             if (profile.Data?.ActivityCategories == null)
             {
-                Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
+                this.Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
                 return;
             }
 
@@ -221,7 +222,7 @@ public class ActivityAddCommand : Command
                 var search = searchResult.Select(x => x.Item).ToList();
                 if (search.Count == 0)
                 {
-                    Console.WriteLine("No such category " + this.CategoryArg);
+                    this.Console.WriteLine("No such category " + this.CategoryArg);
                     return;
                 }
                 else if (search.Count == 1)
@@ -230,7 +231,7 @@ public class ActivityAddCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                    this.Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
                     return;
                 }
             }
@@ -241,7 +242,7 @@ public class ActivityAddCommand : Command
             }
             else
             {
-                Console.WriteLine("Category selection failed");
+                this.Console.WriteLine("Category selection failed");
                 return;
             }
         }

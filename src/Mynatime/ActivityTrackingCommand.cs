@@ -5,6 +5,7 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -12,8 +13,8 @@ using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityTrackingCommand : Command
 {
-    public ActivityTrackingCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ActivityTrackingCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
     }
@@ -22,11 +23,13 @@ public class ActivityTrackingCommand : Command
     public static string[] StopArgs { get; } = new string[] { "stop", };
     public static string[] StatusArgs { get; } = new string[] { "status", };
     public static string[] ClearArgs { get; } = new string[] { "clear", };
+    public static string[] EventsArgs { get; } = new string[] { "events", "event", };
 
     public bool IsStart { get; set; }
     public bool IsStop { get; set; }
     public bool IsStatus { get; set; }
     public bool IsClear { get; set; }
+    public bool IsEvents { get; set; }
     public TimeZoneInfo TimeZoneLocal { get; set; }
     public DateTime DateLocal { get; set; }
     public DateTime? TimeLocal { get; set; }
@@ -41,6 +44,7 @@ public class ActivityTrackingCommand : Command
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0] + " [time] [category]", "starts an activity");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StopArgs[0] + " [time] [category]", "stops  an activity");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StatusArgs[0], "lists current activities");
+        describe.AddCommandPattern(ActivityCommand.Args[0] + " " + EventsArgs[0], "lists raw start/stop events");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + ClearArgs[0], "removes all events");
         describe.AddCommandPattern(ActivityCommand.Args[0] + " " + StartArgs[0] + "/" + StopArgs[0] + " [date] [time] [category]", "you can specify a date");
         return describe;
@@ -88,6 +92,10 @@ public class ActivityTrackingCommand : Command
         {
             this.IsClear = true;
         }
+        else if (ConsoleApp.MatchArg(args[i], EventsArgs))
+        {
+            this.IsEvents = true;
+        }
         else
         {
             goto error;
@@ -119,7 +127,7 @@ public class ActivityTrackingCommand : Command
                 else
                 {
                     errors++;
-                    Console.WriteLine("Argument must be followed by a message. ");
+                    this.Console.WriteLine("Argument must be followed by a message. ");
                 }
             }
             else if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
@@ -166,32 +174,35 @@ public class ActivityTrackingCommand : Command
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
         var transaction = profile.Transaction;
         if (transaction == null)
         {
-            Console.WriteLine("Current profile does not allow changes. ");
+            this.Console.MarkupLine("[red]Current profile does not allow changes.[/]");
             return;
         }
 
-        if (this.IsStatus && !(this.IsStart || this.IsStop || this.IsClear))
+        if (this.IsStatus && !(this.IsStart || this.IsStop || this.IsClear || this.IsEvents))
         {
         }
-        else if (this.IsStart && !(this.IsStatus || this.IsStop || this.IsClear))
+        else if (this.IsEvents && !(this.IsStart || this.IsStop || this.IsClear || this.IsStatus))
         {
         }
-        else if (this.IsStop && !(this.IsStart || this.IsStatus || this.IsClear))
+        else if (this.IsStart && !(this.IsStatus || this.IsStop || this.IsClear || this.IsEvents))
         {
         }
-        else if (this.IsClear && !(this.IsStart || this.IsStatus || this.IsStop))
+        else if (this.IsStop && !(this.IsStart || this.IsStatus || this.IsClear || this.IsEvents))
+        {
+        }
+        else if (this.IsClear && !(this.IsStart || this.IsStatus || this.IsStop || this.IsEvents))
         {
         }
         else
         {
-            Console.WriteLine("Neither start or stop or status or clear? ");
+            this.Console.MarkupLine("[red]Neither start or stop or status or events or clear?[/]");
             return;
         }
 
@@ -208,7 +219,7 @@ public class ActivityTrackingCommand : Command
                 else
                 {
                     // too many of the same item type
-                    Console.WriteLine("Transaction corrupted. ");
+                    this.Console.MarkupLine("[red]Transaction corrupted.[/]");
                     return;
                 }
             }
@@ -230,7 +241,7 @@ public class ActivityTrackingCommand : Command
         {
             if (profile.Data?.ActivityCategories == null)
             {
-                Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
+                this.Console.MarkupLine("[yellow]Please run \"act cat refresh\" before adding activity items.[/]");
                 return;
             }
 
@@ -250,7 +261,7 @@ public class ActivityTrackingCommand : Command
                 var search = searchResult.Select(x => x.Item).ToList();
                 if (search.Count == 0)
                 {
-                    Console.WriteLine("No such category " + this.CategoryArg);
+                    this.Console.MarkupLine("[red]No such category " + Markup.Escape(this.CategoryArg) + "[/]");
                     return;
                 }
                 else if (search.Count == 1)
@@ -259,7 +270,7 @@ public class ActivityTrackingCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                    this.Console.MarkupLine("[yellow]Too many possibilities for category \"" + Markup.Escape(this.CategoryArg) + "\": " + Markup.Escape(string.Join(", ", search)) + "[/]");
                     return;
                 }
             }
@@ -269,7 +280,7 @@ public class ActivityTrackingCommand : Command
             }
             else
             {
-                Console.WriteLine("Category selection failed");
+                this.Console.MarkupLine("[red]Category selection failed.[/]");
                 return;
             }
         }
@@ -288,11 +299,59 @@ public class ActivityTrackingCommand : Command
 
         var manager = new ActivityStartStopManager(state);
 
+        if (this.IsEvents)
+        {
+            var eventsTable = new Table().Border(TableBorder.Simple);
+            eventsTable.AddColumn("Date");
+            eventsTable.AddColumn("Time");
+            eventsTable.AddColumn("Mode");
+            eventsTable.AddColumn("Category");
+            DateTime? lastEventDate = null;
+            foreach (var ev in state.Events.OrderBy(x => x.TimeLocal))
+            {
+                if (lastEventDate.HasValue && ev.TimeLocal.Date != lastEventDate.Value.Date)
+                {
+                    eventsTable.AddEmptyRow();
+                }
+
+                lastEventDate = ev.TimeLocal.Date;
+                var modeMarkup = ev.Mode == "Start" ? "[green]Start[/]"
+                    : ev.Mode == "Stop" ? "[red]Stop[/]"
+                    : Markup.Escape(ev.Mode);
+                string evCategoryMarkup;
+                if (ev.ActivityId == null)
+                {
+                    evCategoryMarkup = string.Empty;
+                }
+                else
+                {
+                    var evCategoryName = profile.Data?.GetActivityById(ev.ActivityId)?.Name;
+                    evCategoryMarkup = evCategoryName != null
+                        ? CliTheme.Tag(CliTheme.Category, evCategoryName)
+                        : "[grey](unknown)[/]";
+                }
+
+                eventsTable.AddRow(
+                    CliTheme.Tag(CliTheme.Timestamp, ev.TimeLocal.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                    CliTheme.Tag(CliTheme.Timestamp, ev.TimeLocal.ToString("HH:mm", CultureInfo.InvariantCulture)),
+                    modeMarkup,
+                    evCategoryMarkup);
+            }
+
+            if (eventsTable.Rows.Count > 0)
+            {
+                this.Console.Write(eventsTable);
+            }
+            else
+            {
+                this.Console.MarkupLine("  none");
+            }
+
+            return;
+        }
+
         if (this.IsStatus)
         {
-            Console.WriteLine("Events:");
-            Console.WriteLine(state.GetSummary());
-
             foreach (var item in transaction.Items)
             {
                 if (MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item))
@@ -307,26 +366,92 @@ public class ActivityTrackingCommand : Command
 
         if (manager.Errors.Any())
         {
-            Console.WriteLine("Errors:");
+            this.Console.MarkupLine("[red]Errors:[/]");
             foreach (var error in manager.Errors)
             {
-                Console.WriteLine("- " + error);
+                this.Console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
             }
         }
 
-        Console.WriteLine();
-        Console.WriteLine("Activities:");
-        foreach (var entry in manager.AllActivities)
+        if (manager.Warnings.Any())
         {
-            Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!) + (entry.IsStartAndStop ? " (start-stop)" : " (activity)"));
+            this.Console.MarkupLine("[yellow]Warnings:[/]");
+            foreach (var warning in manager.Warnings)
+            {
+                this.Console.MarkupLine("[yellow]- " + Markup.Escape(warning.ToString()) + "[/]");
+            }
         }
 
-        ////{
-        ////    foreach (var item in state.Events.Except(manager.UsedEvents))
-        ////    {
-        ////        Console.WriteLine("- " + item.ToDisplayString(profile.Data));
-        ////    }
-        ////}
+        var activitiesTable = new Table().Border(TableBorder.Simple);
+        activitiesTable.AddColumn("Date");
+        activitiesTable.AddColumn("In");
+        activitiesTable.AddColumn("Out");
+        activitiesTable.AddColumn("Duration");
+        activitiesTable.AddColumn("Category");
+        activitiesTable.AddColumn("Comment");
+        DateTime? lastActivityDate = null;
+        foreach (var entry in manager.AllActivities)
+        {
+            var actItem = entry.Item;
+            var actDate = actItem.DateStart ?? actItem.DateEnd;
+            if (lastActivityDate.HasValue && actDate.HasValue && actDate.Value.Date != lastActivityDate.Value.Date)
+            {
+                activitiesTable.AddEmptyRow();
+            }
+
+            lastActivityDate = actDate ?? lastActivityDate;
+            var dateStr = actItem.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+            var inStr = actItem.InAt.HasValue ? actItem.InAt.Value.ToString(@"hh\:mm") : string.Empty;
+            var outStr = actItem.OutAt.HasValue ? actItem.OutAt.Value.ToString(@"hh\:mm") : string.Empty;
+            var durationStr = ActivityFormat.DurationDisplay(actItem);
+
+            string actCategoryMarkup;
+            if (actItem.ActivityId == null)
+            {
+                actCategoryMarkup = string.Empty;
+            }
+            else
+            {
+                var actCategoryName = profile.Data?.GetActivityById(actItem.ActivityId)?.Name;
+                actCategoryMarkup = actCategoryName != null
+                    ? CliTheme.Tag(CliTheme.Category, actCategoryName)
+                    : "[grey](unknown)[/]";
+            }
+
+            var actComment = actItem.Comment ?? string.Empty;
+            activitiesTable.AddRow(
+                CliTheme.Tag(CliTheme.Timestamp, dateStr),
+                CliTheme.Tag(CliTheme.Timestamp, inStr),
+                CliTheme.Tag(CliTheme.Timestamp, outStr),
+                CliTheme.Tag(CliTheme.Duration, durationStr),
+                actCategoryMarkup,
+                CliTheme.Tag(CliTheme.Comment, actComment));
+        }
+
+        this.Console.WriteLine(string.Empty);
+        this.Console.MarkupLine("Activities:");
+        if (activitiesTable.Rows.Count > 0)
+        {
+            this.Console.Write(activitiesTable);
+        }
+        else
+        {
+            this.Console.MarkupLine("  none");
+        }
+
+        var openEvents = state.Events.Except(manager.UsedEvents).ToList();
+        foreach (var ev in openEvents)
+        {
+            string openCatPart = string.Empty;
+            if (ev.ActivityId != null)
+            {
+                var openCatName = profile.Data?.GetActivityById(ev.ActivityId)?.Name ?? "(unknown)";
+                openCatPart = " " + CliTheme.Tag(CliTheme.Category, openCatName);
+            }
+
+            this.Console.MarkupLine(
+                $"[yellow]Open event:[/] {CliTheme.Tag(CliTheme.Timestamp, ev.TimeLocal.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture))}{openCatPart}");
+        }
 
         if (hasChanged)
         {

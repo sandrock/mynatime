@@ -5,6 +5,7 @@ using Fastenshtein;
 using Mynatime.Client;
 using Mynatime.Infrastructure;
 using SimplifiedSearch;
+using Spectre.Console;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -14,8 +15,8 @@ public sealed class ActivityCategoryCommand : Command
 {
     private readonly IManatimeWebClient manatimeWebClient;
 
-    public ActivityCategoryCommand(IConsoleApp consoleApp, IManatimeWebClient manatimeWebClient)
-        : base(consoleApp)
+    public ActivityCategoryCommand(IConsoleApp consoleApp, IManatimeWebClient manatimeWebClient, IAnsiConsole console)
+        : base(consoleApp, console)
     {
         this.manatimeWebClient = manatimeWebClient;
     }
@@ -85,7 +86,7 @@ public sealed class ActivityCategoryCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Search command requires a search expression. ");
+                    this.Console.WriteLine("Search command requires a search expression. ");
                 }
             }
             else if (ConsoleApp.MatchArg(arg, "alias"))
@@ -99,7 +100,7 @@ public sealed class ActivityCategoryCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Alias command requires two values. ");
+                    this.Console.WriteLine("Alias command requires two values. ");
                 }
             }
             else
@@ -134,7 +135,7 @@ public sealed class ActivityCategoryCommand : Command
 
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
@@ -168,51 +169,61 @@ public sealed class ActivityCategoryCommand : Command
             {
                 if (items.Count == 0)
                 {
-                    Console.WriteLine($"Create alias: no such activity \"{this.Search}\"");
+                    this.Console.MarkupLine($"[red]Create alias: no such activity \"{Markup.Escape(this.Search!)}\"[/]");
                 }
                 else if (items.Count > 1)
                 {
-                    Console.WriteLine($"Create alias: too many activities for \"{this.Search}\"");
+                    this.Console.MarkupLine($"[yellow]Create alias: too many activities for \"{Markup.Escape(this.Search!)}\"[/]");
                 }
                 else
                 {
                     hasChanged = true;
                     var item = items[0];
                     item.Alias = this.Alias.Trim();
-                    Console.WriteLine($"Create alias: alias \"{item.Alias}\" set on \"{item.Name}\" ({item.Id})");
+                    this.Console.MarkupLine($"[green]Create alias:[/] [{CliTheme.CategoryAlias}]\"{Markup.Escape(item.Alias)}\"[/] set on [{CliTheme.Category}]\"{Markup.Escape(item.Name ?? string.Empty)}\"[/] ({Markup.Escape(item.Id ?? string.Empty)})");
                 }
             }
 
             // display list
-            var itemDisplayNames = items.Select(x => (x.Name != null ? (" <" + x.Name + ">") : string.Empty) + (x.Alias != null ? (" <" + x.Alias + ">") : string.Empty)).ToArray();
-            var maxDisplayNameLength = itemDisplayNames.Length == 0 ? 0 : itemDisplayNames.Max(x => x.Length);
-            for (var i = 0; i < items.Count; i++)
+            var table = new Table().Border(TableBorder.Simple);
+            table.AddColumn("ID");
+            table.AddColumn("Name");
+            table.AddColumn("Alias");
+            table.AddColumn("Status");
+
+            foreach (var item in items)
             {
-                var item = items[i];
-                Console.Write("ActCategory");
-                Console.Write(itemDisplayNames[i].PadRight(maxDisplayNameLength));
-                Console.Write(" (");
-                Console.Write(item.Id);
-                Console.Write(")");
-
+                string status;
                 if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
-                {
-                    Console.Write("\tNEW!");
-                }
+                    status = "[green]NEW[/]";
+                else if (changedItems.Contains(item))
+                    status = "[yellow]CHANGED[/]";
+                else
+                    status = string.Empty;
 
-                if (changedItems.Contains(item))
-                {
-                    Console.Write("\tCHANGED!");
-                }
-
-                Console.WriteLine();
+                table.AddRow(
+                    Markup.Escape(item.Id ?? string.Empty),
+                    CliTheme.Tag(CliTheme.Category, item.Name),
+                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                    status);
             }
 
             foreach (var item in deletedItems)
             {
-                Console.Write(item.ToString());
-                Console.Write("\tDELETED!");
-                Console.WriteLine();
+                table.AddRow(
+                    Markup.Escape(item.Id ?? string.Empty),
+                    CliTheme.Tag(CliTheme.Category, item.Name),
+                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                    "[red]DELETED[/]");
+            }
+
+            if (table.Rows.Count > 0)
+            {
+                this.Console.Write(table);
+            }
+            else
+            {
+                this.Console.WriteLine("No categories found.");
             }
         }
 
@@ -234,52 +245,56 @@ public sealed class ActivityCategoryCommand : Command
     {
         var profileData = profile.Data ?? new MynatimeProfileData();
 
-        Console.WriteLine("Refreshing categories... ");
-        // first try to get the page
-        var page = await this.manatimeWebClient.GetNewActivityItemPage();
-        if (page.Succeed)
+        NewActivityItemPage page = null!;
+        string? refreshError = null;
+        await this.Console.Status().StartAsync("Refreshing categories...", async ctx =>
         {
-            // yeah!
-        }
-        else if (page.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
-        {
-            // session expired: renew
-            Console.WriteLine("  Renewing session... ");
-
-            if (profile.LoginUsername == null || profile.LoginPassword == null)
+            page = await this.manatimeWebClient.GetNewActivityItemPage();
+            if (page.Succeed)
             {
-                throw new InvalidOperationException("Missing authentication information. ");
+                // yeah!
             }
-
-            var loginPage = await this.manatimeWebClient.PrepareEmailPasswordAuthenticate();
-            if (loginPage.Succeed)
+            else if (page.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
             {
-                var loginResultPage = await this.manatimeWebClient.EmailPasswordAuthenticate(profile.LoginUsername, profile.LoginPassword);
-                if (loginResultPage.Succeed)
+                if (profile.LoginUsername == null || profile.LoginPassword == null)
                 {
-                    page = await this.manatimeWebClient.GetNewActivityItemPage();
-                    if (page.Succeed)
+                    refreshError = "Missing authentication information.";
+                    return;
+                }
+
+                ctx.Status("Renewing session...");
+                var loginPage = await this.manatimeWebClient.PrepareEmailPasswordAuthenticate();
+                if (loginPage.Succeed)
+                {
+                    var loginResultPage = await this.manatimeWebClient.EmailPasswordAuthenticate(profile.LoginUsername, profile.LoginPassword);
+                    if (loginResultPage.Succeed)
                     {
-                        // yeah!
+                        ctx.Status("Refreshing categories...");
+                        page = await this.manatimeWebClient.GetNewActivityItemPage();
+                        if (!page.Succeed)
+                        {
+                            refreshError = "Auto log-in failed: something went wrong 3.";
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Auto log-in failed: something went wrong 3. ");
+                        refreshError = "Auto log-in failed: something went wrong 2.";
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Auto log-in failed: something went wrong 2. ");
+                    refreshError = "Auto log-in failed: something went wrong 1.";
                 }
             }
             else
             {
-                Console.WriteLine("Auto log-in failed: something went wrong 1. ");
+                refreshError = "Auto log-in failed: something went wrong 0.";
             }
-        }
-        else
+        });
+
+        if (refreshError != null)
         {
-            Console.WriteLine("Auto log-in failed: something went wrong 0. ");
+            this.Console.MarkupLine("[red]" + Markup.Escape(refreshError) + "[/]");
         }
 
         profile.Cookies = this.manatimeWebClient.GetCookies();
@@ -339,7 +354,7 @@ public sealed class ActivityCategoryCommand : Command
         }
         else
         {
-            Console.WriteLine(page.ToString());
+            this.Console.MarkupLine("[red]" + Markup.Escape(page.ToString()!) + "[/]");
             return false;
         }
     }

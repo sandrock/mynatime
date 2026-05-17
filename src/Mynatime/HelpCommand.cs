@@ -1,9 +1,11 @@
-﻿namespace Mynatime.CLI;
+namespace Mynatime.CLI;
+
+using Spectre.Console;
 
 public sealed class HelpCommand : Command
 {
-    public HelpCommand(ConsoleApp app)
-        : base(app)
+    public HelpCommand(IConsoleApp app, IAnsiConsole console)
+        : base(app, console)
     {
     }
 
@@ -42,19 +44,19 @@ public sealed class HelpCommand : Command
 
     public override Task Run()
     {
-        Console.WriteLine("");
-        Console.WriteLine("Mynatime help");
-        Console.WriteLine("");
-        Console.WriteLine("Usage: mynatime [app options] [command] [command options]");
-        Console.WriteLine("");
-        Console.WriteLine("App options:");
-        Console.WriteLine("");
-        Console.WriteLine("  --config-directory <directory>   specifies the directory to open profiles from");
-        Console.WriteLine("  --profile <profile>              specifies the profile to use");
-        Console.WriteLine("  -p <profile>");
-        Console.WriteLine("");
-        Console.WriteLine("Commands: ");
-        Console.WriteLine("");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("Mynatime help");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("Usage: mynatime [app options] [command] [command options]");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("App options:");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("  --config-directory <directory>   specifies the directory to open profiles from");
+        this.Console.WriteLine("  --profile <profile>              specifies the profile to use");
+        this.Console.WriteLine("  -p <profile>");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("Commands: ");
+        this.Console.WriteLine(string.Empty);
         foreach (var item in this.App.Commands)
         {
             int patternLength = 32;
@@ -63,7 +65,7 @@ public sealed class HelpCommand : Command
             {
                 continue;
             }
-            
+
             foreach (var pattern in describe.CommandPatterns)
             {
                 if (pattern.Id.Length > patternLength)
@@ -72,7 +74,7 @@ public sealed class HelpCommand : Command
                 }
             }
 
-            Console.WriteLine("  ## " + (describe?.Title ??  item.GetType().Name));
+            this.Console.MarkupLine("  [bold]## " + Markup.Escape(describe?.Title ?? item.GetType().Name) + "[/]");
             foreach (var pattern in describe!.CommandPatterns)
             {
                 if (pattern.Id.Length > patternLength)
@@ -80,14 +82,14 @@ public sealed class HelpCommand : Command
                     patternLength = pattern.Id.Length;
                 }
 
-                Console.WriteLine("  " + pattern.Id.PadRight(patternLength + 1, ' ') + pattern.DisplayName);
+                this.Console.WriteLine("  " + pattern.Id.PadRight(patternLength + 1, ' ') + pattern.DisplayName);
             }
 
-            Console.WriteLine();
+            this.Console.WriteLine(string.Empty);
         }
 
-        Console.WriteLine("");
-        Console.WriteLine("");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine(string.Empty);
         return Task.CompletedTask;
     }
 }

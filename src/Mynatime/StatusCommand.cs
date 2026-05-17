@@ -6,6 +6,7 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 
 /// <summary>
@@ -17,8 +18,8 @@ public class StatusCommand : Command
 
     public static string[] Args { get; } = new string[] { "status", };
 
-    public StatusCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public StatusCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -64,7 +65,7 @@ public class StatusCommand : Command
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
@@ -76,20 +77,25 @@ public class StatusCommand : Command
 
         if (profile.Transaction == null || operations.Count == 0)
         {
-            Console.WriteLine("No pending operation. ");
+            this.Console.WriteLine("No pending operation. ");
             return;
         }
 
         int i = -1;
-        var visitor = new ConsoleDescribeTransactionItem(this.App, profile);
+        var visitor = new ConsoleDescribeTransactionItem(this.App, this.Console, profile);
         var helper = MynatimeProfileTransactionManager.Default;
         
         foreach (var operation in operations)
         {
             i++;
 
-            Console.Write(i);
-            Console.Write("\t");
+            if (i > 0)
+            {
+                this.Console.WriteLine();
+            }
+
+            this.Console.Write(i.ToString());
+            this.Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
             await item.Accept(visitor);
         }
@@ -99,49 +105,106 @@ public class StatusCommand : Command
     public class ConsoleDescribeTransactionItem : ITransactionItemVisitor
     {
         private readonly IConsoleApp app;
+        private readonly IAnsiConsole console;
         private readonly MynatimeProfile profile;
 
-        public ConsoleDescribeTransactionItem(IConsoleApp app, MynatimeProfile profile)
+        public ConsoleDescribeTransactionItem(IConsoleApp app, IAnsiConsole console, MynatimeProfile profile)
         {
             this.app = app;
+            this.console = console;
             this.profile = profile;
         }
 
         public Task Visit(ActivityStartStop state)
         {
-            Console.WriteLine("Activity tracker");
             var manager = new ActivityStartStopManager(state);
             manager.GenerateItems();
 
             if (manager.Errors.Any())
             {
-                Console.WriteLine("Errors:");
+                this.console.MarkupLine("[red]Errors:[/]");
                 foreach (var error in manager.Errors)
                 {
-                    Console.WriteLine("- " + error);
+                    this.console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
                 }
             }
 
             if (manager.Warnings.Any())
             {
-                Console.WriteLine("Warnings:");
-                foreach (var error in manager.Warnings)
+                this.console.MarkupLine("[yellow]Warnings:[/]");
+                foreach (var warning in manager.Warnings)
                 {
-                    Console.WriteLine("- " + error);
+                    this.console.MarkupLine("[yellow]- " + Markup.Escape(warning.ToString()) + "[/]");
                 }
             }
 
-            Console.WriteLine("Activities:");
+            var table = new Table().Border(TableBorder.Simple);
+            table.AddColumn("Date");
+            table.AddColumn("In");
+            table.AddColumn("Out");
+            table.AddColumn("Duration");
+            table.AddColumn("Category");
+            table.AddColumn("Comment");
+            DateTime? lastDate = null;
             foreach (var entry in manager.Activities)
             {
-                Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!));
+                var item = entry.Item;
+                var actDate = item.DateStart ?? item.DateEnd;
+                if (lastDate.HasValue && actDate.HasValue && actDate.Value.Date != lastDate.Value.Date)
+                {
+                    table.AddEmptyRow();
+                }
+
+                lastDate = actDate ?? lastDate;
+                var dateStr = item.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+                var inStr = item.InAt.HasValue ? item.InAt.Value.ToString(@"hh\:mm") : string.Empty;
+                var outStr = item.OutAt.HasValue ? item.OutAt.Value.ToString(@"hh\:mm") : string.Empty;
+                var durationStr = ActivityFormat.DurationDisplay(item);
+
+                string categoryMarkup;
+                if (item.ActivityId == null)
+                {
+                    categoryMarkup = string.Empty;
+                }
+                else
+                {
+                    var resolved = profile.Data?.GetActivityById(item.ActivityId)?.Name;
+                    categoryMarkup = resolved != null
+                        ? CliTheme.Tag(CliTheme.Category, resolved)
+                        : "[grey](unknown)[/]";
+                }
+
+                var comment = item.Comment ?? string.Empty;
+                table.AddRow(
+                    CliTheme.Tag(CliTheme.Timestamp, dateStr),
+                    CliTheme.Tag(CliTheme.Timestamp, inStr),
+                    CliTheme.Tag(CliTheme.Timestamp, outStr),
+                    CliTheme.Tag(CliTheme.Duration, durationStr),
+                    categoryMarkup,
+                    CliTheme.Tag(CliTheme.Comment, comment));
             }
 
+            if (table.Rows.Count > 0)
             {
-                foreach (var item in state.Events.Except(manager.UsedEvents))
+                this.console.Write(table);
+            }
+            else
+            {
+                this.console.MarkupLine("  none");
+            }
+
+            var openEvents = state.Events.Except(manager.UsedEvents).ToList();
+            foreach (var ev in openEvents)
+            {
+                string openCatPart = string.Empty;
+                if (ev.ActivityId != null)
                 {
-                    Console.WriteLine("- " + item.ToDisplayString(profile.Data!));
+                    var openCatName = profile.Data?.GetActivityById(ev.ActivityId)?.Name ?? "(unknown)";
+                    openCatPart = " " + CliTheme.Tag(CliTheme.Category, openCatName);
                 }
+
+                this.console.MarkupLine(
+                    $"[yellow]Open event:[/] {CliTheme.Tag(CliTheme.Timestamp, ev.TimeLocal.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture))}{openCatPart}");
             }
 
             return Task.CompletedTask;
@@ -149,58 +212,50 @@ public class StatusCommand : Command
 
         public Task Visit(NewActivityItemPage thing)
         {
-            Console.WriteLine("Activity item ");
-            Console.Write(thing.DateStart!.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
-            Console.Write(" ");
-            if (thing.DateEnd != null && thing.Duration == null && thing.InAt != null && thing.OutAt != null)
+            var dateStr = thing.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+
+            string timePart;
+            if (thing.InAt.HasValue && thing.OutAt.HasValue)
             {
-                Console.Write(thing.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                Console.Write(" ");
-                if (thing.DateStart.Value.Date != thing.DateEnd.Value.Date)
-                {
-                    Console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
-                }
-                else
-                {
-                    Console.Write(string.Empty.PadLeft(ClientConstants.DateInputFormat.Length));
-                }
-                
-                Console.Write(" ");
-                Console.Write(thing.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                Console.Write(" ");   
+                timePart = CliTheme.Tag(CliTheme.Timestamp, thing.InAt.Value.ToString(@"hh\:mm"))
+                    + "->"
+                    + CliTheme.Tag(CliTheme.Timestamp, thing.OutAt.Value.ToString(@"hh\:mm"));
             }
-            else if (thing.DateEnd != null && thing.Duration != null && thing.InAt == null && thing.OutAt == null)
+            else if (thing.Duration != null)
             {
-                var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length*2 + 1;
-                var duration = "for " + thing.Duration?.ToString() + " h";
-                Console.Write(duration.PadRight(spaces, ' '));
+                timePart = string.Empty;
             }
             else
             {
-                Console.Write(" INVALID ACTIVITY");
+                timePart = "[red]INVALID[/]";
             }
 
+            var durationPart = CliTheme.Tag(CliTheme.Duration, ActivityFormat.DurationDisplay(thing));
+
+            string categoryPart;
             if (thing.ActivityId != null)
             {
-                var activity = this.profile.Data!.GetActivityById(thing.ActivityId);
-                if (activity != null)
-                {
-                    Console.Write(activity.Name);
-                }
-                else
-                {
-                    Console.Write(thing.ActivityId);
-                }
+                var activity = this.profile.Data?.GetActivityById(thing.ActivityId);
+                categoryPart = activity != null
+                    ? CliTheme.Tag(CliTheme.Category, activity.Name ?? string.Empty)
+                    : "[grey](unknown)[/]";
             }
-            
-            Console.Write(" ");
-            Console.WriteLine();
+            else
+            {
+                categoryPart = string.Empty;
+            }
+
+            var commentPart = CliTheme.Tag(CliTheme.Comment, thing.Comment);
+
+            var parts = new[] { CliTheme.Tag(CliTheme.Timestamp, dateStr), timePart, durationPart, categoryPart, commentPart }
+                .Where(s => s.Length > 0);
+            this.console.MarkupLine(string.Join(" ", parts));
             return Task.CompletedTask;
         }
 
         public Task Visit(ITransactionItem thing)
         {
-            Console.WriteLine(thing.ToString());
+            this.console.WriteLine(thing.ToString() ?? string.Empty);
             return Task.CompletedTask;
         }
     }

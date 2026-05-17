@@ -6,6 +6,7 @@ using Mynatime.Infrastructure;
 using Mynatime.CLI.Tests.Resources;
 using Mynatime.Client;
 using Newtonsoft.Json;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ using Xunit;
 public class ActivityAddCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? _console;
+    private IAnsiConsole Console => _console ??= this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object;
 
     public static IEnumerable<object[]> ValidInitialArgument()
     {
@@ -36,7 +39,7 @@ public class ActivityAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.MatchArg(arg0);
         Assert.True(result);
         result = target.ParseArgs(app.Object, new string[] { arg0, arg1, }, out int consumedArgs, out Command? command);
@@ -48,7 +51,7 @@ public class ActivityAddCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
     }
@@ -60,7 +63,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -83,7 +86,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -100,7 +103,7 @@ public class ActivityAddCommandTests
         var args = new string[] { "act", "add", "2.5", "proj1", };
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;        var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Null(target.StartTimeLocal);
@@ -118,7 +121,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -141,7 +144,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -159,7 +162,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -177,7 +180,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -195,7 +198,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -213,7 +216,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 21, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -231,7 +234,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 21, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -249,7 +252,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
         Assert.Equal(new DateTime(2022, 9, 21, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -267,7 +270,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -285,7 +288,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -303,7 +306,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 0, 0, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -321,7 +324,7 @@ public class ActivityAddCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityAddCommand(app.Object, client.Object);
+        var target = new ActivityAddCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal(new DateTime(2022, 9, 18, 9, 25, 0, DateTimeKind.Local), target.StartTimeLocal);
@@ -340,7 +343,7 @@ public class ActivityAddCommandTests
     public async Task Run_NoProfile_Error()
     {
         var app = GetAppMock();
-        var target = new ActivityAddCommand(app.Object, null);
+        var target = new ActivityAddCommand(app.Object, null!, this.Console);
         await target.Run();
         app.Verify(x => x.PersistProfile(It.IsAny<MynatimeProfile>()), Times.Never);
     }

@@ -2,12 +2,13 @@
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
+using Spectre.Console;
 using System;
 
 public class ActivityCommand : Command
 {
-    public ActivityCommand(IConsoleApp consoleApp)
-        : base(consoleApp)
+    public ActivityCommand(IConsoleApp consoleApp, IAnsiConsole console)
+        : base(consoleApp, console)
     {
     }
 

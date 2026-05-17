@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Spectre.Console;
 using Xunit;
 using Xunit.Abstractions;
 
 public class ActivityCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? _console;
+    private IAnsiConsole Console => _console ??= this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object;
 
     public static IEnumerable<object[]> ValidInitialArgument()
     {
@@ -24,7 +27,7 @@ public class ActivityCommandTests
     public void MatchArg_Yes(string arg)
     {
         var app = GetAppMock();
-        var target = new ActivityCommand(app.Object);
+        var target = new ActivityCommand(app.Object, this.Console);
         var result = target.MatchArg(arg);
         Assert.True(result);
         result = target.ParseArgs(app.Object, new string[] { arg, }, out int consumedArgs, out Command? command);

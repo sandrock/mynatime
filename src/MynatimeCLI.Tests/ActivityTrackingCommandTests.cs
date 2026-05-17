@@ -5,6 +5,7 @@ using Moq;
 using Mynatime.Infrastructure;
 using Mynatime.CLI.Tests.Resources;
 using Mynatime.Client;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ using Xunit;
 public class ActivityTrackingCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? _console;
+    private IAnsiConsole Console => _console ??= this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object;
 
     public static IEnumerable<object?[]> ValidInitialArgument()
     {
@@ -43,7 +46,7 @@ public class ActivityTrackingCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.MatchArg(arg0!);
         Assert.True(result);
         result = target.ParseArgs(app.Object, arg0 == null ? new string[0] : arg1 == null ? new string[] { arg0, } : new string[] { arg0, arg1, }, out int consumedArgs,
@@ -56,7 +59,7 @@ public class ActivityTrackingCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
     }
@@ -68,7 +71,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -87,7 +90,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -107,7 +110,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -126,7 +129,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -146,7 +149,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock(withProfile: true);
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -166,7 +169,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -184,7 +187,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -203,7 +206,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStart);
@@ -222,7 +225,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -241,7 +244,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -261,7 +264,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -280,7 +283,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -300,7 +303,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -320,7 +323,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -339,7 +342,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -358,7 +361,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -377,7 +380,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.IsStart);
@@ -396,7 +399,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStatus);
@@ -411,7 +414,7 @@ public class ActivityTrackingCommandTests
         var app = GetAppMock();
         var tz = app.Object.TimeZoneLocal;
         var client = GetClientMock();
-        var target = new ActivityTrackingCommand(app.Object, client.Object);
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.IsStatus);

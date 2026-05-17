@@ -5,6 +5,7 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -12,8 +13,8 @@ using static Mynatime.Infrastructure.MynatimeConstants;
 
 public class ActivityTrackingCommand : Command
 {
-    public ActivityTrackingCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ActivityTrackingCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.TimeZoneLocal = app.TimeZoneLocal;
     }
@@ -119,7 +120,7 @@ public class ActivityTrackingCommand : Command
                 else
                 {
                     errors++;
-                    Console.WriteLine("Argument must be followed by a message. ");
+                    this.Console.WriteLine("Argument must be followed by a message. ");
                 }
             }
             else if (acceptStartDate && DateTime.TryParseExact(arg, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
@@ -166,14 +167,14 @@ public class ActivityTrackingCommand : Command
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
         var transaction = profile.Transaction;
         if (transaction == null)
         {
-            Console.WriteLine("Current profile does not allow changes. ");
+            this.Console.MarkupLine("[red]Current profile does not allow changes.[/]");
             return;
         }
 
@@ -191,7 +192,7 @@ public class ActivityTrackingCommand : Command
         }
         else
         {
-            Console.WriteLine("Neither start or stop or status or clear? ");
+            this.Console.MarkupLine("[red]Neither start or stop or status or clear?[/]");
             return;
         }
 
@@ -208,7 +209,7 @@ public class ActivityTrackingCommand : Command
                 else
                 {
                     // too many of the same item type
-                    Console.WriteLine("Transaction corrupted. ");
+                    this.Console.MarkupLine("[red]Transaction corrupted.[/]");
                     return;
                 }
             }
@@ -230,7 +231,7 @@ public class ActivityTrackingCommand : Command
         {
             if (profile.Data?.ActivityCategories == null)
             {
-                Console.WriteLine("Please run \"act cat refresh\" before adding activity items. ");
+                this.Console.MarkupLine("[yellow]Please run \"act cat refresh\" before adding activity items.[/]");
                 return;
             }
 
@@ -250,7 +251,7 @@ public class ActivityTrackingCommand : Command
                 var search = searchResult.Select(x => x.Item).ToList();
                 if (search.Count == 0)
                 {
-                    Console.WriteLine("No such category " + this.CategoryArg);
+                    this.Console.MarkupLine("[red]No such category " + Markup.Escape(this.CategoryArg) + "[/]");
                     return;
                 }
                 else if (search.Count == 1)
@@ -259,7 +260,7 @@ public class ActivityTrackingCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Too many possibilities for category \"" + this.CategoryArg + "\": " + string.Join(", ", search));
+                    this.Console.MarkupLine("[yellow]Too many possibilities for category \"" + Markup.Escape(this.CategoryArg) + "\": " + Markup.Escape(string.Join(", ", search)) + "[/]");
                     return;
                 }
             }
@@ -269,7 +270,7 @@ public class ActivityTrackingCommand : Command
             }
             else
             {
-                Console.WriteLine("Category selection failed");
+                this.Console.MarkupLine("[red]Category selection failed.[/]");
                 return;
             }
         }
@@ -307,18 +308,18 @@ public class ActivityTrackingCommand : Command
 
         if (manager.Errors.Any())
         {
-            Console.WriteLine("Errors:");
+            this.Console.MarkupLine("[red]Errors:[/]");
             foreach (var error in manager.Errors)
             {
-                Console.WriteLine("- " + error);
+                this.Console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
             }
         }
 
-        Console.WriteLine();
-        Console.WriteLine("Activities:");
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("Activities:");
         foreach (var entry in manager.AllActivities)
         {
-            Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!) + (entry.IsStartAndStop ? " (start-stop)" : " (activity)"));
+            this.Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!) + (entry.IsStartAndStop ? " (start-stop)" : " (activity)"));
         }
 
         ////{

@@ -1,17 +1,18 @@
-﻿
+
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Infrastructure;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using System;
 
 public class ProfileAddCommand : Command
 {
     private readonly IManatimeWebClient client;
 
-    public ProfileAddCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public ProfileAddCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
         this.AutoLoadProfile = false;
@@ -66,7 +67,7 @@ public class ProfileAddCommand : Command
                 }
                 else
                 {
-                    Console.WriteLine("Email argument requires a value. ");
+                    this.Console.WriteLine("Email argument requires a value. ");
                 }
             }
             else
@@ -87,37 +88,45 @@ public class ProfileAddCommand : Command
 
     public override async Task Run()
     {
-        var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
+        BaseResult loginPage = null!;
+        await this.Console.Status().StartAsync("Connecting...", async _ =>
+        {
+            loginPage = await this.client.PrepareEmailPasswordAuthenticate();
+        });
+
         if (!loginPage.Succeed)
         {
-            Console.WriteLine(loginPage);
+            this.Console.MarkupLine("[red]" + Markup.Escape(loginPage.ToString()!) + "[/]");
             return;
         }
 
-        Console.WriteLine("Creating a new profile. Please authenticate. ");
-        while (string.IsNullOrWhiteSpace(this.LoginUsername))
+        this.Console.WriteLine("Creating a new profile. Please authenticate. ");
+
+        if (string.IsNullOrWhiteSpace(this.LoginUsername))
         {
-            Console.Write("Email address> ");
-            this.LoginUsername = Console.ReadLine();
+            this.LoginUsername = this.Console.Ask<string>("Email address>");
         }
 
-        var password = default(string);
-        while (string.IsNullOrEmpty(password))
-        {
-            password = ConsoleApp.AskForPassword("Password>      ");
-        }
+        var password = this.Console.Prompt(
+            new TextPrompt<string>("Password>     ")
+                .Secret());
 
-        Console.WriteLine();
-        Console.WriteLine("Processing... ");
-        var resultPage = await this.client.EmailPasswordAuthenticate(this.LoginUsername, password);
-        Console.WriteLine();
+        this.Console.WriteLine(string.Empty);
+
+        LoginResult resultPage = null!;
+        await this.Console.Status().StartAsync("Authenticating...", async _ =>
+        {
+            resultPage = await this.client.EmailPasswordAuthenticate(this.LoginUsername, password);
+        });
+
+        this.Console.WriteLine(string.Empty);
         if (resultPage.Succeed)
         {
-            Console.WriteLine("OK. ");
+            this.Console.MarkupLine("[green]OK.[/]");
         }
         else
         {
-            Console.WriteLine(resultPage);
+            this.Console.MarkupLine("[red]" + Markup.Escape(resultPage.ToString()!) + "[/]");
             return;
         }
 

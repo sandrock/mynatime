@@ -1,10 +1,12 @@
 
 namespace Mynatime.CLI;
 
+using Spectre.Console;
+
 public sealed class ProfileListCommand : Command
 {
-    public ProfileListCommand(IConsoleApp consoleApp)
-        : base(consoleApp)
+    public ProfileListCommand(IConsoleApp consoleApp, IAnsiConsole console)
+        : base(consoleApp, console)
     {
     }
 
@@ -59,17 +61,17 @@ public sealed class ProfileListCommand : Command
     {
         if (!this.App.AvailableProfiles.Any())
         {
-            Console.WriteLine("No profiles found. ");
+            this.Console.WriteLine("No profiles found. ");
         }
 
         foreach (var profile in this.App.AvailableProfiles)
         {
-            Console.Write("- ");
-            Console.WriteLine(profile);
+            this.Console.Write("- ");
+            this.Console.WriteLine(profile.ToString() ?? string.Empty);
             if (profile.FilePath != null)
             {
-                Console.Write("  - ");
-                Console.WriteLine(profile.FilePath);
+                this.Console.Write("  - ");
+                this.Console.WriteLine(profile.FilePath);
             }
         }
 

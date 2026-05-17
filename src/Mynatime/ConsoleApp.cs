@@ -6,6 +6,7 @@ using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Spectre.Console;
 using System.Diagnostics;
 
 /// <summary>
@@ -16,26 +17,28 @@ public class ConsoleApp : IConsoleApp
     private readonly ILogger<ConsoleApp> log;
     private readonly IOptions<AppSettings> appSettings;
     private readonly IManatimeWebClient client;
+    private readonly IAnsiConsole console;
     private readonly List<string> consoleErrors = new List<string>();
     private readonly List<MynatimeProfile> availableProfiles = new ();
     private readonly List<Command> commands;
 
-    public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings, IManatimeWebClient client)
+    public ConsoleApp(ILogger<ConsoleApp> log, IOptions<AppSettings> appSettings, IManatimeWebClient client, IAnsiConsole console)
     {
         this.log = log;
         this.appSettings = appSettings;
         this.client = client;
+        this.console = console;
         this.commands = new List<Command>();
-        this.commands.Add(new HelpCommand(this));
-        this.commands.Add(new ProfileListCommand(this));
-        this.commands.Add(new ProfileStatusCommand(this));
-        this.commands.Add(new ProfileAddCommand(this, this.client));
-        ////this.commands.Add(new ActivityCommand(this));
-        this.commands.Add(new ActivityCategoryCommand(this, this.client));
-        this.commands.Add(new ActivityAddCommand(this, this.client));
-        this.commands.Add(new ActivityTrackingCommand(this, this.client));
-        this.commands.Add(new StatusCommand(this, this.client));
-        this.commands.Add(new CommitCommand(this, this.client));
+        this.commands.Add(new HelpCommand(this, this.console));
+        this.commands.Add(new ProfileListCommand(this, this.console));
+        this.commands.Add(new ProfileStatusCommand(this, this.console));
+        this.commands.Add(new ProfileAddCommand(this, this.client, this.console));
+        ////this.commands.Add(new ActivityCommand(this, this.console));
+        this.commands.Add(new ActivityCategoryCommand(this, this.client, this.console));
+        this.commands.Add(new ActivityAddCommand(this, this.client, this.console));
+        this.commands.Add(new ActivityTrackingCommand(this, this.client, this.console));
+        this.commands.Add(new StatusCommand(this, this.client, this.console));
+        this.commands.Add(new CommitCommand(this, this.client, this.console));
 
         // call static constructors. this is wrong.
         new ActivityStartStop();
@@ -86,7 +89,7 @@ public class ConsoleApp : IConsoleApp
     /// <param name="args"></param>
     public async Task Run(string[] args)
     {
-        Console.WriteLine(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat));
+        this.console.WriteLine(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat));
         this.log.LogInformation("App run. ");
 
         this.ParseArgs(args);
@@ -217,7 +220,7 @@ public class ConsoleApp : IConsoleApp
 
         await profile.SaveToFile(filePath);
 
-        Console.WriteLine("Profile saved to: " + filePath);
+        this.console.WriteLine("Profile saved to: " + filePath);
     }
 
     internal static bool MatchArg(string arg, params string[] values)
@@ -286,12 +289,11 @@ public class ConsoleApp : IConsoleApp
     {
         if (this.consoleErrors.Count > 0)
         {
-            Console.WriteLine("Some errors occured: ");
-            Console.WriteLine();
+            this.console.MarkupLine("[red]Some errors occured:[/]");
+            this.console.WriteLine(string.Empty);
             foreach (var error in this.consoleErrors)
             {
-                Console.Write("ERROR: ");
-                Console.WriteLine(error);
+                this.console.MarkupLine("[red]ERROR:[/] " + Markup.Escape(error));
             }
 
             return true;
@@ -426,7 +428,7 @@ public class ConsoleApp : IConsoleApp
             {
                 this.CurrentProfile = this.availableProfiles.FirstOrDefault(x => x.IsDefault == true)
                  ?? this.availableProfiles.First();
-                Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+                this.console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
                 return true;
             }
             else
@@ -457,7 +459,7 @@ public class ConsoleApp : IConsoleApp
                 if (matches.Count == 1)
                 {
                     this.CurrentProfile = matches.Single();
-                    Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+                    this.console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
                     return true;
                 }
 

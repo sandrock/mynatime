@@ -6,6 +6,7 @@ using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 
 /// <summary>
@@ -17,8 +18,8 @@ public class StatusCommand : Command
 
     public static string[] Args { get; } = new string[] { "status", };
 
-    public StatusCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public StatusCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -64,7 +65,7 @@ public class StatusCommand : Command
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
@@ -76,20 +77,20 @@ public class StatusCommand : Command
 
         if (profile.Transaction == null || operations.Count == 0)
         {
-            Console.WriteLine("No pending operation. ");
+            this.Console.WriteLine("No pending operation. ");
             return;
         }
 
         int i = -1;
-        var visitor = new ConsoleDescribeTransactionItem(this.App, profile);
+        var visitor = new ConsoleDescribeTransactionItem(this.App, this.Console, profile);
         var helper = MynatimeProfileTransactionManager.Default;
         
         foreach (var operation in operations)
         {
             i++;
 
-            Console.Write(i);
-            Console.Write("\t");
+            this.Console.Write(i.ToString());
+            this.Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
             await item.Accept(visitor);
         }
@@ -99,48 +100,50 @@ public class StatusCommand : Command
     public class ConsoleDescribeTransactionItem : ITransactionItemVisitor
     {
         private readonly IConsoleApp app;
+        private readonly IAnsiConsole console;
         private readonly MynatimeProfile profile;
 
-        public ConsoleDescribeTransactionItem(IConsoleApp app, MynatimeProfile profile)
+        public ConsoleDescribeTransactionItem(IConsoleApp app, IAnsiConsole console, MynatimeProfile profile)
         {
             this.app = app;
+            this.console = console;
             this.profile = profile;
         }
 
         public Task Visit(ActivityStartStop state)
         {
-            Console.WriteLine("Activity tracker");
+            this.console.WriteLine("Activity tracker");
             var manager = new ActivityStartStopManager(state);
             manager.GenerateItems();
 
             if (manager.Errors.Any())
             {
-                Console.WriteLine("Errors:");
+                this.console.MarkupLine("[red]Errors:[/]");
                 foreach (var error in manager.Errors)
                 {
-                    Console.WriteLine("- " + error);
+                    this.console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
                 }
             }
 
             if (manager.Warnings.Any())
             {
-                Console.WriteLine("Warnings:");
+                this.console.MarkupLine("[yellow]Warnings:[/]");
                 foreach (var error in manager.Warnings)
                 {
-                    Console.WriteLine("- " + error);
+                    this.console.MarkupLine("[yellow]- " + Markup.Escape(error.ToString()) + "[/]");
                 }
             }
 
-            Console.WriteLine("Activities:");
+            this.console.WriteLine("Activities:");
             foreach (var entry in manager.Activities)
             {
-                Console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!));
+                this.console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!));
             }
 
             {
                 foreach (var item in state.Events.Except(manager.UsedEvents))
                 {
-                    Console.WriteLine("- " + item.ToDisplayString(profile.Data!));
+                    this.console.WriteLine("- " + item.ToDisplayString(profile.Data!));
                 }
             }
 
@@ -149,35 +152,35 @@ public class StatusCommand : Command
 
         public Task Visit(NewActivityItemPage thing)
         {
-            Console.WriteLine("Activity item ");
-            Console.Write(thing.DateStart!.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
-            Console.Write(" ");
+            this.console.WriteLine("Activity item ");
+            this.console.Write(thing.DateStart!.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
+            this.console.Write(" ");
             if (thing.DateEnd != null && thing.Duration == null && thing.InAt != null && thing.OutAt != null)
             {
-                Console.Write(thing.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                Console.Write(" ");
+                this.console.Write(thing.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
+                this.console.Write(" ");
                 if (thing.DateStart.Value.Date != thing.DateEnd.Value.Date)
                 {
-                    Console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
+                    this.console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
                 }
                 else
                 {
-                    Console.Write(string.Empty.PadLeft(ClientConstants.DateInputFormat.Length));
+                    this.console.Write(string.Empty.PadLeft(ClientConstants.DateInputFormat.Length));
                 }
-                
-                Console.Write(" ");
-                Console.Write(thing.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                Console.Write(" ");   
+
+                this.console.Write(" ");
+                this.console.Write(thing.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
+                this.console.Write(" ");
             }
             else if (thing.DateEnd != null && thing.Duration != null && thing.InAt == null && thing.OutAt == null)
             {
-                var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length*2 + 1;
+                var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length * 2 + 1;
                 var duration = "for " + thing.Duration?.ToString() + " h";
-                Console.Write(duration.PadRight(spaces, ' '));
+                this.console.Write(duration.PadRight(spaces, ' '));
             }
             else
             {
-                Console.Write(" INVALID ACTIVITY");
+                this.console.MarkupLine("[red] INVALID ACTIVITY[/]");
             }
 
             if (thing.ActivityId != null)
@@ -185,22 +188,22 @@ public class StatusCommand : Command
                 var activity = this.profile.Data!.GetActivityById(thing.ActivityId);
                 if (activity != null)
                 {
-                    Console.Write(activity.Name);
+                    this.console.Write(activity.Name ?? string.Empty);
                 }
                 else
                 {
-                    Console.Write(thing.ActivityId);
+                    this.console.Write(thing.ActivityId);
                 }
             }
-            
-            Console.Write(" ");
-            Console.WriteLine();
+
+            this.console.Write(" ");
+            this.console.WriteLine(string.Empty);
             return Task.CompletedTask;
         }
 
         public Task Visit(ITransactionItem thing)
         {
-            Console.WriteLine(thing.ToString());
+            this.console.WriteLine(thing.ToString() ?? string.Empty);
             return Task.CompletedTask;
         }
     }

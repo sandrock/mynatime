@@ -9,6 +9,7 @@ using Mynatime.Infrastructure;
 using Mynatime.CLI.Tests.Resources;
 using Mynatime.Client;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ using Xunit.Abstractions;
 public class ActivityCategoryCommandTests
 {
     private MockRepository mocks = new MockRepository(MockBehavior.Strict);
+    private IAnsiConsole? _console;
+    private IAnsiConsole Console => _console ??= this.mocks.Create<IAnsiConsole>(MockBehavior.Loose).Object;
 
     public static IEnumerable<object[]> ValidInitialArgument()
     {
@@ -40,7 +43,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.MatchArg(arg0);
         Assert.True(result);
         result = target.ParseArgs(app.Object, new string[] { arg0, arg1, }, out int consumedArgs, out Command? command);
@@ -52,7 +55,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
         Assert.False(result);
     }
@@ -62,7 +65,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, new string[] { "activity", "category", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.DoRefresh);
@@ -74,7 +77,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "refresh", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.True(target.DoRefresh);
@@ -86,7 +89,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "search", "hello", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.DoRefresh);
@@ -98,7 +101,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "search", "hello", "world", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.False(target.DoRefresh);
@@ -110,7 +113,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock(true);
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         target.DoRefresh = false;
         await target.Run();
     }
@@ -122,7 +125,7 @@ public class ActivityCategoryCommandTests
         var client = GetClientMock();
         app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("2", "yes"));
         app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("33", "no"));
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         target.DoRefresh = false;
         await target.Run();
     }
@@ -134,7 +137,7 @@ public class ActivityCategoryCommandTests
         var client = GetClientMock();
         app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("2", "yes"));
         app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("33", "no"));
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         target.DoRefresh = false;
         target.Search = "yes";
         await target.Run();
@@ -153,7 +156,7 @@ public class ActivityCategoryCommandTests
         page.Token = "xxxxxxxxxxxxx";
         client.Setup(x => x.GetCookies()).Returns(new JArray());
         client.Setup(x => x.GetNewActivityItemPage()).Returns(Task.FromResult(page)).Verifiable();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         target.DoRefresh = true;
         await target.Run();
         client.Verify(x => x.GetNewActivityItemPage(), () => Times.Once());
@@ -205,7 +208,7 @@ public class ActivityCategoryCommandTests
     {
         var app = GetAppMock();
         var client = GetClientMock();
-        var target = new ActivityCategoryCommand(app.Object, client.Object);
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
         var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "alias", "tôo-long-àctivîty-name", "short-name", }, out int consumedArgs, out Command? command);
         Assert.True(result);
         Assert.Equal("tôo-long-àctivîty-name", target.Search);

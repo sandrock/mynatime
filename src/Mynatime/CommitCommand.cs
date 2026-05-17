@@ -1,14 +1,15 @@
-﻿
+
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
 using Mynatime.Domain;
 using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
+using Spectre.Console;
 using System;
 
 /// <summary>
-/// Saves pending changes to the service. 
+/// Saves pending changes to the service.
 /// </summary>
 public sealed class CommitCommand : Command
 {
@@ -16,8 +17,8 @@ public sealed class CommitCommand : Command
 
     public static string[] Args { get; } = new string[] { "commit", };
 
-    public CommitCommand(IConsoleApp app, IManatimeWebClient client)
-        : base(app)
+    public CommitCommand(IConsoleApp app, IManatimeWebClient client, IAnsiConsole console)
+        : base(app, console)
     {
         this.client = client;
     }
@@ -63,7 +64,7 @@ public sealed class CommitCommand : Command
         var profile = this.App.CurrentProfile;
         if (profile == null)
         {
-            Console.WriteLine("No current profile. ");
+            this.Console.MarkupLine("[red]No current profile.[/]");
             return;
         }
 
@@ -75,58 +76,60 @@ public sealed class CommitCommand : Command
 
         if (profile.Transaction == null || operationsCopy.Count == 0)
         {
-            Console.WriteLine("No pending operation. ");
+            this.Console.WriteLine("No pending operation. ");
             return;
         }
 
-        var homePage = await this.client.GetHomepage();
-        if (homePage.Succeed)
+        BaseResult? homePage = null;
+        string? sessionError = null;
+        await this.Console.Status().StartAsync("Connecting...", async ctx =>
         {
-            // fine
-        }
-        else if (homePage.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
-        {
-            // session expired: renew
-            Console.Write("  Renewing session... ");
-
-            if (profile.LoginUsername == null || profile.LoginPassword == null)
+            homePage = await this.client.GetHomepage();
+            if (homePage.Succeed)
             {
-                Console.WriteLine("ERROR: Missing authentication information. ");
+                // fine
             }
-
-            var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
-            if (loginPage.Succeed)
+            else if (homePage.Errors?.Any(x => x.Code == ErrorCode.LoggedOut) ?? false)
             {
-                var loginResultPage = await this.client.EmailPasswordAuthenticate(profile.LoginUsername, profile.LoginPassword);
-                if (loginResultPage.Succeed)
+                if (profile.LoginUsername == null || profile.LoginPassword == null)
                 {
-                    homePage = await this.client.GetHomepage();
-                    if (homePage.Succeed)
+                    sessionError = "Missing authentication information.";
+                    return;
+                }
+
+                ctx.Status("Renewing session...");
+                var loginPage = await this.client.PrepareEmailPasswordAuthenticate();
+                if (loginPage.Succeed)
+                {
+                    var loginResultPage = await this.client.EmailPasswordAuthenticate(profile.LoginUsername, profile.LoginPassword);
+                    if (loginResultPage.Succeed)
                     {
-                        // yeah!
-                        Console.WriteLine("OK. ");
+                        ctx.Status("Connecting...");
+                        homePage = await this.client.GetHomepage();
+                        if (!homePage.Succeed)
+                        {
+                            sessionError = "Auto log-in failed: something went wrong 3.";
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Auto log-in failed: something went wrong 3. ");
-                        return;
+                        sessionError = "Auto log-in failed: something went wrong 2.";
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Auto log-in failed: something went wrong 2. ");
-                    return;
+                    sessionError = "Auto log-in failed: something went wrong 1.";
                 }
             }
             else
             {
-                Console.WriteLine("Auto log-in failed: something went wrong 1. ");
-                return;
+                sessionError = "Auto log-in failed: something went wrong 0.";
             }
-        }
-        else
+        });
+
+        if (sessionError != null)
         {
-            Console.WriteLine("Auto log-in failed: something went wrong 0. ");
+            this.Console.MarkupLine("[red]" + Markup.Escape(sessionError) + "[/]");
             return;
         }
 
@@ -150,15 +153,15 @@ public sealed class CommitCommand : Command
         }
 
         int i = -1;
-        var visitor = new CommitTransactionItem(this.App, this.client, profile);
+        var visitor = new CommitTransactionItem(this.App, this.Console, this.client, profile);
         var helper = MynatimeProfileTransactionManager.Default;
         var okayItems = new List<MynatimeProfileTransactionItem>();
         foreach (var operation in operationsCopy)
         {
             i++;
-            
-            Console.Write(i);
-            Console.Write("\t");
+
+            this.Console.Write(i.ToString());
+            this.Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
             visitor.Prepare(i, nextCommitId, nextCommitItemId);
             await item.Accept(visitor);
@@ -173,7 +176,7 @@ public sealed class CommitCommand : Command
                 operation.TimeCommittedUtc = this.App.TimeNowUtc;
                 operation.CommitId = nextCommitId;
                 operation.CommitItemId = nextCommitItemId++;
-                
+
                 profile.Commits.Add(operation);
             }
         }
@@ -184,6 +187,7 @@ public sealed class CommitCommand : Command
     private sealed class CommitTransactionItem : ITransactionItemVisitor
     {
         private readonly IConsoleApp app;
+        private readonly IAnsiConsole console;
         private readonly IManatimeWebClient client;
         private readonly MynatimeProfile profile;
         private int i;
@@ -203,9 +207,10 @@ public sealed class CommitCommand : Command
             this.nextCommitItemId = nextCommitItemId;
         }
 
-        public CommitTransactionItem(IConsoleApp app, IManatimeWebClient client, MynatimeProfile profile)
+        public CommitTransactionItem(IConsoleApp app, IAnsiConsole console, IManatimeWebClient client, MynatimeProfile profile)
         {
             this.app = app;
+            this.console = console;
             this.client = client;
             this.profile = profile;
         }
@@ -216,12 +221,12 @@ public sealed class CommitCommand : Command
             manager.GenerateItems();
             if (manager.Errors.Any())
             {
-                Console.WriteLine("Activity tracker has errors: ");
+                this.console.MarkupLine("[red]Activity tracker has errors:[/]");
                 foreach (var error in manager.Errors)
                 {
-                    Console.WriteLine("- " + error);
+                    this.console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
                 }
-                
+
                 this.Committed = false;
                 return;
             }
@@ -279,15 +284,15 @@ public sealed class CommitCommand : Command
             thing.Arrange();
             if (thing.HasError())
             {
-                Console.WriteLine("FAILED: " + thing.GetErrorMessage());
+                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(thing.GetErrorMessage() ?? string.Empty) + "[/]");
                 return;
             }
-            
+
             var page1 = await this.client.GetNewActivityItemPage();
             if (!page1.Succeed)
             {
                 thing.AddError(page1.Errors!.First());
-                Console.WriteLine("FAILED: " + page1);
+                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(page1.ToString()!) + "[/]");
                 return;
             }
 
@@ -297,20 +302,20 @@ public sealed class CommitCommand : Command
             if (!page2.Succeed)
             {
                 thing.AddError(page2.Errors!.First());
-                Console.WriteLine("FAILED: " + page2);
+                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(page2.ToString()!) + "[/]");
                 return;
             }
 
-            Console.WriteLine("Saved. ");
+            this.console.MarkupLine("[green]Saved.[/]");
             this.Committed = true;
             this.IsRemovable = true;
         }
 
         public Task Visit(ITransactionItem thing)
         {
-            Console.Write(i);
-            Console.Write("\t");
-            Console.WriteLine("Transaction item type is not supported. ");
+            this.console.Write(i.ToString());
+            this.console.Write("\t");
+            this.console.WriteLine("Transaction item type is not supported. ");
             this.Committed = false;
             return Task.CompletedTask;
         }

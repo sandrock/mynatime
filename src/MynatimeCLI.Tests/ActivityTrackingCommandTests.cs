@@ -422,6 +422,97 @@ public class ActivityTrackingCommandTests
         Assert.False(target.IsStop);
     }
 
+    [Fact]
+    public void Match_Events()
+    {
+        var args = new string[] { "act", "events", };
+        var app = GetAppMock();
+        var client = GetClientMock();
+        var target = new ActivityTrackingCommand(app.Object, client.Object, this.Console);
+        var result = target.ParseArgs(app.Object, args, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.True(target.IsEvents);
+        Assert.False(target.IsStatus);
+        Assert.False(target.IsStart);
+        Assert.False(target.IsStop);
+    }
+
+    [Fact]
+    public async Task Run_Events_Empty_ShowsNone()
+    {
+        var profile = MakeProfileWithTransaction();
+        var output = await CaptureRun("events", profile);
+        Assert.Contains("none", output);
+    }
+
+    [Fact]
+    public async Task Run_Events_WithStartEvent_ShowsRow()
+    {
+        var profile = MakeProfileWithTransaction();
+        var state = new Mynatime.Infrastructure.ProfileTransaction.ActivityStartStop();
+        state.Add(new DateTime(2022, 9, 21, 9, 0, 0, DateTimeKind.Local), "Start", null);
+        profile.Transaction!.Add(state.ToTransactionItem(null, DateTime.UtcNow));
+
+        var output = await CaptureRun("events", profile);
+
+        Assert.Contains("2022-09-21", output);
+        Assert.Contains("09:00", output);
+        Assert.Contains("Start", output);
+    }
+
+    [Fact]
+    public async Task Run_Status_OpenEvent_ShowsMessage()
+    {
+        var profile = MakeProfileWithTransaction();
+        var state = new Mynatime.Infrastructure.ProfileTransaction.ActivityStartStop();
+        state.Add(new DateTime(2022, 9, 21, 9, 0, 0, DateTimeKind.Local), "Start", null);
+        profile.Transaction!.Add(state.ToTransactionItem(null, DateTime.UtcNow));
+
+        var output = await CaptureRun("status", profile);
+
+        Assert.Contains("Open event", output);
+        Assert.Contains("2022-09-21 09:00", output);
+    }
+
+    [Fact]
+    public async Task Run_Status_WithWarning_ShowsWarning()
+    {
+        var profile = MakeProfileWithTransaction();
+        var state = new Mynatime.Infrastructure.ProfileTransaction.ActivityStartStop();
+        state.Add(new DateTime(2022, 9, 21, 22, 0, 0, DateTimeKind.Local), "Start", null);
+        state.Add(new DateTime(2022, 9, 22, 2, 0, 0, DateTimeKind.Local), "Stop", null);
+        profile.Transaction!.Add(state.ToTransactionItem(null, DateTime.UtcNow));
+
+        var output = await CaptureRun("status", profile);
+
+        Assert.Contains("Warning", output);
+    }
+
+    private static MynatimeProfile MakeProfileWithTransaction()
+    {
+        var profile = new MynatimeProfile();
+        _ = profile.Transaction; // ensure transaction is initialized
+        return profile;
+    }
+
+    private async Task<string> CaptureRun(string subcommand, MynatimeProfile profile)
+    {
+        using var writer = new System.IO.StringWriter();
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.No,
+            ColorSystem = ColorSystemSupport.NoColors,
+            Out = new AnsiConsoleOutput(writer),
+        });
+        var appMock = GetAppMock();
+        appMock.SetupGet(x => x.CurrentProfile).Returns(profile);
+        var client = GetClientMock();
+        var target = new ActivityTrackingCommand(appMock.Object, client.Object, console);
+        target.ParseArgs(appMock.Object, new[] { "act", subcommand }, out _, out _);
+        await target.Run();
+        return writer.ToString();
+    }
+
     private Mock<IManatimeWebClient> GetClientMock()
     {
         var mock = this.mocks.Create<IManatimeWebClient>();

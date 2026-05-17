@@ -89,6 +89,11 @@ public class StatusCommand : Command
         {
             i++;
 
+            if (i > 0)
+            {
+                this.Console.WriteLine();
+            }
+
             this.Console.Write(i.ToString());
             this.Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
@@ -112,7 +117,6 @@ public class StatusCommand : Command
 
         public Task Visit(ActivityStartStop state)
         {
-            this.console.WriteLine("Activity tracker");
             var manager = new ActivityStartStopManager(state);
             manager.GenerateItems();
 
@@ -128,23 +132,79 @@ public class StatusCommand : Command
             if (manager.Warnings.Any())
             {
                 this.console.MarkupLine("[yellow]Warnings:[/]");
-                foreach (var error in manager.Warnings)
+                foreach (var warning in manager.Warnings)
                 {
-                    this.console.MarkupLine("[yellow]- " + Markup.Escape(error.ToString()) + "[/]");
+                    this.console.MarkupLine("[yellow]- " + Markup.Escape(warning.ToString()) + "[/]");
                 }
             }
 
-            this.console.WriteLine("Activities:");
+            var table = new Table().Border(TableBorder.Simple);
+            table.AddColumn("Date");
+            table.AddColumn("In");
+            table.AddColumn("Out");
+            table.AddColumn("Duration");
+            table.AddColumn("Category");
+            table.AddColumn("Comment");
+            DateTime? lastDate = null;
             foreach (var entry in manager.Activities)
             {
-                this.console.WriteLine("- " + entry.Item.ToDisplayString(profile.Data!));
+                var item = entry.Item;
+                var actDate = item.DateStart ?? item.DateEnd;
+                if (lastDate.HasValue && actDate.HasValue && actDate.Value.Date != lastDate.Value.Date)
+                {
+                    table.AddEmptyRow();
+                }
+
+                lastDate = actDate ?? lastDate;
+                var dateStr = item.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+                var inStr = item.InAt.HasValue ? item.InAt.Value.ToString(@"hh\:mm") : string.Empty;
+                var outStr = item.OutAt.HasValue ? item.OutAt.Value.ToString(@"hh\:mm") : string.Empty;
+                var durationStr = ActivityFormat.DurationDisplay(item);
+
+                string categoryMarkup;
+                if (item.ActivityId == null)
+                {
+                    categoryMarkup = string.Empty;
+                }
+                else
+                {
+                    var resolved = profile.Data?.GetActivityById(item.ActivityId)?.Name;
+                    categoryMarkup = resolved != null
+                        ? CliTheme.Tag(CliTheme.Category, resolved)
+                        : "[grey](unknown)[/]";
+                }
+
+                var comment = item.Comment ?? string.Empty;
+                table.AddRow(
+                    CliTheme.Tag(CliTheme.Timestamp, dateStr),
+                    CliTheme.Tag(CliTheme.Timestamp, inStr),
+                    CliTheme.Tag(CliTheme.Timestamp, outStr),
+                    CliTheme.Tag(CliTheme.Duration, durationStr),
+                    categoryMarkup,
+                    CliTheme.Tag(CliTheme.Comment, comment));
             }
 
+            if (table.Rows.Count > 0)
             {
-                foreach (var item in state.Events.Except(manager.UsedEvents))
+                this.console.Write(table);
+            }
+            else
+            {
+                this.console.MarkupLine("  none");
+            }
+
+            var openEvents = state.Events.Except(manager.UsedEvents).ToList();
+            foreach (var ev in openEvents)
+            {
+                string openCatPart = string.Empty;
+                if (ev.ActivityId != null)
                 {
-                    this.console.WriteLine("- " + item.ToDisplayString(profile.Data!));
+                    var openCatName = profile.Data?.GetActivityById(ev.ActivityId)?.Name ?? "(unknown)";
+                    openCatPart = " " + CliTheme.Tag(CliTheme.Category, openCatName);
                 }
+
+                this.console.MarkupLine(
+                    $"[yellow]Open event:[/] {CliTheme.Tag(CliTheme.Timestamp, ev.TimeLocal.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture))}{openCatPart}");
             }
 
             return Task.CompletedTask;
@@ -152,52 +212,44 @@ public class StatusCommand : Command
 
         public Task Visit(NewActivityItemPage thing)
         {
-            this.console.WriteLine("Activity item ");
-            this.console.Write(thing.DateStart!.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
-            this.console.Write(" ");
-            if (thing.DateEnd != null && thing.Duration == null && thing.InAt != null && thing.OutAt != null)
-            {
-                this.console.Write(thing.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                this.console.Write(" ");
-                if (thing.DateStart.Value.Date != thing.DateEnd.Value.Date)
-                {
-                    this.console.Write(thing.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture));
-                }
-                else
-                {
-                    this.console.Write(string.Empty.PadLeft(ClientConstants.DateInputFormat.Length));
-                }
+            var dateStr = thing.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
 
-                this.console.Write(" ");
-                this.console.Write(thing.OutAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture));
-                this.console.Write(" ");
-            }
-            else if (thing.DateEnd != null && thing.Duration != null && thing.InAt == null && thing.OutAt == null)
+            string timePart;
+            if (thing.InAt.HasValue && thing.OutAt.HasValue)
             {
-                var spaces = ClientConstants.DateInputFormat.Length + ClientConstants.HourMinuteTimeFormat.Length * 2 + 1;
-                var duration = "for " + thing.Duration?.ToString() + " h";
-                this.console.Write(duration.PadRight(spaces, ' '));
+                timePart = CliTheme.Tag(CliTheme.Timestamp, thing.InAt.Value.ToString(@"hh\:mm"))
+                    + "->"
+                    + CliTheme.Tag(CliTheme.Timestamp, thing.OutAt.Value.ToString(@"hh\:mm"));
+            }
+            else if (thing.Duration != null)
+            {
+                timePart = string.Empty;
             }
             else
             {
-                this.console.MarkupLine("[red] INVALID ACTIVITY[/]");
+                timePart = "[red]INVALID[/]";
             }
 
+            var durationPart = CliTheme.Tag(CliTheme.Duration, ActivityFormat.DurationDisplay(thing));
+
+            string categoryPart;
             if (thing.ActivityId != null)
             {
-                var activity = this.profile.Data!.GetActivityById(thing.ActivityId);
-                if (activity != null)
-                {
-                    this.console.Write(activity.Name ?? string.Empty);
-                }
-                else
-                {
-                    this.console.Write(thing.ActivityId);
-                }
+                var activity = this.profile.Data?.GetActivityById(thing.ActivityId);
+                categoryPart = activity != null
+                    ? CliTheme.Tag(CliTheme.Category, activity.Name ?? string.Empty)
+                    : "[grey](unknown)[/]";
+            }
+            else
+            {
+                categoryPart = string.Empty;
             }
 
-            this.console.Write(" ");
-            this.console.WriteLine(string.Empty);
+            var commentPart = CliTheme.Tag(CliTheme.Comment, thing.Comment);
+
+            var parts = new[] { CliTheme.Tag(CliTheme.Timestamp, dateStr), timePart, durationPart, categoryPart, commentPart }
+                .Where(s => s.Length > 0);
+            this.console.MarkupLine(string.Join(" ", parts));
             return Task.CompletedTask;
         }
 

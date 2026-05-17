@@ -180,40 +180,50 @@ public sealed class ActivityCategoryCommand : Command
                     hasChanged = true;
                     var item = items[0];
                     item.Alias = this.Alias.Trim();
-                    this.Console.MarkupLine($"[green]Create alias:[/] alias \"{Markup.Escape(item.Alias)}\" set on \"{Markup.Escape(item.Name ?? string.Empty)}\" ({Markup.Escape(item.Id ?? string.Empty)})");
+                    this.Console.MarkupLine($"[green]Create alias:[/] [{CliTheme.CategoryAlias}]\"{Markup.Escape(item.Alias)}\"[/] set on [{CliTheme.Category}]\"{Markup.Escape(item.Name ?? string.Empty)}\"[/] ({Markup.Escape(item.Id ?? string.Empty)})");
                 }
             }
 
             // display list
-            var itemDisplayNames = items.Select(x => (x.Name != null ? (" <" + x.Name + ">") : string.Empty) + (x.Alias != null ? (" <" + x.Alias + ">") : string.Empty)).ToArray();
-            var maxDisplayNameLength = itemDisplayNames.Length == 0 ? 0 : itemDisplayNames.Max(x => x.Length);
-            for (var i = 0; i < items.Count; i++)
+            var table = new Table().Border(TableBorder.Simple);
+            table.AddColumn("ID");
+            table.AddColumn("Name");
+            table.AddColumn("Alias");
+            table.AddColumn("Status");
+
+            foreach (var item in items)
             {
-                var item = items[i];
-                this.Console.Write("ActCategory");
-                this.Console.Write(itemDisplayNames[i].PadRight(maxDisplayNameLength));
-                this.Console.Write(" (");
-                this.Console.Write(item.Id ?? string.Empty);
-                this.Console.Write(")");
-
+                string status;
                 if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
-                {
-                    this.Console.Markup("\t[green]NEW![/]");
-                }
+                    status = "[green]NEW[/]";
+                else if (changedItems.Contains(item))
+                    status = "[yellow]CHANGED[/]";
+                else
+                    status = string.Empty;
 
-                if (changedItems.Contains(item))
-                {
-                    this.Console.Markup("\t[yellow]CHANGED![/]");
-                }
-
-                this.Console.WriteLine(string.Empty);
+                table.AddRow(
+                    Markup.Escape(item.Id ?? string.Empty),
+                    CliTheme.Tag(CliTheme.Category, item.Name),
+                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                    status);
             }
 
             foreach (var item in deletedItems)
             {
-                this.Console.Write(item.ToString() ?? string.Empty);
-                this.Console.Markup("\t[red]DELETED![/]");
-                this.Console.WriteLine(string.Empty);
+                table.AddRow(
+                    Markup.Escape(item.Id ?? string.Empty),
+                    CliTheme.Tag(CliTheme.Category, item.Name),
+                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                    "[red]DELETED[/]");
+            }
+
+            if (table.Rows.Count > 0)
+            {
+                this.Console.Write(table);
+            }
+            else
+            {
+                this.Console.WriteLine("No categories found.");
             }
         }
 

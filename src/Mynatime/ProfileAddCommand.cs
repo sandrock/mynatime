@@ -148,6 +148,22 @@ public class ProfileAddCommand : Command
 
         profile.Cookies = this.client.GetCookies();
 
+        this.Console.WriteLine(string.Empty);
+        this.Console.WriteLine("Profile options:");
+        this.Console.WriteLine(string.Empty);
+
+        this.Console.MarkupLine("  Prompt before saving the profile locally. [dim]Recommended for development purposes.[/]");
+        profile.ConfirmLocalSave = this.Console.Prompt(new ConfirmationPrompt("  Enable local save confirmation?") { DefaultValue = false });
+
+        this.Console.WriteLine(string.Empty);
+
+        this.Console.MarkupLine("  Prompt before sending each transaction item to the service.");
+        profile.ConfirmServiceSave = this.Console.Prompt(new ConfirmationPrompt("  Enable service save confirmation?") { DefaultValue = true });
+
+        this.Console.WriteLine(string.Empty);
+        this.Console.MarkupLine("[dim]These settings can be changed at any time in the profile file.[/]");
+        this.Console.WriteLine(string.Empty);
+
         await this.App.PersistProfile(profile);
     }
 }

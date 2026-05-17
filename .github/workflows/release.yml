@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # required for MinVer to read git tags
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -26,7 +24,8 @@ jobs:
     - name: Read version
       id: version
       run: |
-        VERSION=$(dotnet build src/Mynatime/Mynatime.CLI.csproj -c Release --nologo -getProperty:Version)
+        VERSION="${{ github.ref_name }}"
+        VERSION="${VERSION#v}"
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Publish

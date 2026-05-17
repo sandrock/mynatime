@@ -8,10 +8,10 @@ PUBLISH_DIR="$DIST_DIR/publish-linux-x64"
 
 cd "$REPO_ROOT"
 
-# Read version from MinVer via MSBuild
-VERSION=$(dotnet build src/Mynatime/Mynatime.CLI.csproj -c Release --nologo -getProperty:Version 2>/dev/null)
+# Read version from the nearest git tag
+VERSION=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null | sed 's/^v//' || true)
 if [ -z "$VERSION" ]; then
-    echo "ERROR: Could not read version from project." >&2
+    echo "ERROR: No git tag found. Tag the repo first (e.g. git tag v1.0.0)." >&2
     exit 1
 fi
 

@@ -163,6 +163,17 @@ public sealed class CommitCommand : Command
             this.Console.Write(i.ToString());
             this.Console.Write("\t");
             var item = helper.GetInstanceOf(operation);
+
+            if (profile.ConfirmServiceSave == true)
+            {
+                var confirmed = this.Console.Prompt(new ConfirmationPrompt("Send item " + i + " to service?"));
+                if (!confirmed)
+                {
+                    this.Console.WriteLine("Skipped.");
+                    continue;
+                }
+            }
+
             visitor.Prepare(i, nextCommitId, nextCommitItemId);
             await item.Accept(visitor);
             if (visitor.Committed)

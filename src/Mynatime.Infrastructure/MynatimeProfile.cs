@@ -159,6 +159,15 @@ public sealed class MynatimeProfile : JsonObject
         set => this.Element["ConfirmLocalSave"] = value;
     }
 
+    /// <summary>
+    /// When true, a confirmation prompt is shown before each transaction item is sent to the service.
+    /// </summary>
+    public bool? ConfirmServiceSave
+    {
+        get => this.Element.Value<bool?>("ConfirmServiceSave");
+        set => this.Element["ConfirmServiceSave"] = value;
+    }
+
     public bool? IsDefault
     {
         get => this.Element.Value<bool?>("IsDefault");

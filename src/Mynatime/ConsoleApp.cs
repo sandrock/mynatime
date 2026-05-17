@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Spectre.Console;
 using System.Diagnostics;
+using System.Reflection;
 
 /// <summary>
 /// The command line application. 
@@ -89,6 +90,16 @@ public class ConsoleApp : IConsoleApp
     /// <param name="args"></param>
     public async Task Run(string[] args)
     {
+        if (args.Length == 1 && (args[0] == "--version" || args[0] == "-V"))
+        {
+            var version = System.Reflection.Assembly.GetEntryAssembly()
+                ?.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion
+                ?? "unknown";
+            this.console.WriteLine(version);
+            return;
+        }
+
         this.console.WriteLine(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat));
         this.log.LogInformation("App run. ");
 

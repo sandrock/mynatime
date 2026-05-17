@@ -2,7 +2,29 @@
 Index - Mynatime CLI app documentation
 ====================================
 
-### 1. [Install and update from sources](AppCLI.Install-from-sources.en.md)
+### Quick start
+
+```bash
+# 1. install (Linux)
+curl -fsSL https://raw.githubusercontent.com/sandrock/mynatime/refs/heads/master/packages/install.sh | bash
+
+# 2. create a profile
+m pro add
+
+# 3. pull activity categories from the service
+m act cat refresh
+
+# 4. start tracking
+m act start myproject
+m act stop
+
+# 5. review and publish
+m status
+m commit
+```
+
+
+### 1. [Install and update](AppCLI.Install-from-sources.en.md)
 
 - Get the tools
 - Install

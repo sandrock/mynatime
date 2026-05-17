@@ -156,11 +156,12 @@ Here is all you can do with activity tracking:
 
 ```bash
 m act start [time] [category]              # starts an activity
-m act stop [time] [category]               # stops  an activity
-m act status                               # lists current activities
+m act stop  [time] [category]              # stops an activity
+m act status                               # lists generated activities (table view)
+m act events                               # lists raw start/stop events
 m act clear                                # removes all events
 m act start/stop [date] [time] [category]  # you can specify a date
-                        [--message|-m <message>]    # you can add a comment
+                 [--message|-m <message>]  # you can add a comment
 ```
 
 

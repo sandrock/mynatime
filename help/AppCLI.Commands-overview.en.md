@@ -33,29 +33,32 @@ m help
 >
 >   Profiles  
 >   `pro list`                         lists user profiles  
->   `pro add`                          adds user profiles  
+>   `pro add`                          adds a user profile (interactive)  
 >   `pro status`                       displays current profile status
 >
 >   Activity categories  
->   `act cat `                         lists activity categories  
+>   `act cat`                          lists activity categories  
 >   `act cat refresh`                  updates activity categories from service  
 >   `act cat search <q>`               searches categories  
 >   `act cat alias <name> <alias>`     creates an alias for a category  
 >
->   Add activity   
+>   Add activity  
 >   `act add [date] <duration> [category]`                         adds an activity  
 >   `act add <date> <time-start> [date-end] <time-end> [category]` adds an activity
 >
 >   Activity tracker  
 >   `act start [date] [time] [category]`      starts an activity  
->   `act stop [date] [time] [category]`       stops  an activity   
->   `act status`                       lists current activities
+>   `act stop  [date] [time] [category]`      stops an activity  
+>   `act status`                              lists tracked activities  
+>   `act events`                              lists raw start/stop events  
+>   `act clear`                               removes all events
 >
->   Status  
->   `status`                           lists pending changes
+>   Review and commit  
+>   `status`                           lists all pending changes  
+>   `commit`                           sends pending changes to the service
 >
->   Commit  
->   `commit`                           saves pending changes
+>   App options  
+>   `--version`, `-V`                  prints the current version
 >
 
 After updating the app, execute the `help` command to see the new commands available.

@@ -26,14 +26,32 @@ m profile add
 m pro add
 ```
 
-> MynatimeCLI   
-Creating a new profile. Please authenticate.   
-Email address> test@test.com  
-Password>      ***************  
-Processing... OK.   
-Profile saved to: /home/me/.config/mynatime/profile.20221009T121214008Z.json
+> MynatimeCLI  
+> Creating a new profile. Please authenticate.  
+> Email address> test@test.com  
+> Password>      ***************  
+>  
+> Authentication successful.  
+>  
+> Profile options:  
+>  
+>   Prompt before saving the profile locally. Recommended for development purposes.  
+>   Enable local save confirmation? [y/N]  
+>  
+>   Prompt before sending each transaction item to the service.  
+>   Enable service save confirmation? [Y/n]  
+>  
+> These settings can be changed at any time in the profile file.  
+>  
+> Profile saved to: /home/me/.config/mynatime/profile.20221009T121214008Z.json
 
 List the profiles again to verify.
+
+Once the profile is created, pull the activity categories from the service — this is required before you can use category names in commands:
+
+```bash
+m act cat refresh
+```
 
 
 Checking profile status

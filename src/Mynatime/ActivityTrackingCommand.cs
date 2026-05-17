@@ -402,7 +402,7 @@ public class ActivityTrackingCommand : Command
             lastActivityDate = actDate ?? lastActivityDate;
             var dateStr = actItem.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
             var inStr = actItem.InAt.HasValue ? actItem.InAt.Value.ToString(@"hh\:mm") : string.Empty;
-            var outStr = actItem.OutAt.HasValue ? actItem.OutAt.Value.ToString(@"hh\:mm") : string.Empty;
+            var outStr = ActivityFormat.OutDisplay(actItem);
             var durationStr = ActivityFormat.DurationDisplay(actItem);
 
             string actCategoryMarkup;

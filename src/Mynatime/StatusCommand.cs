@@ -158,7 +158,7 @@ public class StatusCommand : Command
                 lastDate = actDate ?? lastDate;
                 var dateStr = item.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
                 var inStr = item.InAt.HasValue ? item.InAt.Value.ToString(@"hh\:mm") : string.Empty;
-                var outStr = item.OutAt.HasValue ? item.OutAt.Value.ToString(@"hh\:mm") : string.Empty;
+                var outStr = ActivityFormat.OutDisplay(item);
                 var durationStr = ActivityFormat.DurationDisplay(item);
 
                 string categoryMarkup;
@@ -219,7 +219,7 @@ public class StatusCommand : Command
             {
                 timePart = CliTheme.Tag(CliTheme.Timestamp, thing.InAt.Value.ToString(@"hh\:mm"))
                     + "->"
-                    + CliTheme.Tag(CliTheme.Timestamp, thing.OutAt.Value.ToString(@"hh\:mm"));
+                    + CliTheme.Tag(CliTheme.Timestamp, ActivityFormat.OutDisplay(thing));
             }
             else if (thing.Duration != null)
             {

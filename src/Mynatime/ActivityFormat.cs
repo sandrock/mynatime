@@ -32,6 +32,26 @@ internal static class ActivityFormat
         return string.Empty;
     }
 
+    /// <summary>
+    /// Returns the Out time string, appending a "+Nd" suffix when the end date is after the start date.
+    /// </summary>
+    public static string OutDisplay(NewActivityItemPage item)
+    {
+        if (!item.OutAt.HasValue)
+        {
+            return string.Empty;
+        }
+
+        var timeStr = item.OutAt.Value.ToString(@"hh\:mm");
+        if (item.DateStart.HasValue && item.DateEnd.HasValue && item.DateEnd.Value.Date > item.DateStart.Value.Date)
+        {
+            var days = (int)(item.DateEnd.Value.Date - item.DateStart.Value.Date).TotalDays;
+            return timeStr + $" +{days}d";
+        }
+
+        return timeStr;
+    }
+
     private static string FormatSpan(TimeSpan span)
         => $"{(int)span.TotalHours}:{span.Minutes:D2}";
 }

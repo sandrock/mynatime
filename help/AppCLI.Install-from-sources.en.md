@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 1
 ---
 
-# Installing the Mynatime CLI app
+Installing the Mynatime CLI app
+====================================
 
 NOTE: there are pending work tasks to publish the app on [winget](https://github.com/sandrock/mynatime/issues/8) and [flatpak](https://github.com/sandrock/mynatime/issues/7)
 

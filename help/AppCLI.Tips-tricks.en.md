@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 6
 ---
 
-# Tips and tricks
+Tips and tricks
+===============
 
 Daily use
 ---------------------

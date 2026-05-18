@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 4
 ---
 
-# Tracking activity
+Tracking activity
+=================
 
 Refresh the activity categories
 -----------------------------------

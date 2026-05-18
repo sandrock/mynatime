@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 2
 ---
 
-# Commands overview
+Commands overview
+====================================
 
 The app is built around command line instructions. Each command has a long name and a short name. The long name is more expressive, the short name is faster to type. Use the command you want.
 

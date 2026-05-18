@@ -4,7 +4,8 @@ nav_order: 2
 has_children: true
 ---
 
-# Mynatime CLI app documentation
+Mynatime CLI app documentation
+====================================
 
 ### Quick start
 

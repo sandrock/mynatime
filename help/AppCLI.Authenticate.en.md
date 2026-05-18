@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 3
 ---
 
-# Authenticate with service
+Authenticate with service
+=========================
 
 The app supports multiple user profiles. When you set up a user profile, a JSON file will be saved at location `~/.config/mynatime/profile.xxxx.json`. You typically need only one profile for most scenarios.
 

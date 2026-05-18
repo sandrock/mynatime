@@ -4,7 +4,8 @@ parent: Documentation
 nav_order: 5
 ---
 
-# Add an activity
+Add an activity
+===============
 
 Refresh the activity categories
 -----------------------------------

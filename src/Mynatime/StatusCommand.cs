@@ -119,79 +119,8 @@ public class StatusCommand : Command
         {
             var manager = new ActivityStartStopManager(state);
             manager.GenerateItems();
-
-            if (manager.Errors.Any())
-            {
-                this.console.MarkupLine("[red]Errors:[/]");
-                foreach (var error in manager.Errors)
-                {
-                    this.console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
-                }
-            }
-
-            if (manager.Warnings.Any())
-            {
-                this.console.MarkupLine("[yellow]Warnings:[/]");
-                foreach (var warning in manager.Warnings)
-                {
-                    this.console.MarkupLine("[yellow]- " + Markup.Escape(warning.ToString()) + "[/]");
-                }
-            }
-
-            var table = new Table().Border(TableBorder.Simple);
-            table.AddColumn("Date");
-            table.AddColumn("In");
-            table.AddColumn("Out");
-            table.AddColumn("Duration");
-            table.AddColumn("Category");
-            table.AddColumn("Comment");
-            DateTime? lastDate = null;
-            foreach (var entry in manager.Activities)
-            {
-                var item = entry.Item;
-                var actDate = item.DateStart ?? item.DateEnd;
-                if (lastDate.HasValue && actDate.HasValue && actDate.Value.Date != lastDate.Value.Date)
-                {
-                    table.AddEmptyRow();
-                }
-
-                lastDate = actDate ?? lastDate;
-                var dateStr = item.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
-                var inStr = item.InAt.HasValue ? item.InAt.Value.ToString(@"hh\:mm") : string.Empty;
-                var outStr = ActivityFormat.OutDisplay(item);
-                var durationStr = ActivityFormat.DurationDisplay(item);
-
-                string categoryMarkup;
-                if (item.ActivityId == null)
-                {
-                    categoryMarkup = string.Empty;
-                }
-                else
-                {
-                    var resolved = profile.Data?.GetActivityById(item.ActivityId)?.Name;
-                    categoryMarkup = resolved != null
-                        ? CliTheme.Tag(CliTheme.Category, resolved)
-                        : "[grey](unknown)[/]";
-                }
-
-                var comment = item.Comment ?? string.Empty;
-                table.AddRow(
-                    CliTheme.Tag(CliTheme.Timestamp, dateStr),
-                    CliTheme.Tag(CliTheme.Timestamp, inStr),
-                    CliTheme.Tag(CliTheme.Timestamp, outStr),
-                    CliTheme.Tag(CliTheme.Duration, durationStr),
-                    categoryMarkup,
-                    CliTheme.Tag(CliTheme.Comment, comment));
-            }
-
-            if (table.Rows.Count > 0)
-            {
-                this.console.Write(table);
-            }
-            else
-            {
-                this.console.MarkupLine("  none");
-            }
+            ActivityRenderer.WriteManagerDiagnostics(this.console, manager);
+            ActivityRenderer.WriteActivitiesTable(this.console, this.profile, manager.Activities);
 
             var openEvents = state.Events.Except(manager.UsedEvents).ToList();
             foreach (var ev in openEvents)

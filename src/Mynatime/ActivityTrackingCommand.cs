@@ -350,94 +350,45 @@ public class ActivityTrackingCommand : Command
             return;
         }
 
-        if (this.IsStatus)
+        foreach (var item in transaction.Items)
         {
-            foreach (var item in transaction.Items)
+            if (MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item))
             {
-                if (MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item))
-                {
-                    var activityPage = (NewActivityItemPage)MynatimeProfileTransactionManager.Default.GetInstanceOf(item);
-                    manager.ExtraActivities.Add(new ActivityItemWrapper(activityPage));
-                }
+                var activityPage = (NewActivityItemPage)MynatimeProfileTransactionManager.Default.GetInstanceOf(item);
+                manager.ExtraActivities.Add(new ActivityItemWrapper(activityPage));
             }
         }
 
         manager.GenerateItems();
-
-        if (manager.Errors.Any())
-        {
-            this.Console.MarkupLine("[red]Errors:[/]");
-            foreach (var error in manager.Errors)
-            {
-                this.Console.MarkupLine("[red]- " + Markup.Escape(error.ToString()) + "[/]");
-            }
-        }
-
-        if (manager.Warnings.Any())
-        {
-            this.Console.MarkupLine("[yellow]Warnings:[/]");
-            foreach (var warning in manager.Warnings)
-            {
-                this.Console.MarkupLine("[yellow]- " + Markup.Escape(warning.ToString()) + "[/]");
-            }
-        }
-
-        var activitiesTable = new Table().Border(TableBorder.Simple);
-        activitiesTable.AddColumn("Date");
-        activitiesTable.AddColumn("In");
-        activitiesTable.AddColumn("Out");
-        activitiesTable.AddColumn("Duration");
-        activitiesTable.AddColumn("Category");
-        activitiesTable.AddColumn("Comment");
-        DateTime? lastActivityDate = null;
-        foreach (var entry in manager.AllActivities)
-        {
-            var actItem = entry.Item;
-            var actDate = actItem.DateStart ?? actItem.DateEnd;
-            if (lastActivityDate.HasValue && actDate.HasValue && actDate.Value.Date != lastActivityDate.Value.Date)
-            {
-                activitiesTable.AddEmptyRow();
-            }
-
-            lastActivityDate = actDate ?? lastActivityDate;
-            var dateStr = actItem.DateStart?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
-            var inStr = actItem.InAt.HasValue ? actItem.InAt.Value.ToString(@"hh\:mm") : string.Empty;
-            var outStr = ActivityFormat.OutDisplay(actItem);
-            var durationStr = ActivityFormat.DurationDisplay(actItem);
-
-            string actCategoryMarkup;
-            if (actItem.ActivityId == null)
-            {
-                actCategoryMarkup = string.Empty;
-            }
-            else
-            {
-                var actCategoryName = profile.Data?.GetActivityById(actItem.ActivityId)?.Name;
-                actCategoryMarkup = actCategoryName != null
-                    ? CliTheme.Tag(CliTheme.Category, actCategoryName)
-                    : "[grey](unknown)[/]";
-            }
-
-            var actComment = actItem.Comment ?? string.Empty;
-            activitiesTable.AddRow(
-                CliTheme.Tag(CliTheme.Timestamp, dateStr),
-                CliTheme.Tag(CliTheme.Timestamp, inStr),
-                CliTheme.Tag(CliTheme.Timestamp, outStr),
-                CliTheme.Tag(CliTheme.Duration, durationStr),
-                actCategoryMarkup,
-                CliTheme.Tag(CliTheme.Comment, actComment));
-        }
-
+        ActivityRenderer.WriteManagerDiagnostics(this.Console, manager);
         this.Console.WriteLine(string.Empty);
         this.Console.MarkupLine("Activities:");
-        if (activitiesTable.Rows.Count > 0)
+
+        ActivityItemWrapper? targetWrapper = null;
+        if (this.IsStart || this.IsStop)
         {
-            this.Console.Write(activitiesTable);
+            // InAt/OutAt are stored at hh:mm precision (seconds stripped), so compare at that level
+            var eventDate = this.TimeLocal!.Value.Date;
+            var eventTime = new TimeSpan(this.TimeLocal!.Value.Hour, this.TimeLocal!.Value.Minute, 0);
+            targetWrapper = manager.Activities.FirstOrDefault(w =>
+                this.IsStart
+                    ? w.Item.DateStart == eventDate && w.Item.InAt == eventTime
+                    : w.Item.DateEnd == eventDate && w.Item.OutAt == eventTime);
         }
-        else
+
+        Predicate<ActivityItemWrapper>? dayFilter = null;
+        Func<ActivityItemWrapper, string>? annotate = null;
+        if (this.IsStart || this.IsStop)
         {
-            this.Console.MarkupLine("  none");
+            var filterDate = this.TimeLocal!.Value.Date;
+            dayFilter = w => (w.Item.DateStart ?? w.Item.DateEnd)?.Date == filterDate;
+            if (targetWrapper != null)
+            {
+                annotate = w => object.ReferenceEquals(w, targetWrapper) ? "[green]>[/]" : string.Empty;
+            }
         }
+
+        ActivityRenderer.WriteActivitiesTable(this.Console, profile, manager.AllActivities, dayFilter, annotate);
 
         var openEvents = state.Events.Except(manager.UsedEvents).ToList();
         foreach (var ev in openEvents)

@@ -2,7 +2,10 @@
 namespace Mynatime.CLI;
 
 using Mynatime.Client;
+using Mynatime.Domain;
 using Mynatime.Infrastructure;
+using Mynatime.Infrastructure.ProfileTransaction;
+using Newtonsoft.Json.Linq;
 using Spectre.Console;
 using System;
 using System.Globalization;
@@ -286,8 +289,20 @@ public class ActivityAddCommand : Command
             return;
         }
 */
-        transaction.Add(page.ToTransactionItem(null, this.App.TimeNowUtc));
+        var newTransactionItem = page.ToTransactionItem(null, this.App.TimeNowUtc);
+        transaction.Add(newTransactionItem);
 
         await this.App.PersistProfile(profile);
+
+        var targetDate = page.DateStart?.Date ?? this.App.TimeNowLocal.Date;
+        var sourceMap = new Dictionary<JObject, ActivityItemWrapper>();
+        var manager = ActivityRenderer.LoadActivities(profile, sourceMap);
+        var newWrapper = sourceMap.GetValueOrDefault(newTransactionItem.Element);
+        ActivityRenderer.WriteActivitiesTable(
+            this.Console,
+            profile,
+            manager.AllActivities,
+            filter: w => (w.Item.DateStart?.Date ?? this.App.TimeNowLocal.Date) == targetDate,
+            annotate: w => object.ReferenceEquals(w, newWrapper) ? "[green]>[/]" : string.Empty);
     }
 }

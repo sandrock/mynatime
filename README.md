@@ -6,6 +6,8 @@ nav_order: 1
 Mynatime
 ====================
 
+🇫🇷 [Version française](README.fr.md)
+
 Info
 -------------
 

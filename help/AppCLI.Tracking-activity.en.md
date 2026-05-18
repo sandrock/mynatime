@@ -1,4 +1,3 @@
-
 ---
 title: Tracking activity
 parent: Documentation

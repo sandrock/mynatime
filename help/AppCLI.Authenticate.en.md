@@ -1,4 +1,3 @@
-
 ---
 title: Authenticate with service
 parent: Documentation

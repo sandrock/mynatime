@@ -1,4 +1,3 @@
-
 ---
 title: Add an activity
 parent: Documentation

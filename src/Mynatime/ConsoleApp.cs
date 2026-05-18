@@ -31,6 +31,7 @@ public class ConsoleApp : IConsoleApp
         this.console = console;
         this.commands = new List<Command>();
         this.commands.Add(new HelpCommand(this, this.console));
+        this.commands.Add(new WebCommand(this, this.console));
         this.commands.Add(new ProfileListCommand(this, this.console));
         this.commands.Add(new ProfileStatusCommand(this, this.console));
         this.commands.Add(new ProfileAddCommand(this, this.client, this.console));

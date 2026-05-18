@@ -56,7 +56,10 @@ Application CLI [📖](help/AppCLI.0Index.fr.md)
 
 Le CLI est conçu pour une utilisation hors-ligne. Inspiré du [stage git](https://git-scm.com/book/fr/v2/Les-bases-de-Git-Enregistrer-des-modifications-dans-le-d%C3%A9p%C3%B4t), vous pouvez préparer des changements et les publier quand vous êtes connecté.
 
-[📖 Documentation complète de l'application Mynatime CLI](help/AppCLI.0Index.fr.md). Utilisation des commandes :
+[📖 Documentation complète de l'application Mynatime CLI](help/AppCLI.0Index.fr.md)
+([installer](help/AppCLI.Install-from-sources.fr.md), [commandes](help/AppCLI.Commands-overview.fr.md), [s'authentifier](help/AppCLI.Authenticate.fr.md), [suivi d'activité](help/AppCLI.Tracking-activity.fr.md), [ajouter une activité](help/AppCLI.Add-activity.fr.md), [trucs et astuces](help/AppCLI.Tips-tricks.fr.md)).
+
+Utilisation des commandes :
 
 ```
 Usage: mynatime [options] [commande] [options de la commande]

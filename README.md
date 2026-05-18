@@ -56,7 +56,10 @@ CLI app [📖](help/AppCLI.0Index.en.md)
 
 The CLI is meant for offline usage. Inspired by the [git stage](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository), you can prepare changes and commit them when online.
 
-[📖 Full mynatime CLI app documentation](help/AppCLI.0Index.en.md). Command usage:
+[📖 Full mynatime CLI app documentation](help/AppCLI.0Index.en.md)
+([install](help/AppCLI.Install-from-sources.en.md), [commands](help/AppCLI.Commands-overview.en.md), [authenticate](help/AppCLI.Authenticate.en.md), [tracking](help/AppCLI.Tracking-activity.en.md), [add activity](help/AppCLI.Add-activity.en.md), [tips](help/AppCLI.Tips-tricks.en.md)).
+
+Command usage:
 
 ```
 Usage: mynatime [app options] [command] [command options]

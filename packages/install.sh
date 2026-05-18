@@ -119,6 +119,7 @@ fi
 
 RELEASE_TAG=$(parse_tag "$RELEASE_JSON")
 RELEASE_URL=$(parse_url "$RELEASE_JSON")
+NEW_VERSION="${RELEASE_TAG#v}"
 
 info "Tag: $RELEASE_TAG"
 info "URL: $RELEASE_URL"
@@ -132,9 +133,9 @@ echo ""
 echo "Mynatime installer"
 echo ""
 if [ -n "$EXISTING_VERSION" ]; then
-    echo "  Update:  $EXISTING_VERSION  →  $RELEASE_TAG"
+    echo "  Update:  $EXISTING_VERSION  →  $NEW_VERSION"
 else
-    echo "  Version: $RELEASE_TAG"
+    echo "  Version: $NEW_VERSION"
 fi
 $PRERELEASE && echo "  Channel: pre-release"
 if [ "$MODE" = system ]; then
@@ -274,5 +275,10 @@ EOF
 
 # ── done ─────────────────────────────────────────────────────────────────────
 
+INSTALLED_VERSION=$("$LIB_DIR/$APP_NAME" --version 2>/dev/null || true)
 echo ""
-echo "Done. Run: m"
+if [ -n "$EXISTING_VERSION" ]; then
+    echo "Done. Updated $EXISTING_VERSION → $INSTALLED_VERSION. Run: m"
+else
+    echo "Done. Version $INSTALLED_VERSION installed. Run: m"
+fi

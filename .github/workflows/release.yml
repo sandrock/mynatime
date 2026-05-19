@@ -13,7 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # MinVer needs the full tag history to compute the version
+        fetch-depth: 0   # MinVer needs the full tag history to compute the version
+        fetch-tags: true # fetch-depth: 0 alone does not guarantee tags are fetched
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -36,6 +37,7 @@ jobs:
           -c Release \
           -r linux-x64 \
           --no-self-contained \
+          -p:MinVerVersion=${{ steps.version.outputs.version }} \
           -o dist/publish
 
     - name: Build tarball
@@ -59,7 +61,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # MinVer needs the full tag history to compute the version
+        fetch-depth: 0   # MinVer needs the full tag history to compute the version
+        fetch-tags: true # fetch-depth: 0 alone does not guarantee tags are fetched
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -82,6 +85,7 @@ jobs:
           -c Release \
           -r win-x64 \
           --no-self-contained \
+          -p:MinVerVersion=${{ steps.version.outputs.version }} \
           -o dist/publish
 
     - name: Build zip

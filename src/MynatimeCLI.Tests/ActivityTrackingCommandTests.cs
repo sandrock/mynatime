@@ -488,6 +488,58 @@ public class ActivityTrackingCommandTests
         Assert.Contains("Warning", output);
     }
 
+    [Fact]
+    public async Task Run_Clear_RemovesItemsAddedWithActAdd()
+    {
+        var profile = MakeProfileWithTransaction();
+        var page = new NewActivityItemPage();
+        page.DateStart = new DateTime(2022, 9, 18, 9, 0, 0, DateTimeKind.Local);
+        page.Duration = "2.5";
+        profile.Transaction!.Add(page.ToTransactionItem(null, DateTime.UtcNow));
+
+        await RunClear(profile);
+
+        Assert.Empty(profile.Transaction!.Items);
+    }
+
+    [Fact]
+    public async Task Run_Clear_RemovesStartStopEventsAndAddedItems()
+    {
+        var profile = MakeProfileWithTransaction();
+        var state = new Mynatime.Infrastructure.ProfileTransaction.ActivityStartStop();
+        state.Add(new DateTime(2022, 9, 21, 9, 0, 0, DateTimeKind.Local), "Start", null);
+        profile.Transaction!.Add(state.ToTransactionItem(null, DateTime.UtcNow));
+        var page = new NewActivityItemPage();
+        page.DateStart = new DateTime(2022, 9, 18, 9, 0, 0, DateTimeKind.Local);
+        page.Duration = "2.5";
+        profile.Transaction!.Add(page.ToTransactionItem(null, DateTime.UtcNow));
+
+        await RunClear(profile);
+
+        Assert.DoesNotContain(
+            profile.Transaction!.Items,
+            item => MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item));
+    }
+
+    private async Task RunClear(MynatimeProfile profile)
+    {
+        using var writer = new System.IO.StringWriter();
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.No,
+            ColorSystem = ColorSystemSupport.NoColors,
+            Out = new AnsiConsoleOutput(writer),
+        });
+        var appMock = GetAppMock();
+        appMock.SetupGet(x => x.CurrentProfile).Returns(profile);
+        appMock.SetupGet(x => x.TimeNowUtc).Returns(new DateTime(2022, 9, 21, 11, 36, 42, DateTimeKind.Utc));
+        appMock.Setup(x => x.PersistProfile(It.IsAny<MynatimeProfile>())).Returns(Task.CompletedTask);
+        var client = GetClientMock();
+        var target = new ActivityTrackingCommand(appMock.Object, client.Object, console);
+        target.ParseArgs(appMock.Object, new[] { "act", "clear" }, out _, out _);
+        await target.Run();
+    }
+
     private static MynatimeProfile MakeProfileWithTransaction()
     {
         var profile = new MynatimeProfile();

@@ -295,6 +295,13 @@ public class ActivityTrackingCommand : Command
         {
             state.Clear();
             hasChanged = true;
+            var addedItems = transaction.Items
+                .Where(item => MynatimeProfileTransactionManager.Default.OfClass<NewActivityItemPage>(item))
+                .ToList();
+            foreach (var addedItem in addedItems)
+            {
+                transaction.Remove(addedItem);
+            }
         }
 
         var manager = new ActivityStartStopManager(state);
@@ -410,7 +417,7 @@ public class ActivityTrackingCommand : Command
             {
                 state.ToTransactionItem(transactionItem, this.App.TimeNowUtc);
             }
-            else
+            else if (!this.IsClear)
             {
                 transactionItem = state.ToTransactionItem(null, this.App.TimeNowLocal);
                 transaction.Add(transactionItem);

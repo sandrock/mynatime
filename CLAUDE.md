@@ -4,23 +4,36 @@
 
 [Describe the repo here]
 
-## .NET SDK
+## Tooling setup (container environment)
 
-This solution targets **net8.0**. Before running any `dotnet` command, check whether the SDK is available:
-
-```bash
-which dotnet || echo "not found"
-```
-
-If not found and running in a container (no sudo), install via the official script and export env vars for the whole session:
+This project runs inside a Docker container with no sudo access. Tools are installed to `/home/claude/.dotnet` and do not persist between sessions. At the start of each session, export PATH once:
 
 ```bash
-curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 8.0 --install-dir /home/claude/.dotnet
 export DOTNET_ROOT=/home/claude/.dotnet
 export PATH=$PATH:/home/claude/.dotnet
 ```
 
-After that, plain `dotnet build`, `dotnet test`, etc. work without any prefix.
+### .NET SDK 8.0
+
+This solution targets **net8.0**. Check availability, install if missing:
+
+```bash
+which dotnet || curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 8.0 --install-dir /home/claude/.dotnet
+```
+
+### gh CLI
+
+Check availability, install if missing:
+
+```bash
+which gh || (curl -fsSL https://github.com/cli/cli/releases/download/v2.72.0/gh_2.72.0_linux_amd64.tar.gz -o /tmp/gh.tar.gz && tar -xz -C /tmp -f /tmp/gh.tar.gz && cp /tmp/gh_2.72.0_linux_amd64/bin/gh /home/claude/.dotnet/gh && chmod +x /home/claude/.dotnet/gh)
+```
+
+Then authenticate if needed:
+
+```bash
+gh auth status || gh auth login
+```
 
 ## Session initialization
 

@@ -37,8 +37,9 @@ jobs:
           -c Release \
           -r linux-x64 \
           --no-self-contained \
-          -p:MinVerVersion=${{ steps.version.outputs.version }} \
           -o dist/publish
+      env:
+        MINVER_VERSION: ${{ steps.version.outputs.version }}
 
     - name: Build tarball
       run: |
@@ -85,8 +86,9 @@ jobs:
           -c Release \
           -r win-x64 \
           --no-self-contained \
-          -p:MinVerVersion=${{ steps.version.outputs.version }} \
           -o dist/publish
+      env:
+        MINVER_VERSION: ${{ steps.version.outputs.version }}
 
     - name: Build zip
       run: |

@@ -30,9 +30,12 @@ All tests must pass and the build must be clean.
 Tag the tip of `master` with the new version:
 
 ```bash
-git tag v0.3.5
-git push origin v0.3.5
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
+
+> **Container users:** `origin` uses SSH and is unreachable inside the container.
+> Push via the HTTPS remote instead: `git push claude vX.Y.Z`
 
 The tag must be on a commit that is not already tagged with another release version.
 
@@ -68,10 +71,8 @@ Update any relevant documentation or notify users as appropriate.
 
 **Version shows `0.0.0-alpha.0.N+<hash>` instead of the release version**
 
-MinVer could not find the release tag. Common causes:
+The CI workflow passes `MinVerVersionOverride` derived from the release tag name, so this should
+not happen as long as the release tag name is a valid semver (e.g. `v0.3.6`).
 
-- The tag was pushed after the release was published (publish the release after pushing the tag)
-- The tagged commit already carries another release tag
-
-In either case, delete and re-create the GitHub release (keep the tag, just unpublish and
-re-publish) to re-trigger the workflow with the correct tag in place.
+If it does occur, the most likely cause is that the tag name on the GitHub release is malformed.
+Delete and re-create the release with a correctly named tag to re-trigger the workflow.

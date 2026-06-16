@@ -257,7 +257,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     public override string ToString()
     {
         return nameof(NewActivityItemPage)
-            + " " + (this.LoadTime != null ? ((this.Succeed ? "OK" : ("FAIL " + this.GetErrorCode()))) : string.Empty)
+            + " " + (this.LoadTime != null ? ((this.Succeed ? "OK" : ("FAIL " + this.GetErrorCode() + " " + this.GetErrorMessage()))) : string.Empty)
           + " DateStart=" + (this.DateStart != null ? this.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) : String.Empty)
           + " InAt=" + (this.InAt != null ? this.InAt.Value.ToString(ClientConstants.HourMinuteTimeFormat, CultureInfo.InvariantCulture) : String.Empty)
           + " DateEnd=" + (this.DateEnd != null ? this.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) : String.Empty)
@@ -353,6 +353,11 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         else
         {
             // lookd good
+        }
+
+        if (this.ActivityId == null)
+        {
+            this.AddError(new BaseError(ErrorCode.InvalidForm.MissingTask, "Task/activity is required. "));
         }
 
         if (this.Duration != null && (this.InAt != null || this.OutAt != null))

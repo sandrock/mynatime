@@ -470,4 +470,13 @@ $RECYCLE.BIN/
 
 
 
-/*claude*
+
+/claude.env
+
+/claude.Dockerfile
+
+/claude.docker-compose.yml
+
+/claude-entrypoint.sh
+
+/.claude*

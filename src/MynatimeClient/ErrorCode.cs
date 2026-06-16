@@ -37,6 +37,8 @@ public static class ErrorCode
     public static class InvalidForm
     {
         public const string ValidationError = "InvalidForm/ValidationError";
+        public const string MissingTask = "InvalidForm/MissingTask";
+        public const string TaskNotAvailable = "InvalidForm/TaskNotAvailable";
         public const string DurationOrTimes = "InvalidForm/DurationOrTimes";
         public const string DurationMinimum = "InvalidForm/Duration/Minimum";
         public const string DurationMaximum = "InvalidForm/Duration/Maximum";

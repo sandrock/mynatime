@@ -132,7 +132,7 @@ internal static class ActivityRenderer
             string categoryMarkup;
             if (item.ActivityId == null)
             {
-                categoryMarkup = string.Empty;
+                categoryMarkup = "[red](missing)[/]";
             }
             else
             {

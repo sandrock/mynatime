@@ -200,6 +200,13 @@ public sealed class CommitCommand : Command
                 {
                     profile.Transaction.Remove(operation);
                 }
+                else
+                {
+                    // Partial commit: write the pruned in-memory state (failed events only)
+                    // back to the raw JSON element so the next commit doesn't re-send
+                    // activities that already reached the server.
+                    item.ToTransactionItem(operation, this.App.TimeNowUtc);
+                }
 
                 operation.TimeCommittedUtc = this.App.TimeNowUtc;
                 operation.CommitId = nextCommitId;
@@ -326,11 +333,20 @@ public sealed class CommitCommand : Command
 
             thing.Token = page1.Token;
             thing.User = page1.User ?? this.profile.UserId;
+
+            if (thing.ActivityId != null && page1.Categories?.Count > 0
+                && !page1.Categories.Any(c => c.Id == thing.ActivityId))
+            {
+                thing.AddError(new BaseError(ErrorCode.InvalidForm.TaskNotAvailable, "Activity '" + thing.ActivityId + "' is not in the server list. It may have been disabled or deleted."));
+                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(thing.GetErrorMessage()!) + "[/]");
+                return;
+            }
+
             var page2 = await this.client.PostNewActivityItemPage(thing);
             if (!page2.Succeed)
             {
                 thing.AddError(page2.Errors!.First());
-                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(page2.ToString()!) + "[/]");
+                this.console.MarkupLine("[red]FAILED: " + Markup.Escape(page2.GetErrorMessage() ?? page2.ToString()!) + "[/]");
                 return;
             }
 

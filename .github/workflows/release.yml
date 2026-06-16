@@ -13,8 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0   # MinVer needs the full tag history to compute the version
-        fetch-tags: true # fetch-depth: 0 alone does not guarantee tags are fetched
+        fetch-depth: 0  # MinVer needs full history to find the version tag
+        filter: tree:0  # treeless clone — recommended by MinVer docs for CI
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -60,8 +60,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0   # MinVer needs the full tag history to compute the version
-        fetch-tags: true # fetch-depth: 0 alone does not guarantee tags are fetched
+        fetch-depth: 0  # MinVer needs full history to find the version tag
+        filter: tree:0  # treeless clone — recommended by MinVer docs for CI
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4

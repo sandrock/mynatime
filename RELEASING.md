@@ -71,8 +71,9 @@ Update any relevant documentation or notify users as appropriate.
 
 **Version shows `0.0.0-alpha.0.N+<hash>` instead of the release version**
 
-The CI workflow passes `MinVerVersionOverride` derived from the release tag name, so this should
-not happen as long as the release tag name is a valid semver (e.g. `v0.3.6`).
+The CI workflow relies on MinVer reading the git tag at build time. This requires the tag to
+be pushed to GitHub **before** the release is published (see step 2). If the tag was pushed
+after the release was created, or was never pushed, MinVer will not find it.
 
-If it does occur, the most likely cause is that the tag name on the GitHub release is malformed.
-Delete and re-create the release with a correctly named tag to re-trigger the workflow.
+To recover: keep the tag, delete the GitHub release, then re-publish it. The re-triggered
+workflow will find the tag and produce the correct version.

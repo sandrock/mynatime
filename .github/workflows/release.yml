@@ -37,8 +37,7 @@ jobs:
           -c Release \
           -r linux-x64 \
           --no-self-contained \
-          -o dist/publish \
-          /p:MinVerVersionOverride=${{ steps.version.outputs.version }}
+          -o dist/publish
 
     - name: Build tarball
       run: |
@@ -85,8 +84,7 @@ jobs:
           -c Release \
           -r win-x64 \
           --no-self-contained \
-          -o dist/publish \
-          /p:MinVerVersionOverride=${{ steps.version.outputs.version }}
+          -o dist/publish
 
     - name: Build zip
       run: |

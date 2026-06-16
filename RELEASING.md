@@ -14,9 +14,8 @@ This document describes how to publish a new release of Mynatime.
 Versions follow [Semantic Versioning](https://semver.org/) with a `v` prefix: `v0.3.4`, `v1.0.0`, etc.
 Pre-releases use the `-beta.N` suffix: `v0.4.0-beta.1`.
 
-[MinVer](https://github.com/adamralph/minver) derives the version automatically from the git tag at
-build time. The tag must be on its own commit — do not reuse a commit that already carries a
-release tag, or MinVer may compute the wrong version.
+The release CI workflow derives the version from the git tag name (`github.ref_name`) and passes
+it explicitly to `dotnet publish` via `/p:Version` and `/p:InformationalVersion`.
 
 ## Steps
 
@@ -69,11 +68,9 @@ Update any relevant documentation or notify users as appropriate.
 
 ## Troubleshooting
 
-**Version shows `0.0.0-alpha.0.N+<hash>` instead of the release version**
+**Version shows something other than the release tag version**
 
-The CI workflow relies on MinVer reading the git tag at build time. This requires the tag to
-be pushed to GitHub **before** the release is published (see step 2). If the tag was pushed
-after the release was created, or was never pushed, MinVer will not find it.
-
-To recover: keep the tag, delete the GitHub release, then re-publish it. The re-triggered
-workflow will find the tag and produce the correct version.
+The CI workflow derives the version from `github.ref_name` (the release tag). If the binary
+reports the wrong version, check that the release tag name is a valid semver string (e.g.
+`v0.3.7`). Delete and re-create the release with a correctly named tag to re-trigger the
+workflow.

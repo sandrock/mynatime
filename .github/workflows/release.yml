@@ -12,17 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # MinVer needs full history to find the version tag
-        filter: tree:0  # treeless clone — recommended by MinVer docs for CI
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-
-    - name: Restore
-      run: dotnet restore src/Mynatime/Mynatime.CLI.csproj
 
     - name: Read version
       id: version
@@ -37,7 +31,9 @@ jobs:
           -c Release \
           -r linux-x64 \
           --no-self-contained \
-          -o dist/publish
+          -o dist/publish \
+          /p:Version=${{ steps.version.outputs.version }} \
+          /p:InformationalVersion=${{ steps.version.outputs.version }}
 
     - name: Build tarball
       run: |
@@ -59,17 +55,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # MinVer needs full history to find the version tag
-        filter: tree:0  # treeless clone — recommended by MinVer docs for CI
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-
-    - name: Restore
-      run: dotnet restore src/Mynatime/Mynatime.CLI.csproj
 
     - name: Read version
       id: version
@@ -84,7 +74,9 @@ jobs:
           -c Release \
           -r win-x64 \
           --no-self-contained \
-          -o dist/publish
+          -o dist/publish \
+          /p:Version=${{ steps.version.outputs.version }} \
+          /p:InformationalVersion=${{ steps.version.outputs.version }}
 
     - name: Build zip
       run: |

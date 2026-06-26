@@ -45,6 +45,12 @@ Et utiliser l'alias pour le suivi ou l'ajout d'activités :
 m act start interne
 ```
 
+Supprimer l'alias plus tard via sa valeur d'alias :
+
+```bash
+m act cat unalias interne
+```
+
 
 Développeurs
 ---------------------

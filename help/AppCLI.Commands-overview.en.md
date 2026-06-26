@@ -42,6 +42,7 @@ m help
 >   `act cat refresh`                  updates activity categories from service  
 >   `act cat search <q>`               searches categories  
 >   `act cat alias <name> <alias>`     creates an alias for a category  
+>   `act cat unalias <alias>`          removes an alias from a category  
 >
 >   Add activity  
 >   `act add [date] <duration> [category]`                         adds an activity  

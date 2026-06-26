@@ -43,7 +43,8 @@ m help
 >   `act cat`                          liste les catégories d'activité  
 >   `act cat refresh`                  met à jour les catégories depuis le service  
 >   `act cat search <q>`               recherche des catégories  
->   `act cat alias <nom> <alias>`      crée un alias pour une catégorie
+>   `act cat alias <nom> <alias>`      crée un alias pour une catégorie  
+>   `act cat unalias <alias>`          supprime un alias d'une catégorie
 >
 >   Ajouter une activité  
 >   `act add [date] <durée> [catégorie]`                         ajoute une activité  

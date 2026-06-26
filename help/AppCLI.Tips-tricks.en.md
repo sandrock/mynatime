@@ -34,13 +34,19 @@ Too many possibilities for category "interne": "Company-interne", "Customer2-int
 You can create an alias:
 
 ```bash
-m act alias Company-interne interne
+m act cat alias Company-interne interne
 ```
 
 And use the alias for activity adding/tracking:
 
 ```bash
 m act start interne
+```
+
+Remove the alias later by its alias value:
+
+```bash
+m act cat unalias interne
 ```
 
 

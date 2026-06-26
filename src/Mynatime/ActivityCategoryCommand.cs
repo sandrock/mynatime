@@ -31,6 +31,9 @@ public sealed class ActivityCategoryCommand : Command
 
     public string? Unalias { get; set; }
 
+    /// <summary>Maximum number of candidates shown when an alias name is ambiguous.</summary>
+    private const int MaxAmbiguousCandidates = 10;
+
     public override CommandDescription Describe()
     {
         var describe = base.Describe();
@@ -188,7 +191,12 @@ public sealed class ActivityCategoryCommand : Command
                 }
                 else if (items.Count > 1)
                 {
-                    this.Console.MarkupLine($"[yellow]Create alias: too many activities for \"{Markup.Escape(this.Search!)}\"[/]");
+                    this.Console.MarkupLine($"[red]Create alias: too many activities for \"{Markup.Escape(this.Search!)}\"[/]");
+                    if (items.Count > MaxAmbiguousCandidates)
+                    {
+                        this.Console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape($"Showing the {MaxAmbiguousCandidates} closest matches out of {items.Count}.")}[/]");
+                        items = items.Take(MaxAmbiguousCandidates).ToList();
+                    }
                 }
                 else
                 {
@@ -269,9 +277,7 @@ public sealed class ActivityCategoryCommand : Command
         // save store if changed
         if (hasRefreshed || hasChanged)
         {
-            // TODO: this is not unit-testable :@
-            Debug.Assert(profile.FilePath != null, "profile.FilePath != null");
-            await profile.SaveToFile(profile.FilePath);
+            await this.App.PersistProfile(profile);
         }
     }
 
@@ -411,32 +417,24 @@ public sealed class ActivityCategoryCommand : Command
 
         if (findBest && result.Count > 1)
         {
-            var levensteins = new Dictionary<SearchResultItem<MynatimeProfileDataActivityCategory>, int>(result.Count);
-            for (var i = 0; i < result.Count; i++)
+            int Distance(SearchResultItem<MynatimeProfileDataActivityCategory> item)
             {
-                var item = result[i];
                 var name = item.Item.Name;
-                if (name != null)
-                {
-                    levensteins[item] = Levenshtein.Distance(search.ToUpperInvariant(), name.ToUpperInvariant());
-                }
+                return name != null
+                    ? Levenshtein.Distance(search.ToUpperInvariant(), name.ToUpperInvariant())
+                    : int.MaxValue;
             }
 
-            var sorted = levensteins.OrderBy(x => x.Value).ToArray();
-            var distancesBetweenDistances = new int[levensteins.Count];
-            int previousValue = 0;
-            for (var i = 0; i < sorted.Length; i++)
-            {
-                var item = sorted[i];
-                distancesBetweenDistances[i] = item.Value - previousValue;
-                previousValue = item.Value;
-            }
+            // order candidates by closeness so the best matches come first
+            result = result.OrderBy(Distance).ToList();
 
-            if (distancesBetweenDistances[0] < distancesBetweenDistances[1])
+            // when the closest match stands clearly apart from the next, keep only it
+            var bestDistance = Distance(result[0]);
+            var secondDistance = Distance(result[1]);
+            if (bestDistance < secondDistance - bestDistance)
             {
-                // first one looks better than the others
-                var first = sorted.First().Key;
-                result.RemoveAll(x => x != first);
+                var best = result[0];
+                result.RemoveAll(x => x != best);
             }
         }
         

@@ -13,6 +13,7 @@ internal static class CliTheme
     public const string Timestamp     = "steelblue";
     public const string Duration      = "mediumpurple";
     public const string Comment       = "darkorange";
+    public const string Chrome        = "grey";
 
     /// <summary>Wraps <paramref name="value"/> in a color tag, or returns empty string when value is null/empty.</summary>
     public static string Tag(string color, string? value)

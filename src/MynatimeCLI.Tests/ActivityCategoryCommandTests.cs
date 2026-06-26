@@ -204,6 +204,28 @@ public class ActivityCategoryCommandTests
     }
 
     [Fact]
+    public async Task SearchItems_FindBest_Ambiguous_RanksClosestFirst()
+    {
+        var source = new MynatimeProfileDataActivityCategories(new JObject());
+        ActivityTesting.PopulateCategories1(source);
+        var input = "Project";
+        var searchResult = await ActivityCategoryCommand.SearchItems(source.Items.ToList(), input, true);
+        var result = searchResult.Select(x => x.Item).ToList();
+
+        // an ambiguous query keeps several candidates...
+        Assert.True(result.Count > 1, "expected several candidates for an ambiguous query");
+
+        // ...and they must be ordered closest-first by edit distance
+        int Distance(string name) => Fastenshtein.Levenshtein.Distance(input.ToUpperInvariant(), name.ToUpperInvariant());
+        for (var i = 1; i < result.Count; i++)
+        {
+            Assert.True(
+                Distance(result[i - 1].Name!) <= Distance(result[i].Name!),
+                $"candidate at index {i} is closer than the one before it");
+        }
+    }
+
+    [Fact]
     public Task MatchArgs_Alias()
     {
         var app = GetAppMock();

@@ -101,7 +101,7 @@ public class ConsoleApp : IConsoleApp
             return;
         }
 
-        this.console.WriteLine(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat));
+        this.console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape(this.appSettings.Value.Title + " - " + DateTime.Now.ToString(MynatimeConstants.DateFormat) + " " + DateTime.Now.ToString(MynatimeConstants.TimeFormat))}[/]");
         this.log.LogInformation("App run. ");
 
         this.ParseArgs(args);
@@ -235,14 +235,14 @@ public class ConsoleApp : IConsoleApp
             var confirmed = this.console.Prompt(new ConfirmationPrompt("Save profile to " + filePath + "?"));
             if (!confirmed)
             {
-                this.console.WriteLine("Profile save skipped.");
+                this.console.MarkupLine($"[{CliTheme.Chrome}]Profile save skipped.[/]");
                 return;
             }
         }
 
         await profile.SaveToFile(filePath);
 
-        this.console.WriteLine("Profile saved to: " + filePath);
+        this.console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape("Profile saved to: " + filePath)}[/]");
     }
 
     internal static bool MatchArg(string arg, params string[] values)
@@ -441,7 +441,7 @@ public class ConsoleApp : IConsoleApp
         else if (this.availableProfiles.Count == 1)
         {
             this.CurrentProfile = this.availableProfiles.Single();
-            Console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+            this.console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape("Using profile: " + this.CurrentProfile.FilePath)}[/]");
             return true;
         }
         else
@@ -450,7 +450,7 @@ public class ConsoleApp : IConsoleApp
             {
                 this.CurrentProfile = this.availableProfiles.FirstOrDefault(x => x.IsDefault == true)
                  ?? this.availableProfiles.First();
-                this.console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+                this.console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape("Using profile: " + this.CurrentProfile.FilePath)}[/]");
                 return true;
             }
             else
@@ -481,7 +481,7 @@ public class ConsoleApp : IConsoleApp
                 if (matches.Count == 1)
                 {
                     this.CurrentProfile = matches.Single();
-                    this.console.WriteLine("Using profile: " + this.CurrentProfile.FilePath);
+                    this.console.MarkupLine($"[{CliTheme.Chrome}]{Markup.Escape("Using profile: " + this.CurrentProfile.FilePath)}[/]");
                     return true;
                 }
 

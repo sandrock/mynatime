@@ -216,6 +216,32 @@ public class ActivityCategoryCommandTests
         return Task.CompletedTask;
     }
 
+    [Fact]
+    public Task MatchArgs_Unalias()
+    {
+        var app = GetAppMock();
+        var client = GetClientMock();
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
+        var result = target.ParseArgs(app.Object, new string[] { "activity", "category", "unalias", "short-name", }, out int consumedArgs, out Command? command);
+        Assert.True(result);
+        Assert.Equal("short-name", target.Unalias);
+        Assert.Null(target.Alias);
+        Assert.Null(target.Search);
+        return Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task Run_Unalias_NoMatch_DoesNotSave()
+    {
+        var app = GetAppMock(true);
+        var client = GetClientMock();
+        app.Object.CurrentProfile.Data.ActivityCategories.Add(new MynatimeProfileDataActivityCategory("2", "yes"));
+        var target = new ActivityCategoryCommand(app.Object, client.Object, this.Console);
+        target.DoRefresh = false;
+        target.Unalias = "nope";
+        await target.Run();
+    }
+
     private Mock<IManatimeWebClient> GetClientMock()
     {
         var mock = this.mocks.Create<IManatimeWebClient>();

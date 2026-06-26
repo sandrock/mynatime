@@ -26,8 +26,10 @@ public sealed class ActivityCategoryCommand : Command
     public bool DoRefresh { get; set; } = false;
 
     public string? Search { get; set; }
-    
+
     public string? Alias { get; set; }
+
+    public string? Unalias { get; set; }
 
     public override CommandDescription Describe()
     {
@@ -38,6 +40,7 @@ public sealed class ActivityCategoryCommand : Command
         describe.AddCommandPattern(prefix + "refresh", "updates activity categories from service");
         describe.AddCommandPattern(prefix + "search <q>", "searches categories");
         describe.AddCommandPattern(prefix + "alias <name> <alias>", "creates an alias for a category");
+        describe.AddCommandPattern(prefix + "unalias <alias>", "removes an alias from a category");
         return describe;
     }
 
@@ -101,6 +104,18 @@ public sealed class ActivityCategoryCommand : Command
                 else
                 {
                     this.Console.WriteLine("Alias command requires two values. ");
+                }
+            }
+            else if (ConsoleApp.MatchArg(arg, "unalias"))
+            {
+                if (nextArgs.Length >= 1)
+                {
+                    this.Unalias = nextArgs[0];
+                    i++;
+                }
+                else
+                {
+                    this.Console.WriteLine("Unalias command requires an alias value. ");
                 }
             }
             else
@@ -184,46 +199,70 @@ public sealed class ActivityCategoryCommand : Command
                 }
             }
 
-            // display list
-            var table = new Table().Border(TableBorder.Simple);
-            table.AddColumn("ID");
-            table.AddColumn("Name");
-            table.AddColumn("Alias");
-            table.AddColumn("Status");
-
-            foreach (var item in items)
+            if (this.Unalias != null)
             {
-                string status;
-                if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
-                    status = "[green]NEW[/]";
-                else if (changedItems.Contains(item))
-                    status = "[yellow]CHANGED[/]";
+                var target = this.Unalias.Trim();
+                var matches = allItems
+                   .Where(x => x.Alias != null && string.Equals(x.Alias.Trim(), target, StringComparison.OrdinalIgnoreCase))
+                   .ToList();
+                if (matches.Count == 0)
+                {
+                    this.Console.MarkupLine($"[red]Remove alias: no category with alias \"{Markup.Escape(target)}\"[/]");
+                }
                 else
-                    status = string.Empty;
-
-                table.AddRow(
-                    Markup.Escape(item.Id ?? string.Empty),
-                    CliTheme.Tag(CliTheme.Category, item.Name),
-                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
-                    status);
+                {
+                    foreach (var item in matches)
+                    {
+                        hasChanged = true;
+                        this.Console.MarkupLine($"[green]Remove alias:[/] [{CliTheme.CategoryAlias}]\"{Markup.Escape(item.Alias!)}\"[/] removed from [{CliTheme.Category}]\"{Markup.Escape(item.Name ?? string.Empty)}\"[/] ({Markup.Escape(item.Id ?? string.Empty)})");
+                        item.Alias = null;
+                    }
+                }
             }
 
-            foreach (var item in deletedItems)
+            // display list (skipped when unaliasing: the confirmation line is enough)
+            if (this.Unalias == null)
             {
-                table.AddRow(
-                    Markup.Escape(item.Id ?? string.Empty),
-                    CliTheme.Tag(CliTheme.Category, item.Name),
-                    CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
-                    "[red]DELETED[/]");
-            }
+                var table = new Table().Border(TableBorder.Simple);
+                table.AddColumn("ID");
+                table.AddColumn("Name");
+                table.AddColumn("Alias");
+                table.AddColumn("Status");
 
-            if (table.Rows.Count > 0)
-            {
-                this.Console.Write(table);
-            }
-            else
-            {
-                this.Console.WriteLine("No categories found.");
+                foreach (var item in items)
+                {
+                    string status;
+                    if (newItems.Any(x => x.Id != null && x.Id.Equals(item.Id)))
+                        status = "[green]NEW[/]";
+                    else if (changedItems.Contains(item))
+                        status = "[yellow]CHANGED[/]";
+                    else
+                        status = string.Empty;
+
+                    table.AddRow(
+                        Markup.Escape(item.Id ?? string.Empty),
+                        CliTheme.Tag(CliTheme.Category, item.Name),
+                        CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                        status);
+                }
+
+                foreach (var item in deletedItems)
+                {
+                    table.AddRow(
+                        Markup.Escape(item.Id ?? string.Empty),
+                        CliTheme.Tag(CliTheme.Category, item.Name),
+                        CliTheme.Tag(CliTheme.CategoryAlias, item.Alias),
+                        "[red]DELETED[/]");
+                }
+
+                if (table.Rows.Count > 0)
+                {
+                    this.Console.Write(table);
+                }
+                else
+                {
+                    this.Console.WriteLine("No categories found.");
+                }
             }
         }
 

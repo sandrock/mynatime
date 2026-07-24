@@ -105,6 +105,23 @@ public class ActivityStartStopManagerTests
     }
 
     [Fact]
+    public void ComputeActivityList_DuplicateStartStopComment()
+    {
+        // A start and an explicit stop carrying the same comment must not duplicate it.
+        var date = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date.AddHours(12.5), "Start", "project1", "claude");
+        source.Add(date.AddHours(13.25), "Stop", "project1", "claude");
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+        Assert.Collection(
+            target.Activities,
+            x => { VerifyEqual(x, date, 12, 30, date, 13, 15, "project1", "claude"); });
+    }
+
+    [Fact]
     public void ComputeActivityList_OneDayOkay_Unordered()
     {
         var date = new DateTime(2021, 7, 1, 8, 0, 0, DateTimeKind.Local);

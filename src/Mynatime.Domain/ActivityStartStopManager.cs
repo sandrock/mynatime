@@ -187,14 +187,24 @@ public sealed class ActivityStartStopManager
             return;
         }
 
-        if (!string.IsNullOrEmpty(currentActivity.Item.Comment))
-        {
-            currentActivity.Item.Comment += "\n" + currentEvent.Comment;
-        }
-        else
+        var existing = currentActivity.Item.Comment;
+        if (string.IsNullOrEmpty(existing))
         {
             currentActivity.Item.Comment = currentEvent.Comment;
+            return;
         }
+
+        // The start and stop events of an explicitly-stopped activity may carry the same
+        // comment; skip appending a line that is already present to avoid duplicates.
+        foreach (var line in existing.Split('\n'))
+        {
+            if (string.Equals(line, currentEvent.Comment, StringComparison.Ordinal))
+            {
+                return;
+            }
+        }
+
+        currentActivity.Item.Comment = existing + "\n" + currentEvent.Comment;
     }
 
     public bool IsEventFor(ActivityStartStopEvent item, NewActivityItemPage activity)

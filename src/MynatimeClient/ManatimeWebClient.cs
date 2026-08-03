@@ -209,6 +209,14 @@ public class ManatimeWebClient : IManatimeWebClient
 
         var request = this.CreateRequest(HttpMethod.Post, "presences/create/advanced");
         var requestData = form.WebForm.GetPairs();
+        if (form.CommentForCommit != null)
+        {
+            // Send the comment-plus-footer without mutating the persisted clean comment.
+            requestData = requestData.Select(pair => pair.Key == "create[comment]"
+                ? new KeyValuePair<string, string>(pair.Key, form.CommentForCommit)
+                : pair);
+        }
+
         var requestContent = new FormUrlEncodedContent(requestData);
         request.Content = requestContent;
 

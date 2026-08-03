@@ -95,8 +95,14 @@ internal static class ActivityRenderer
         Predicate<ActivityItemWrapper>? filter = null,
         Func<ActivityItemWrapper, string>? annotate = null)
     {
+        var rows = activities.Where(e => filter == null || filter(e)).ToList();
+
+        // A leading one-character column carries markers: a red "!" for a save-failed entry,
+        // otherwise the caller's annotation. Shown only when there is something to display there.
+        bool showSymbol = annotate != null || rows.Any(e => e.Item.SaveFailedReason != null);
+
         var table = new Table().Border(TableBorder.Simple);
-        if (annotate != null)
+        if (showSymbol)
         {
             table.AddColumn(string.Empty);
         }
@@ -109,13 +115,8 @@ internal static class ActivityRenderer
         table.AddColumn("Comment");
 
         DateTime? lastDate = null;
-        foreach (var entry in activities)
+        foreach (var entry in rows)
         {
-            if (filter != null && !filter(entry))
-            {
-                continue;
-            }
-
             var item = entry.Item;
             var actDate = item.DateStart ?? item.DateEnd;
             if (lastDate.HasValue && actDate.HasValue && actDate.Value.Date != lastDate.Value.Date)
@@ -146,11 +147,19 @@ internal static class ActivityRenderer
             var inCol = CliTheme.Tag(CliTheme.Timestamp, inStr);
             var outCol = CliTheme.Tag(CliTheme.Timestamp, outStr);
             var durationCol = CliTheme.Tag(CliTheme.Duration, durationStr);
-            var commentCol = CliTheme.Tag(CliTheme.Comment, item.Comment ?? string.Empty);
-
-            if (annotate != null)
+            var commentText = item.Comment ?? string.Empty;
+            var commentCol = CliTheme.Tag(CliTheme.Comment, commentText);
+            if (item.SaveFailedReason != null)
             {
-                table.AddRow(annotate(entry), dateCol, inCol, outCol, durationCol, categoryMarkup, commentCol);
+                commentCol = (commentText.Length > 0 ? commentCol + " " : string.Empty) + "[red]commit failed[/]";
+            }
+
+            if (showSymbol)
+            {
+                var symbol = item.SaveFailedReason != null
+                    ? "[red]![/]"
+                    : (annotate != null ? annotate(entry) : string.Empty);
+                table.AddRow(symbol, dateCol, inCol, outCol, durationCol, categoryMarkup, commentCol);
             }
             else
             {

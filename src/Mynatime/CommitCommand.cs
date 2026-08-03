@@ -266,53 +266,77 @@ public sealed class CommitCommand : Command
                 return;
             }
 
-            int activitiesSaved = 0;
-            var failedActivities = new List<NewActivityItemPage>();
-            foreach (var activity in manager.Activities)
+            var trackerActivities = manager.Activities.Where(a => a.IsStartAndStop).ToList();
+            int activitiesSaved = 0, activitiesConverted = 0;
+
+            // Activities resolved by this commit: saved to the server, or converted to a
+            // standalone item. Everything else — transient-stopped or still-open activities —
+            // stays in the tracker, so its events (including boundaries shared with a resolved
+            // neighbour) must be kept.
+            var resolved = new List<NewActivityItemPage>();
+            foreach (var activity in trackerActivities)
             {
-                if (activity.IsStartAndStop)
+                await this.Visit(activity.Item);
+                if (!activity.Item.HasError())
                 {
-                    await this.Visit(activity.Item);
-                    if (activity.Item.HasError())
-                    {
-                        if (activitiesSaved == 0)
-                        {
-                            // fail early
-                            this.Committed = false;
-                            this.IsRemovable = false;
-                            return;
-                        }
-                        else
-                        {
-                            failedActivities.Add(activity.Item);
-                        }
-                    }
-                    else
-                    {
-                        activitiesSaved++;
-                    }
+                    resolved.Add(activity.Item);
+                    activitiesSaved++;
+                    continue;
                 }
+
+                if (IsTransientError(activity.Item))
+                {
+                    // Session/connectivity problem: stop now and leave this activity and the
+                    // remaining ones in the tracker for a later retry.
+                    break;
+                }
+
+                // Business rejection (e.g. category not authorized): the tracker cannot save
+                // this as-is. Convert it to a standalone pending item, flagged with the reason,
+                // so it survives intact and can be fixed, and drop it from the tracker.
+                this.ConvertToStandalone(activity.Item);
+                resolved.Add(activity.Item);
+                activitiesConverted++;
             }
 
-            foreach (var usedEvent in manager.UsedEvents)
+            if (activitiesSaved == 0 && activitiesConverted == 0)
             {
-                if (failedActivities.Any(a => manager.IsEventFor(usedEvent, a)))
-                {
-                    // keep this one because we failed to save a related activity
-                }
-                else
-                {
-                    thing.Remove(usedEvent);
-                }
+                // Nothing reached the server and nothing was converted: leave the tracker whole.
+                this.Committed = false;
+                this.IsRemovable = false;
+                return;
             }
 
+            manager.RemoveEventsForResolved(resolved);
             this.Committed = true;
             this.IsRemovable = !thing.Events.Any();
         }
 
+        private static bool IsTransientError(NewActivityItemPage activity)
+        {
+            var code = activity.GetErrorCode();
+            if (code == null)
+            {
+                return false;
+            }
+
+            return code == ErrorCode.LoggedOut
+                || code == ErrorCode.UnknownError
+                || code.StartsWith("InvalidPage/", StringComparison.Ordinal);
+        }
+
+        private void ConvertToStandalone(NewActivityItemPage activity)
+        {
+            activity.SaveFailedReason = activity.GetErrorMessage() ?? "Commit failed.";
+            var item = activity.ToTransactionItem(null, this.app.TimeNowUtc);
+            this.profile.Transaction!.Add(item);
+        }
+
         public async Task Visit(NewActivityItemPage thing)
         {
-            thing.Comment += "\n\n-- \nMNTM;T=" + this.app.TimeNowUtc.ToInvariantString()
+            // Carry the sync footer only in the POST payload; leave the persisted comment clean.
+            thing.CommentForCommit = (thing.Comment ?? string.Empty)
+              + "\n\n-- \nMNTM;T=" + this.app.TimeNowUtc.ToInvariantString()
               + ";M=" + Environment.MachineName
               + ";C=" + this.nextCommitItemId.ToInvariantString();
 

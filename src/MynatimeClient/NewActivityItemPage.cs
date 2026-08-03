@@ -41,6 +41,7 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
     {
         var formData = item.Element.Value<string>("FormData");
         this.form.LoadFormData(formData);
+        this.SaveFailedReason = item.Element.Value<string>("SaveFailedReason");
     }
 
     /*
@@ -130,6 +131,19 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         get { return this.form.GetStringValue("create[comment]"); }
         set { this.form.SetStringValue("create[comment]", value); }
     }
+
+    /// <summary>
+    /// Comment to send when committing, holding the plain comment plus the sync footer.
+    /// Not persisted (not form-backed): keeps the stored <see cref="Comment"/> clean so a
+    /// retained entry never carries a footer for a commit that did not succeed.
+    /// </summary>
+    public string? CommentForCommit { get; set; }
+
+    /// <summary>
+    /// When set, this entry is a standalone item produced from a server-rejected tracker
+    /// activity; the value is the rejection reason. Persisted so the failure survives reloads.
+    /// </summary>
+    public string? SaveFailedReason { get; set; }
 
     public void ReadPage(string contents)
     {
@@ -251,6 +265,11 @@ public sealed class NewActivityItemPage : BaseResult, ITransactionItem
         }
         
         root.Element["FormData"] = this.form.GetFormData();
+        if (this.SaveFailedReason != null)
+        {
+            root.Element["SaveFailedReason"] = this.SaveFailedReason;
+        }
+
         return root;
     }
 

@@ -4,6 +4,8 @@ namespace Mynatime.Domain.Tests;
 using Mynatime.Client;
 using Mynatime.Infrastructure.ProfileTransaction;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 public class ActivityStartStopManagerTests
@@ -336,6 +338,62 @@ public class ActivityStartStopManagerTests
         Assert.Collection(
             target.Warnings,
             x => { Assert.Equal("ManyDaysItem", x.Code); });
+    }
+
+    [Fact]
+    public void RemoveEventsForResolved_KeepsOpenTailSharingBoundary()
+    {
+        // Corrupted-state repro: a saved span (project2 09:30->12:00) whose end is the shared
+        // start of an open, never-stopped entry (project1 12:00->). Resolving the saved span
+        // must not drag the shared 12:00 event away, or the open entry vanishes.
+        var date = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date.AddHours(08.0), "Start", "project0");
+        source.Add(date.AddHours(09.5), "Start", "project2");
+        var boundary = source.Add(date.AddHours(12.0), "Start", "project1"); // open tail starts here
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+
+        // project0 and project2 are resolved (saved/converted); the open project1 is not.
+        var resolved = new List<NewActivityItemPage>
+        {
+            target.Activities[0].Item,
+            target.Activities[1].Item,
+        };
+        target.RemoveEventsForResolved(resolved);
+
+        // Only the shared boundary event survives, so the open entry re-derives intact.
+        Assert.Collection(
+            source.EventsList,
+            x => { Assert.Same(boundary, x); });
+
+        var after = new ActivityStartStopManager(source);
+        after.GenerateItems();
+        Assert.Collection(
+            after.Activities,
+            x => { VerifyEqual(x, date, 12, 00, null, 0, 00, "project1", isStartAndStop: false); });
+    }
+
+    [Fact]
+    public void RemoveEventsForResolved_EmptiesTrackerWhenAllResolved()
+    {
+        var date = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date.AddHours(09.0), "Start", "project1");
+        source.Add(date.AddHours(10.0), "Stop", "project1");
+        source.Add(date.AddHours(11.0), "Start", "project2");
+        source.Add(date.AddHours(12.0), "Stop", "project2");
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+
+        var resolved = target.Activities.Select(a => a.Item).ToList();
+        target.RemoveEventsForResolved(resolved);
+
+        Assert.Empty(source.EventsList);
     }
 
     private void VerifyEqual(ActivityItemWrapper wrapper, DateTime date, int hour, int minute, DateTime? endDate, int endHour, int endMinute, string? category, string? comment = null, bool? isStartAndStop = true)

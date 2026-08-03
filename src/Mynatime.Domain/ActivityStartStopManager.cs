@@ -211,4 +211,30 @@ public sealed class ActivityStartStopManager
     {
         return item.TimeLocal == activity.GetEndTime() || item.TimeLocal == activity.GetBeginTime();
     }
+
+    /// <summary>
+    /// Removes from the source every used event whose activities are all resolved (saved or
+    /// converted). An event shared as a boundary with an unresolved activity — one not in
+    /// <paramref name="resolved"/>, including still-open activities — is kept so the residual
+    /// tracker re-derives correctly instead of losing or merging spans.
+    /// </summary>
+    public void RemoveEventsForResolved(IReadOnlyCollection<NewActivityItemPage> resolved)
+    {
+        if (resolved == null)
+        {
+            throw new ArgumentNullException(nameof(resolved));
+        }
+
+        var unresolved = this.activities
+            .Where(a => !resolved.Contains(a.Item))
+            .Select(a => a.Item)
+            .ToList();
+        foreach (var usedEvent in this.usedEvents.ToList())
+        {
+            if (!unresolved.Any(a => this.IsEventFor(usedEvent, a)))
+            {
+                this.source.Remove(usedEvent);
+            }
+        }
+    }
 }

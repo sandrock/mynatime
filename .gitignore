@@ -1,5 +1,6 @@
 # Project-specific ignores
 /dist/
+/tmp/
 *.har
 /profile.*.json
 /capture*.har

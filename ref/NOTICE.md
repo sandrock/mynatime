@@ -8,6 +8,8 @@ These files are used for interoperability testing and bug diagnosis in the web s
 When the service changes its page structure or form fields, these
 captures help identify what changed and guide client-side fixes without requiring a live connection.
 
+See [`endpoints.md`](endpoints.md) for the web routes these captures correspond to.
+
 ## Privacy and security
 
 All captures are sanitized before being committed:

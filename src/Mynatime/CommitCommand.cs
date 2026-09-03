@@ -125,22 +125,22 @@ public sealed class CommitCommand : Command
                         homePage = await this.client.GetHomepage();
                         if (!homePage.Succeed)
                         {
-                            sessionError = "Auto log-in failed: something went wrong 3.";
+                            sessionError = "Auto log-in succeeded but reloading the homepage failed: " + homePage.FormatErrors();
                         }
                     }
                     else
                     {
-                        sessionError = "Auto log-in failed: something went wrong 2.";
+                        sessionError = "Auto log-in failed (authentication rejected): " + loginResultPage.FormatErrors();
                     }
                 }
                 else
                 {
-                    sessionError = "Auto log-in failed: something went wrong 1.";
+                    sessionError = "Auto log-in failed (could not open the login page): " + loginPage.FormatErrors();
                 }
             }
             else
             {
-                sessionError = "Auto log-in failed: something went wrong 0.";
+                sessionError = "Could not connect to Manatime: " + homePage.FormatErrors();
             }
         });
 

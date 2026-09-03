@@ -91,6 +91,21 @@ public class BaseResult
         return this.Errors != null && this.Errors.Count > 0;
     }
 
+    /// <summary>
+    /// Formats every error on this result as a single human-readable string,
+    /// or null when there is none.
+    /// </summary>
+    /// <returns></returns>
+    public string? FormatErrors()
+    {
+        if (this.Errors == null || this.Errors.Count == 0)
+        {
+            return null;
+        }
+
+        return string.Join("; ", this.Errors);
+    }
+
     public override string ToString()
     {
         return this.GetType().Name

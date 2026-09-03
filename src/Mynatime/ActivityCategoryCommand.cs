@@ -228,8 +228,10 @@ public sealed class ActivityCategoryCommand : Command
                 }
             }
 
-            // display list (skipped when unaliasing: the confirmation line is enough)
-            if (this.Unalias == null)
+            // display list (skipped when unaliasing: the confirmation line is enough;
+            // also skipped when a requested refresh failed: the cached list would be misleading)
+            bool refreshFailed = this.DoRefresh && !hasRefreshed;
+            if (this.Unalias == null && !refreshFailed)
             {
                 var table = new Table().Border(TableBorder.Simple);
                 table.AddColumn("ID");
@@ -318,22 +320,22 @@ public sealed class ActivityCategoryCommand : Command
                         page = await this.manatimeWebClient.GetNewActivityItemPage();
                         if (!page.Succeed)
                         {
-                            refreshError = "Auto log-in failed: something went wrong 3.";
+                            refreshError = "Auto log-in succeeded but reloading the categories failed: " + page.FormatErrors();
                         }
                     }
                     else
                     {
-                        refreshError = "Auto log-in failed: something went wrong 2.";
+                        refreshError = "Auto log-in failed (authentication rejected): " + loginResultPage.FormatErrors();
                     }
                 }
                 else
                 {
-                    refreshError = "Auto log-in failed: something went wrong 1.";
+                    refreshError = "Auto log-in failed (could not open the login page): " + loginPage.FormatErrors();
                 }
             }
             else
             {
-                refreshError = "Auto log-in failed: something went wrong 0.";
+                refreshError = "Could not load categories: " + page.FormatErrors();
             }
         });
 
@@ -399,7 +401,7 @@ public sealed class ActivityCategoryCommand : Command
         }
         else
         {
-            this.Console.MarkupLine("[red]" + Markup.Escape(page.ToString()!) + "[/]");
+            // the caller already printed a clean refreshError message; no redundant dump here
             return false;
         }
     }

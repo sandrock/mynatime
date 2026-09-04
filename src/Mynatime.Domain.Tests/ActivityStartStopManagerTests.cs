@@ -391,6 +391,28 @@ public class ActivityStartStopManagerTests
         Assert.Empty(source.EventsList);
     }
 
+    [Fact]
+    public void RemoveEventsForResolved_Issue28_KeepsOnlyPendingStart()
+    {
+        // #28 repro: start/stop (committed) then a pending open start. Resolving the committed
+        // span must drop its two events and leave only the pending start.
+        var date = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date.AddHours(10.0), "Start", "project1");
+        source.Add(date.AddHours(11.0), "Stop", "project1");
+        var pending = source.Add(date.AddHours(12.0), "Start", "project1");
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+
+        // Only the completed 10:00-11:00 span is resolved; the open 12:00 entry is not.
+        var resolved = new List<NewActivityItemPage> { target.Activities[0].Item };
+        target.RemoveEventsForResolved(resolved);
+
+        Assert.Collection(source.EventsList, x => Assert.Same(pending, x));
+    }
+
     private void VerifyEqual(ActivityItemWrapper wrapper, DateTime date, int hour, int minute, DateTime? endDate, int endHour, int endMinute, string? category, string? comment = null, bool? isStartAndStop = true)
     {
         var item = wrapper.Item;

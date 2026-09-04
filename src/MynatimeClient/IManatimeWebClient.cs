@@ -18,4 +18,10 @@ public interface IManatimeWebClient
     Task<NewActivityItemPage> GetNewActivityItemPage();
 
     Task<NewActivityItemPage> PostNewActivityItemPage(NewActivityItemPage form);
+
+    /// <summary>
+    /// Best-effort read of the service's app-version, without authenticating. Returns the
+    /// numeric version (build suffix stripped) or null on any failure.
+    /// </summary>
+    Task<string?> TryGetAppVersionAsync();
 }

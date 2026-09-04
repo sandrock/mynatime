@@ -270,6 +270,30 @@ public class ManatimeWebClient : IManatimeWebClient
         }
     }
 
+    private static readonly Regex appVersionRegex = new Regex("""<meta\s+name="app-version"\s+content="([^"#]+)""");
+
+    /// <summary>
+    /// Best-effort read of the service's app-version from the login page — the single page
+    /// reachable without a session, used as a stable canary (Manatime serves different
+    /// per-frontend versions elsewhere). Uses a short-lived unauthenticated request so it never
+    /// triggers a login, and returns null on any failure. The build suffix is stripped.
+    /// </summary>
+    public async Task<string?> TryGetAppVersionAsync()
+    {
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("mynatime-cli");
+            var html = await http.GetStringAsync(this.baseUrl + "security/login");
+            var match = appVersionRegex.Match(html);
+            return match.Success ? match.Groups[1].Value.Trim() : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public JArray GetCookies()
     {
         var array = new JArray();

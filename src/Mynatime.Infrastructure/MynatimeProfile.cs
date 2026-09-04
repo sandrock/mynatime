@@ -168,6 +168,33 @@ public sealed class MynatimeProfile : JsonObject
         set => this.Element["ConfirmServiceSave"] = value;
     }
 
+    /// <summary>
+    /// When the next automatic version check is due (UTC). Null means "check now".
+    /// </summary>
+    public DateTime? NextVersionCheckUtc
+    {
+        get => this.Element.Value<DateTime?>("NextVersionCheckUtc");
+        set => this.Element["NextVersionCheckUtc"] = value;
+    }
+
+    /// <summary>
+    /// The Manatime service version seen at the last successful version check.
+    /// </summary>
+    public string? LastAppVersionSeen
+    {
+        get => this.Element.Value<string>("LastAppVersionSeen");
+        set => this.Element["LastAppVersionSeen"] = value;
+    }
+
+    /// <summary>
+    /// The latest published Mynatime release tag seen at the last version check.
+    /// </summary>
+    public string? LastKnownReleaseTag
+    {
+        get => this.Element.Value<string>("LastKnownReleaseTag");
+        set => this.Element["LastKnownReleaseTag"] = value;
+    }
+
     public bool? IsDefault
     {
         get => this.Element.Value<bool?>("IsDefault");

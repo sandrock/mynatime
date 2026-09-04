@@ -81,7 +81,8 @@ public sealed class CommitCommand : Command
             return;
         }
 
-        var latestTag = await UpdateChecker.GetLatestTagAsync();
+        // Use the tag from the recurring version check (no redundant network call here).
+        var latestTag = profile.LastKnownReleaseTag;
         if (UpdateChecker.IsNewer(latestTag, UpdateChecker.GetCurrentVersion()))
         {
             var current = UpdateChecker.GetCurrentVersion() ?? "unknown";

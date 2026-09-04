@@ -123,6 +123,9 @@ public class ConsoleApp : IConsoleApp
                 {
                     this.client.SetCookies(cookies);
                 }
+
+                // Show what we already know instantly; the network refresh runs after the command.
+                VersionCheck.RenderNotices(this.console, this.CurrentProfile);
             }
         }
 
@@ -135,6 +138,10 @@ public class ConsoleApp : IConsoleApp
         if (this.Command != null)
         {
             await this.ExecuteCommand(this.Command);
+
+            // After the command produced its output, refresh version info at most once per
+            // interval, so the user never waits for the network before their command runs.
+            await this.RunVersionCheck();
         }
         else
         {
@@ -142,6 +149,30 @@ public class ConsoleApp : IConsoleApp
             this.ShowConsoleErrors();
             this.ExitCode = 2;
             return;
+        }
+    }
+
+    private async Task RunVersionCheck()
+    {
+        var profile = this.CurrentProfile;
+        if (profile?.FilePath == null || !VersionCheck.IsDue(profile, this.TimeNowUtc))
+        {
+            return;
+        }
+
+        var changed = await VersionCheck.RefreshAsync(profile, this.client, this.TimeNowUtc);
+        try
+        {
+            await profile.SaveToFile(profile.FilePath);
+        }
+        catch
+        {
+            // persisting the next-check schedule is best effort
+        }
+
+        if (changed)
+        {
+            VersionCheck.RenderNotices(this.console, profile);
         }
     }
 

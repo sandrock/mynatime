@@ -155,7 +155,15 @@ public class ManatimeWebClient : IManatimeWebClient
     public async Task<HomeResult> GetHomepage()
     {
         var request = this.CreateRequest(HttpMethod.Get, "home");
-        var response = await this.Send(nameof(this.EmailPasswordAuthenticate), request);
+        var response = await this.Send(nameof(this.GetHomepage), request);
+        if (IsRedirect(response))
+        {
+            // Session likely expired: the service redirects protected pages to the login
+            // page. Follow the chain so CheckPage classifies it as LoggedOut and the caller's
+            // auto-login path re-engages (regressed when #29 set AllowAutoRedirect = false).
+            response = await this.FollowRedirects(nameof(this.GetHomepage), response);
+        }
+
         if (response.IsSuccessStatusCode)
         {
             var result = new HomeResult();
@@ -173,7 +181,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<HomeResult>(ErrorCode.UnknownError, "Other error. "));
+            return this.Log(BaseResult.Error<HomeResult>(ErrorCode.UnknownError, DescribeUnexpectedStatus(response)));
         }
     }
 
@@ -181,6 +189,13 @@ public class ManatimeWebClient : IManatimeWebClient
     {
         var request = this.CreateRequest(HttpMethod.Get, "presences/create/advanced");
         var response = await this.Send(nameof(GetNewActivityItemPage), request);
+        if (IsRedirect(response))
+        {
+            // Session likely expired: follow the redirect to the login page so CheckPage
+            // reports LoggedOut and the caller's auto-login path re-engages.
+            response = await this.FollowRedirects(nameof(GetNewActivityItemPage), response);
+        }
+
         if (response.IsSuccessStatusCode)
         {
             var result = new NewActivityItemPage();
@@ -196,7 +211,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, "Other error. "));
+            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, DescribeUnexpectedStatus(response)));
         }
     }
 
@@ -251,7 +266,7 @@ public class ManatimeWebClient : IManatimeWebClient
         }
         else
         {
-            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, "Other error. "));
+            return this.Log(BaseResult.Error<NewActivityItemPage>(ErrorCode.UnknownError, DescribeUnexpectedStatus(response)));
         }
     }
 
@@ -364,7 +379,7 @@ public class ManatimeWebClient : IManatimeWebClient
 
     private async Task<HttpResponseMessage> FollowRedirects(string methodName, HttpResponseMessage response, int maxHops = 5)
     {
-        for (int i = 0; i < maxHops && response.StatusCode == HttpStatusCode.Found || response.StatusCode == HttpStatusCode.MovedPermanently; i++)
+        for (int i = 0; i < maxHops && (response.StatusCode == HttpStatusCode.Found || response.StatusCode == HttpStatusCode.MovedPermanently); i++)
         {
             var location = response.Headers.Location;
             if (location == null)
@@ -382,6 +397,25 @@ public class ManatimeWebClient : IManatimeWebClient
         }
 
         return response;
+    }
+
+    /// <summary>
+    /// True when the response is an HTTP redirect (3xx).
+    /// </summary>
+    private static bool IsRedirect(HttpResponseMessage response)
+    {
+        var code = (int)response.StatusCode;
+        return code >= 300 && code < 400;
+    }
+
+    /// <summary>
+    /// Describes an unexpected HTTP status (code, reason and redirect target) for error reporting.
+    /// </summary>
+    private static string DescribeUnexpectedStatus(HttpResponseMessage response)
+    {
+        var location = response.Headers.Location?.OriginalString;
+        return "Unexpected HTTP status " + (int)response.StatusCode + " (" + response.StatusCode + ")"
+            + (location != null ? " -> " + location : string.Empty) + ". ";
     }
 
     private void Log(string methodName, Exception exception)
@@ -405,7 +439,7 @@ public class ManatimeWebClient : IManatimeWebClient
         // amplitude.track("Page View", {page: "Page View", {page: "security_login"});
         //
         bool isOkay = false, isLoggedOut = false;
-        if (IsAnalyticsPage(contents, "security_login"))
+        if (IsLoginPage(contents))
         {
             isLoggedOut = true;
             isOkay = desiredPage == ManatimePage.SecurityLogin;
@@ -443,8 +477,11 @@ public class ManatimeWebClient : IManatimeWebClient
 
             // 2023-07-03: <title>Créer une présence > Avancé</title>
             // 2026-04: title changed to "Déclaratif", form action unchanged
+            // 2026-09: prefer the create_task select id — it survives title renames (unlike the
+            //   visible title, which already changed once). The title/form checks stay as fallback.
             // <form name="create" method="post" action="/presences/create/advanced">
-            isOkay = contents.Contains("<title>Créer une présence > Avancé</title>")
+            isOkay = contents.Contains("id=\"create_task\"", StringComparison.Ordinal)
+                  || contents.Contains("<title>Créer une présence > Avancé</title>")
                   || contents.Contains("<title>Créer une présence > Déclaratif</title>")
                   || contents.Contains("""<form name="create" method="post" action="/presences/create/advanced">""");
 
@@ -547,6 +584,18 @@ public class ManatimeWebClient : IManatimeWebClient
     // amplitude.track("Page View", {page: "security_login"});
     private static readonly Regex analyticsPageNameRegex3 = new Regex("""amplitude\.track\(\s*"Page View"\s*,\s*\{\s*page\s*:\s*"([^"]+)"\s*\}\s*\)""");
     
+    /// <summary>
+    /// True when the contents are the login page. Detect it by the login form's field names,
+    /// which are stable across page/title redesigns (the analytics marker was dropped in 2026-09).
+    /// The marker stays a legacy fallback.
+    /// </summary>
+    private static bool IsLoginPage(string contents)
+    {
+        return (contents.Contains("name=\"_username\"", StringComparison.OrdinalIgnoreCase)
+                && contents.Contains("name=\"_password\"", StringComparison.OrdinalIgnoreCase))
+            || IsAnalyticsPage(contents, "security_login");
+    }
+
     private static bool IsAnalyticsPage(string contents, string pageName)
     {
         Match match;

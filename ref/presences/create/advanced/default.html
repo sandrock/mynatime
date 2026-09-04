@@ -12,7 +12,7 @@
 <meta name="author" content="ManaSoft"/>
 <meta name="application-name" content="ManaTime">
 <meta name="app-name" content="Presence">
-<meta name="app-version" content="3.326.1#1726">
+<meta name="app-version" content="7.4.0#1901">
 <meta name="app-region" content="eu-west-3">
 <meta name="apple-mobile-web-app-title" content="ManaTime">
                     <meta name="theme-color" content="#ffffff" />
@@ -97,37 +97,6 @@
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
-        <script type="text/plain">
-            !function(){"use strict";!function(e,t){var r=e.amplitude||{_q:[],_iq:{}};if(r.invoked)e.console&&console.error&&console.error("Amplitude snippet has been loaded.");else{var n=function(e,t){e.prototype[t]=function(){return this._q.push({name:t,args:Array.prototype.slice.call(arguments,0)}),this}},s=function(e,t,r){return function(n){e._q.push({name:t,args:Array.prototype.slice.call(r,0),resolve:n})}},o=function(e,t,r){e._q.push({name:t,args:Array.prototype.slice.call(r,0)})},i=function(e,t,r){e[t]=function(){if(r)return{promise:new Promise(s(e,t,Array.prototype.slice.call(arguments)))};o(e,t,Array.prototype.slice.call(arguments))}},a=function(e){for(var t=0;t<g.length;t++)i(e,g[t],!1);for(var r=0;r<m.length;r++)i(e,m[r],!0)};r.invoked=!0;var c=t.createElement("script");c.type="text/javascript",c.integrity="sha384-7OMex1WYtzbDAdKl8HtBEJJB+8Yj6zAJRSeZhWCSQmjLGr4H2OBdrKtiw8HEhwgI",c.crossOrigin="anonymous",c.async=!0,c.src="https://cdn.amplitude.com/libs/analytics-browser-2.8.1-min.js.gz",c.onload=function(){e.amplitude.runQueuedFunctions||console.log("[Amplitude] Error: could not load SDK")};var u=t.getElementsByTagName("script")[0];u.parentNode.insertBefore(c,u);for(var l=function(){return this._q=[],this},p=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove","getUserProperties"],d=0;d<p.length;d++)n(l,p[d]);r.Identify=l;for(var f=function(){return this._q=[],this},v=["getEventProperties","setProductId","setQuantity","setPrice","setRevenue","setRevenueType","setEventProperties"],y=0;y<v.length;y++)n(f,v[y]);r.Revenue=f;var g=["getDeviceId","setDeviceId","getSessionId","setSessionId","getUserId","setUserId","setOptOut","setTransport","reset","extendSession"],m=["init","add","remove","track","logEvent","identify","groupIdentify","setGroup","revenue","flush"];a(r),r.createInstance=function(e){return r._iq[e]={_q:[]},a(r._iq[e]),r._iq[e]},e.amplitude=r}}(window,document)}();
-
-try {
-    amplitude.init('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', {
-        defaultTracking: true,
-        transport: 'beacon'
-    });
-
-        amplitude.track("Page View", {page: "presence_create_advanced"});
-
-                    amplitude.setGroup('orgId', "10114");
-
-                const identifyEvent = new amplitude.Identify();
-        identifyEvent.set('userId', '10001');
-        identifyEvent.set('email', 'user@example.com');
-        identifyEvent.set('name', 'User 1');
-        identifyEvent.set('firstName', 'User');
-        identifyEvent.set('lastName', '1');
-        identifyEvent.set('gender', '');
-        identifyEvent.set('birthday', '2000-01-01');
-        identifyEvent.set('address', {street: '', postalCode: '', city: '', country: 'XX'});
-        identifyEvent.set('company', {id: '10002', name: 'Company', employee_count: '0', plan: ''});
-        identifyEvent.setOnce('createdAt', '2000-01-01T00:00:00+00:00');
-        identifyEvent.set('language', 'fr');
-        amplitude.identify(identifyEvent);
-
-                amplitude.track("Presence", {plan: "", employees: 0, country: "XX", company_id: "10002", company_name: "Company", role_is_admin: "false", role_is_hr: "false", role_is_manager: "false", role_is_export: "false", role_is_planning: "false", role_is_validator: "false", role_is_user: "true"});
-    } catch (e) {
-    console.warn('[Amplitude] Analytics error:', e.message);
-}        </script>
     
     <script
     src="https://browser.sentry-cdn.com/7.55.2/bundle.tracing.min.js"
@@ -146,7 +115,7 @@ try {
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha512-DUC8yqWf7ez3JD1jszxCWSVB0DMP78eOyBpMa5aJki1bIRARykviOuImIczkxlj1KhVSyS16w2FSQetkD4UU2w==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js" integrity="sha512-wV7Yj1alIZDqZFCUQJy85VN+qvEIly93fIQAN7iqDFCPEucLCeNFz4r35FCo9s6WrpdDQPi80xbljXB8Bjtvcg==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
 
-                        </head>
+            </head>
     <body id="body">
                     <div class="container-fluid h-100">
                                     <header>
@@ -191,7 +160,7 @@ try {
                         </div>
                     </li>
                                                     <li class="nav-item">
-                        <a href="/utilisateur/planning/routing" class="btn btn-light px-3" data-toggle="tooltip" title="Planning" data-placement="right"><i class="fa fa-calendar-alt fa-fw"></i></a>
+                        <a href="/utilisateur/planning/routing" class="btn btn-light px-3" data-toggle="tooltip" title="Calendrier" data-placement="right"><i class="fa fa-calendar-alt fa-fw"></i></a>
                     </li>
                             </ul>
         </div>
@@ -228,8 +197,9 @@ try {
                         </div>
                     </div>
                     <div class="dropdown-menu dropdown-menu-right navbar-top-dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="/security/change-password">Changer mon mot de passe</a>
-                                                                                <a class="dropdown-item" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10013&amp;company_id=10114&amp;user_email=user%40example.com" target="_blank" >Parrainer</a>
+                                                                                                                                                        <a class="dropdown-item" href="/settings/preferences">Mes préférences</a>
+                                                <a class="dropdown-item" href="/security/change-password">Changer mon mot de passe</a>
+                                                                                <a class="dropdown-item" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10013&amp;company_id=10107&amp;user_email=user%40example.com" target="_blank" >Parrainer</a>
                                                 <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/security/logout">Déconnexion</a>
                     </div>
@@ -252,6 +222,9 @@ try {
                     </div>
                     <div class="col-8 col-sm-6 col-md-5">
                         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                                                                                                                        <li class="nav-item">
+                                    <a class="btn btn-outline-primary btn-rounded btn-block mt-2" href="/settings/preferences"><i class="fa fa-sliders-h fa-fw"></i>Mes préférences</a>
+                                </li>
                                                         <li class="nav-item">
                                 <a class="btn btn-outline-primary btn-rounded btn-block  mt-2" href="/security/change-password"><i class="fa fa-key fa-fw"></i>Changer mon mot de passe</a>
                             </li>
@@ -259,7 +232,7 @@ try {
                                 <a class="btn btn-outline-primary btn-rounded btn-block  mt-2" href="https://support.manatime.com"><i class="fa fa-question fa-fw"></i>Aide en ligne</a>
                             </li>
                                                             <li class="nav-item">
-                                    <a class="btn btn-outline-primary btn-rounded btn-block mt-2" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10013&amp;company_id=10114&amp;user_email=user%40example.com" target="_blank" ><i class="fa fa-heart fa-fw"></i>Parrainer</a>
+                                    <a class="btn btn-outline-primary btn-rounded btn-block mt-2" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10013&amp;company_id=10107&amp;user_email=user%40example.com" target="_blank" ><i class="fa fa-heart fa-fw"></i>Parrainer</a>
                                 </li>
                                                         <li class="nav-item">
                                 <a class="btn btn-danger btn-rounded btn-block  mt-3" href="/security/logout"><i class="fa fa-sign-out fa-fw"></i>Déconnexion</a>
@@ -287,7 +260,7 @@ try {
                 <div class="px-md-5">
                     <div class="d-none d-md-block">
                         <div class="hexagon-row">
-                                    <a href="/utilisateur/planning/routing" class="hexagon plg ">Planning</a>
+                                    <a href="/utilisateur/planning/routing" class="hexagon plg ">Calendrier</a>
                                         <a href="/utilisateur/absences/routing" class="hexagon abs ">Absence</a>
                                         <a href="/utilisateur/overtimes/routing" class="hexagon ovt ">Heure</a>
     
@@ -300,13 +273,13 @@ try {
     
                     </div><div class="hexagon-row">        <div class="hexagon"></div>        <a href="/human-resources/routing" class="hexagon hr ">Ress. Humaines</a>
                                             <a href="/assistant/routing" class="hexagon ast ">Assistant IA</a>
-            </div>
+                                                                            </div>
                     </div>
                     <div class="d-md-none">
                         <ul class="list-group list-group-flush">
             <a href="/utilisateur/planning/routing" class="list-group-item list-group-item-action ">
-            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/plg.svg" width="40" height="40" alt="Planning" class="img-fluid mr-2" />
-            Planning
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/plg.svg" width="40" height="40" alt="Calendrier" class="img-fluid mr-2" />
+            Calendrier
         </a>
                 <a href="/utilisateur/absences/routing" class="list-group-item list-group-item-action ">
             <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/abs.svg" width="40" height="40" alt="Absence" class="img-fluid mr-2" />
@@ -351,7 +324,7 @@ try {
             Assistant IA
         </a>
     
-        </ul>
+                                                                        </ul>
                     </div>
                 </div>
             </div>
@@ -367,6 +340,61 @@ try {
         #sidebar.with-banner, .below-navbar.with-banner {
             padding-top: 103px; /* banner + navbar */
         }
+
+        .hexagon-disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+        /* Double class needed to match CDN specificity (.hexagon:hover:not(.hexagon-empty)) and prevent blue hover */
+        .hexagon.hexagon-disabled:hover {
+            opacity: 0.4;
+            color: #858585;
+            cursor: default;
+        }
+
+        .hexagon-locked {
+            cursor: pointer;
+            position: relative;
+        }
+        .hexagon.hexagon-locked:hover {
+            opacity: 0.6;
+            filter: grayscale(100%) brightness(0.6);
+        }
+        .hexagon-lock-icon {
+            display: none;
+            position: absolute;
+            top: 46%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            line-height: 45px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hexagon.hexagon-locked:hover .hexagon-lock-icon {
+            display: block;
+        }
+        .module-locked {
+            display: flex !important;
+            align-items: center;
+        }
+        .module-locked:hover {
+            opacity: 0.6;
+            filter: grayscale(100%) brightness(0.6);
+        }
+        .module-locked .module-lock-icon {
+            margin-left: auto;
+            font-size: 14px;
+            color: #888;
+            flex-shrink: 0;
+        }
     </style>
                                 <div class="below-navbar h-100 px-3">
                                                 <div id="sidebar" class="pb-3 shadow d-none d-md-block sidebar-prs">
@@ -381,10 +409,10 @@ try {
                 </a>
             </div>
         
-                    <ul class="nav flex-column py-0 ">
-                <a href="/presences/dashboard" class="nav-title"><i class="fa fa-chart-pie-alt"></i>Tableau de bord</a>
-            </ul>
-        
+                                                <ul class="nav flex-column py-0 ">
+                    <a href="/presences/dashboard" class="nav-title"><i class="fa fa-chart-pie-alt"></i>Tableau de bord</a>
+                </ul>
+                    
         
                                     <ul class="nav flex-column py-0">
                     <a href="/presences/search" class="nav-title"><i class="fa fa-search"></i>Recherche</a>
@@ -413,27 +441,32 @@ try {
                         ></i>
                     </h2>
                 </div>
-                        
+                                        
 <form name="create" method="post" action="/presences/create/advanced">
 <div class="card-body">
 
                         <div class="select2-no-clear">
-                <div class="form-group"><label class="required" for="create_user">Utilisateurs</label><select id="create_user" name="create[user]" class="form-control"><option value="10001">User 1</option><option value="10002">User 2</option><option value="10003">User 3</option><option value="10004">User 4</option><option value="10005">User 5</option><option value="10006">User 6</option><option value="10007">User 7</option><option value="10008">User 8</option><option value="10009">User 9</option><option value="10010">User 10</option><option value="10011">User 11</option><option value="10096">User 12</option><option value="10013" selected="selected">User 13</option><option value="10014">User 14</option><option value="10015">User 15</option></select></div>
+                <div class="form-group"><label class="required" for="create_user">Utilisateurs</label>
+        <select id="create_user" name="create[user]" class="form-control"><option value="10001">User 1</option><option value="10002">User 2</option><option value="10003">User 3</option><option value="10004">User 4</option><option value="10005">User 5</option><option value="10006">User 6</option><option value="10007">User 7</option><option value="10008">User 8</option><option value="10009">User 9</option><option value="10010">User 10</option><option value="10011">User 11</option><option value="10074">User 12</option><option value="10013" selected="selected">User 13</option><option value="10014">User 14</option><option value="10015">User 15</option></select></div>
             </div>
             
-            <div class="form-group"><label class="" for="create_task">Activité</label><select id="create_task" name="create[task]" class="form-control no-select2 form-control"><option value=""></option><option value="10016">Activity 1</option><option value="10017">Activity 2</option><option value="10018">Activity 3</option><option value="10019">Activity 4</option><option value="10020">Activity 5</option><option value="10021">Activity 6</option><option value="10022">Activity 7</option><option value="10023">Activity 8</option><option value="10024">Activity 9</option><option value="10025">Activity 10</option><option value="10026">Activity 11</option><option value="10027">Activity 12</option><option value="10028">Activity 13</option><option value="10029">Activity 14</option><option value="10030">Activity 15</option><option value="10031">Activity 16</option><option value="10032">Activity 17</option><option value="10033">Activity 18</option><option value="10034">Activity 19</option><option value="10035">Activity 20</option><option value="10036">Activity 21</option><option value="10037">Activity 22</option><option value="10038">Activity 23</option><option value="10039">Activity 24</option><option value="10040">Activity 25</option><option value="10041">Activity 26</option><option value="10042">Activity 27</option><option value="10043">Activity 28</option><option value="10044">Activity 29</option><option value="10045">Activity 30</option><option value="10046">Activity 31</option><option value="10047">Activity 32</option><option value="10048">Activity 33</option><option value="10049">Activity 34</option><option value="10050">Activity 35</option><option value="10051">Activity 36</option><option value="10052">Activity 37</option><option value="10053">Activity 38</option><option value="10054">Activity 39</option><option value="10055">Activity 40</option><option value="10056">Activity 41</option><option value="10057">Activity 42</option><option value="10047">Activity 43</option><option value="10059">Activity 44</option><option value="10060">Activity 45</option><option value="10061">Activity 46</option><option value="10062">Activity 47</option><option value="10063">Activity 48</option><option value="10064">Activity 49</option><option value="10065">Activity 50</option><option value="10094">Activity 51</option><option value="10067">Activity 52</option><option value="10068">Activity 53</option><option value="10069">Activity 54</option><option value="10070">Activity 55</option><option value="10071">Activity 56</option><option value="10072">Activity 57</option><option value="10073">Activity 58</option><option value="10074">Activity 59</option><option value="10075">Activity 60</option><option value="10076">Activity 61</option><option value="10077">Activity 62</option><option value="10078">Activity 63</option><option value="10079">Activity 64</option><option value="10080">Activity 65</option><option value="10081">Activity 66</option><option value="10082">Activity 67</option><option value="10083">Activity 68</option><option value="10084">Activity 69</option><option value="10085">Activity 70</option><option value="10086">Activity 71</option><option value="10087">Activity 72</option><option value="10088">Activity 73</option><option value="10089">Activity 74</option><option value="10090">Activity 75</option><option value="10091">Activity 76</option><option value="10092">Activity 77</option><option value="10093">Activity 78</option><option value="10094">Activity 79</option><option value="10095">Activity 80</option><option value="10096">Activity 81</option><option value="10097">Activity 82</option><option value="10098">Activity 83</option><option value="10099">Activity 84</option><option value="10100">Activity 85</option><option value="10101">Activity 86</option><option value="10102">Activity 87</option><option value="10103">Activity 88</option><option value="10104">Activity 89</option><option value="10105">Activity 90</option><option value="10106">Activity 91</option><option value="10107">Activity 92</option><option value="10108">Activity 93</option><option value="10109">Activity 94</option><option value="10110">Activity 95</option><option value="10111">Activity 96</option><option value="10112">Activity 97</option><option value="10113">Activity 98</option><optgroup label="Group 1">
-                <option value="10115***10116">Activity 99</option><option value="10115***10117">Activity 100</option><option value="10115***10118">Activity 101</option><option value="10115***10119">Activity 102</option><option value="10115***10120">Activity 103</option></optgroup><optgroup label="Group 2">
-                <option value="10121***10116">Activity 104</option><option value="10121***10117">Activity 105</option><option value="10121***10118">Activity 106</option><option value="10121***10119">Activity 107</option><option value="10121***10120">Activity 108</option></optgroup><optgroup label="Group 3">
-                <option value="10122***10117">Activity 109</option><option value="10122***10118">Activity 110</option><option value="10122***10119">Activity 111</option><option value="10122***10120">Activity 112</option></optgroup></select></div>
+            <div class="form-group"><label class="" for="create_task">Activité</label>
+        <select id="create_task" name="create[task]" class="form-control no-select2 form-control"><option value="">Sélectionnez une activité</option><option value="10016">Activity 1</option><option value="10017">Activity 2</option><option value="10018">Activity 3</option><option value="10019">Activity 4</option><option value="10020">Activity 5</option><option value="10021">Activity 6</option><option value="10022">Activity 7</option><option value="10023">Activity 8</option><option value="10024">Activity 9</option><option value="10025">Activity 10</option><option value="10026">Activity 11</option><option value="10027">Activity 12</option><option value="10028">Activity 13</option><option value="10029">Activity 14</option><option value="10030">Activity 15</option><option value="10031">Activity 16</option><option value="10032">Activity 17</option><option value="10033">Activity 18</option><option value="10034">Activity 19</option><option value="10035">Activity 20</option><option value="10036">Activity 21</option><option value="10037">Activity 22</option><option value="10038">Activity 23</option><option value="10039">Activity 24</option><option value="10040">Activity 25</option><option value="10041">Activity 26</option><option value="10042">Activity 27</option><option value="10043">Activity 28</option><option value="10044">Activity 29</option><option value="10045">Activity 30</option><option value="10046">Activity 31</option><option value="10047">Activity 32</option><option value="10048">Activity 33</option><option value="10049">Activity 34</option><option value="10050">Activity 35</option><option value="10051">Activity 36</option><option value="10052">Activity 37</option><option value="10053">Activity 38</option><option value="10054">Activity 39</option><option value="10055">Activity 40</option><option value="10056">Activity 41</option><option value="10057">Activity 42</option><option value="10058">Activity 43</option><option value="10059">Activity 44</option><option value="10060">Activity 45</option><option value="10061">Activity 46</option><option value="10062">Activity 47</option><option value="10063">Activity 48</option><option value="10064">Activity 49</option><option value="10065">Activity 50</option><option value="10072">Activity 51</option><option value="10067">Activity 52</option><option value="10068">Activity 53</option><option value="10069">Activity 54</option><option value="10070">Activity 55</option><option value="10071">Activity 56</option><option value="10072">Activity 57</option><option value="10073">Activity 58</option><option value="10074">Activity 59</option><option value="10075">Activity 60</option><option value="10076">Activity 61</option><option value="10077">Activity 62</option><option value="10078">Activity 63</option><option value="10079">Activity 64</option><option value="10080">Activity 65</option><option value="10081">Activity 66</option><option value="10082">Activity 67</option><option value="10083">Activity 68</option><option value="10084">Activity 69</option><option value="10085">Activity 70</option><option value="10086">Activity 71</option><option value="10087">Activity 72</option><option value="10088">Activity 73</option><optgroup label="Group 1">
+                <option value="10089***10090">Activity 74</option><option value="10089***10091">Activity 75</option><option value="10089***10092">Activity 76</option><option value="10089***10093">Activity 77</option><option value="10089***10094">Activity 78</option><option value="10089***10095">Activity 79</option></optgroup><optgroup label="Group 2">
+                <option value="10096***10091">Activity 80</option><option value="10096***10092">Activity 81</option><option value="10096***10090">Activity 82</option></optgroup><optgroup label="Group 3">
+                <option value="10097***10091">Activity 83</option><option value="10097***10090">Activity 84</option><option value="10097***10094">Activity 85</option><option value="10097***10093">Activity 86</option></optgroup><optgroup label="Group 4">
+                <option value="10098***10091">Activity 87</option><option value="10098***10090">Activity 88</option><option value="10098***10094">Activity 89</option><option value="10098***10093">Activity 90</option></optgroup><optgroup label="Group 5">
+                <option value="10099***10095">Activity 91</option><option value="10099***10090">Activity 92</option><option value="10099***10094">Activity 93</option><option value="10099***10093">Activity 94</option></optgroup><optgroup label="Group 6">
+                <option value="10100***10101">Activity 95</option><option value="10100***10102">Activity 96</option><option value="10100***10103">Activity 97</option><option value="10100***10104">Activity 98</option><option value="10100***10105">Activity 99</option><option value="10100***10106">Activity 100</option></optgroup></select></div>
     
     <div class="form-group">
         <label>Début et fin</label>
         <div class="input-daterange input-group">
-            <input type="text" id="create_dateStart" name="create[dateStart]" required="required" data-date-format="dd/mm/yyyy" data-date-placeholder="jj/mm/aaaa" placeholder="jj/mm/aaaa" class="form-control form-control" value="14/05/2026" autocomplete="off" value="14/05/2026" />
+            <input type="text" id="create_dateStart" name="create[dateStart]" required="required" data-date-format="dd/mm/yyyy" data-date-placeholder="jj/mm/aaaa" placeholder="jj/mm/aaaa" class="form-control form-control" value="03/09/2026" autocomplete="off" value="03/09/2026" />
             <div class="input-group-prepend input-group-append">
                 <div class="input-group-text"><i class="fa fa-arrow-alt-right"></i></div>
             </div>
-            <input type="text" id="create_dateEnd" name="create[dateEnd]" required="required" data-date-format="dd/mm/yyyy" data-date-placeholder="jj/mm/aaaa" placeholder="jj/mm/aaaa" class="form-control form-control" value="14/05/2026" autocomplete="off" value="14/05/2026" />
+            <input type="text" id="create_dateEnd" name="create[dateEnd]" required="required" data-date-format="dd/mm/yyyy" data-date-placeholder="jj/mm/aaaa" placeholder="jj/mm/aaaa" class="form-control form-control" value="03/09/2026" autocomplete="off" value="03/09/2026" />
                                     
         </div>
     </div>
@@ -460,11 +493,11 @@ try {
             <div class="form-group">
                 <label>Heures</label>
                 <div class="input-group ">
-                    <input type="time" id="create_inAt" name="create[inAt]" class="form-control" value="11:22" />
+                    <input type="time" id="create_inAt" name="create[inAt]" class="form-control" value="20:31" />
                     <div class="input-group-prepend input-group-append">
                         <div class="input-group-text"><i class="fa fa-arrow-alt-right"></i></div>
                     </div>
-                    <input type="time" id="create_outAt" name="create[outAt]" class="form-control" value="11:23" />
+                    <input type="time" id="create_outAt" name="create[outAt]" class="form-control" value="20:32" />
                 </div>
                                                 
             </div>
@@ -474,18 +507,20 @@ try {
             </div>
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="form-group"><label for="create_duration">Durée (en heures)</label><input type="text" id="create_duration" name="create[duration]" inputmode="decimal" class="form-control" /></div>
+                    <div class="form-group"><label for="create_duration">Durée (en heures)</label>
+        <input type="text" id="create_duration" name="create[duration]" inputmode="decimal" class="form-control" /></div>
                 </div>
             </div>
             </div>
-        <div class="form-group"><label for="create_comment">Commentaire (facultatif)</label><textarea id="create_comment" name="create[comment]" class="form-control"></textarea></div>
+        <div class="form-group"><label for="create_comment">Commentaire (facultatif)</label>
+        <textarea id="create_comment" name="create[comment]" class="form-control"></textarea></div>
 </div>
 
 <div class="card-body text-right shadow-top">
     <button type="submit" class="btn btn-primary" name="submitAdvanced"><i class="fa fa-plus"></i>Ajouter</button>
 </div>
 </form>
-        </div>
+                    </div>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-8 col-sm-10">
         <div class="card shadow bg-light mt-3 mt-lg-0">
@@ -571,7 +606,12 @@ try {
                         Autres
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                                                                                                                <h6 class="dropdown-header">Présence</h6>
+                                                                                    <h6 class="dropdown-header">
+                                    Tableau de bord
+                                </h6>
+                                                                <a href="/presences/dashboard-team" class="dropdown-item ">Équipe</a>
+                            
+                                                                                        <h6 class="dropdown-header">Présence</h6>
                                                                                         <a href="/presences/search" class="dropdown-item ">Recherche</a>
                                                                                         <a href="/presences/exports" class="dropdown-item ">Export</a>
                                                                                                         <h6 class="dropdown-header">Indicateurs</h6>
@@ -729,6 +769,62 @@ $('.input-group.date, .input-daterange, .datepicker').each(function() {
         // Pass isDayPackage flag to JavaScript
         const isDayPackageMode = false;
 
+        var selectOption = new Option("S\u00E9lectionnez...", "", true, false);
+function updateTasksForUser(userId) {
+    var taskSelect = $('#create_task');
+    if (taskSelect.length === 0) {
+        return;
+    }
+
+    if (!userId) {
+        taskSelect.empty();
+        taskSelect.append(selectOption);
+        taskSelect.trigger('change');
+        return;
+    }
+
+    $.ajax({
+        url: "\/presences\/tasks\u002Dfor\u002Duser",
+        method: 'post',
+        dataType: 'json',
+        data: { userId: userId },
+        success: function (response) {
+            var currentValue = taskSelect.val();
+
+            taskSelect.empty();
+            taskSelect.append(selectOption);
+
+            if (response.tasks) {
+                $.each(response.tasks, function(label, value) {
+                    if (typeof value === 'object') {
+                        // This is a group with subtasks
+                        var optgroup = $('<optgroup>').attr('label', label);
+                        $.each(value, function(subLabel, subValue) {
+                            optgroup.append(new Option(subLabel, subValue));
+                        });
+                        taskSelect.append(optgroup);
+                    } else {
+                        // This is a regular option
+                        taskSelect.append(new Option(label, value));
+                    }
+                });
+            }
+
+            // Restore the previous selection only if still available
+            if (currentValue) {
+                var escapedValue = currentValue.toString();
+                if (taskSelect.find('option[value="' + escapedValue + '"]').length > 0) {
+                    taskSelect.val(currentValue);
+                }
+            }
+
+            taskSelect.trigger('change');
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX Error:", error);
+        }
+    });
+}
         function customMatcher(params, data) {
         if ($.trim(params.term) === '') {
         return data;
@@ -806,11 +902,13 @@ $(document).ready(function () {
     if ($('#create_user').length > 0) {
         $('#create_user').on('change', function() {
             checkUserDayPackage($(this).val());
+            updateTasksForUser($(this).val());
         });
 
         // Check initially if a user is already selected
         if ($('#create_user').val()) {
             checkUserDayPackage($('#create_user').val());
+            updateTasksForUser($('#create_user').val());
         }
     } else {
         // No user field - use the isDayPackageMode variable set by controller
@@ -1106,5 +1204,5 @@ function toggleDayPackageMode(isDayPackage) {
     </script>
 
         
-            </body>
+    </body>
 </html>

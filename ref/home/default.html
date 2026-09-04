@@ -1,0 +1,639 @@
+﻿<!DOCTYPE HTML>
+<html lang="fr">
+    <head><meta http-equiv="Content-Security-Policy" content="default-src 'none'">
+        <title>Accueil</title>
+        <meta name="description" content="ManaTime est un SIRH utilisable en ligne."/>
+        
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="MmowrD_lyStynxdHbhrnkCAXH_ZcbK2LET_Y4yO7B4U"/>
+<meta name="keywords" content="absence, sirh, paye, notes de frais, planning, ged, entretien"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="author" content="ManaSoft"/>
+<meta name="application-name" content="ManaTime">
+<meta name="app-name" content="Legacy">
+<meta name="app-version" content="7.0.0">
+<meta name="app-region" content="eu-west-3">
+<meta name="apple-mobile-web-app-title" content="ManaTime">
+                    <meta name="theme-color" content="#ffffff" />
+<link rel="icon" type="image/x-icon" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="32x32" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/favicon-32x32.png"/>
+<link rel="icon" type="image/png" sizes="96x96" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/favicon-96x96.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/favicon-16x16.png"/>
+<link rel="manifest" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/manifest.json">
+
+<link rel="apple-touch-icon" sizes="57x57" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-57x57.png"/>
+<link rel="apple-touch-icon" sizes="60x60" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-60x60.png"/>
+<link rel="apple-touch-icon" sizes="72x72" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-72x72.png"/>
+<link rel="apple-touch-icon" sizes="76x76" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-76x76.png"/>
+<link rel="apple-touch-icon" sizes="114x114" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-114x114.png"/>
+<link rel="apple-touch-icon" sizes="120x120" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-120x120.png"/>
+<link rel="apple-touch-icon" sizes="144x144" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-144x144.png"/>
+<link rel="apple-touch-icon" sizes="152x152" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-152x152.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/apple-icon-180x180.png"/>
+
+<link rel="icon" type="image/png" sizes="36x36"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-36x36.png"/>
+<link rel="icon" type="image/png" sizes="48x48"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-48x48.png"/>
+<link rel="icon" type="image/png" sizes="72x72"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-72x72.png"/>
+<link rel="icon" type="image/png" sizes="96x96"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-96x96.png"/>
+<link rel="icon" type="image/png" sizes="144x144"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-144x144.png"/>
+<link rel="icon" type="image/png" sizes="192x192"  href="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/android-icon-192x192.png"/>
+
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/ms-icon-144x144.png"/>
+<meta name="msapplication-square70x70logo" content="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/ms-icon-70x70.png"/>
+<meta name="msapplication-square150x150logo" content="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/ms-icon-150x150.png"/>
+<meta name="msapplication-square310x310logo" content="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/favicon/ms-icon-310x310.png"/>
+                            <link rel="preconnect" href="https://fonts.gstatic.com">
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href='https://d11lu0htm9h2oc.cloudfront.net/back/v2/css/v1.17.css' />
+            <style>
+                .hexagon.adm {
+                    background-image: url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/adm.svg'),url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon.svg');
+                    background-repeat: no-repeat;
+                    background-position: top 30px center, center;
+                    background-size: 45%, auto}
+                .hexagon.adm:hover,.hexagon.adm.active {
+                    background-image: url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/adm.svg'),url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon-selected.svg')}
+                .hexagon.ast {
+                    background-image: url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg'),url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon.svg');
+                    background-repeat: no-repeat;
+                    background-position: top 30px center, center;
+                    background-size: 60%, auto}
+                .hexagon.ast:hover,.hexagon.ast.active {
+                    background-image: url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg'),url('https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon-selected.svg')}
+            </style>
+                            <!--[if lt IE 9]>
+<script src='https://d11lu0htm9h2oc.cloudfront.net/js/html5shiv.js' type="text/plain"></script>
+<![endif]-->
+
+            <script type="text/plain">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+    
+    <script
+    src="https://browser.sentry-cdn.com/7.55.2/bundle.tracing.min.js"
+    integrity="sha384-u0VnF/CCtmgYR2cShUDrGNHOlH3jdsqBHK+yrIo7uqFygjVXak8CMh+/81vtqNBF"
+    crossorigin="anonymous"
+ type="text/plain"></script>
+<script type="text/plain">
+    Sentry.init({
+        dsn: 'https://00000000000000000000000000000000@sentry.io/0000000',
+        environment: 'prod',
+    });
+    Sentry.setTag('runtime.name', 'javascript');
+
+        Sentry.setUser({"username":"user@example.com","roles":["ROLE_USER"]});
+    </script>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha512-DUC8yqWf7ez3JD1jszxCWSVB0DMP78eOyBpMa5aJki1bIRARykviOuImIczkxlj1KhVSyS16w2FSQetkD4UU2w==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js" integrity="sha512-wV7Yj1alIZDqZFCUQJy85VN+qvEIly93fIQAN7iqDFCPEucLCeNFz4r35FCo9s6WrpdDQPi80xbljXB8Bjtvcg==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+
+            </head>
+    <body id="body">
+                    <div class="container-fluid h-100">
+                                    <header>
+            <nav class="navbar navbar-expand-lg navbar-light navbar-top bg-white fixed-top text-left shadow row">
+        <div class="col-lg-5">            <div class="d-flex justify-content-between justify-content-lg-start align-items-center">
+                <div>
+                    <a class="navbar-brand" data-toggle="modal" data-target="#appLauncher"><img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/launcher.svg" class="launcher mr-md-3 d-inline-block align-top" alt="launcher" /><img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/manatime.svg" class="manatime d-none d-md-inline-block" alt="ManaTime"></a>
+                                        <h1 class="d-none d-md-inline-block my-auto">
+                        
+                                            </h1>
+                </div>
+                <h1 class="d-inline-block d-md-none text-center my-auto"></h1>
+                <div class="d-lg-none d-xl-none ml-3 ml-md-2" data-toggle="collapse" data-target="#appLauncherXS">
+                            
+    <div class="initials initials-sm">AS</div>
+
+                                    </div>
+            </div>
+        </div>
+        <div class="col-2 d-none d-lg-block">
+            <ul class="navbar-nav mt-2 mt-lg-0 navbar-buttons justify-content-center">
+                                                    <li class="nav-item mx-1">
+                        <div class="dropdown">
+                            <div data-toggle="tooltip" title="Ajouter" data-placement="left">
+                                <button class="btn btn-light dropdown-toggle hide-caret px-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-plus fa-fw"></i>
+                                </button>
+                                <div class="dropdown-menu text-center navbar-top-dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                                            <a class="dropdown-item" href="/utilisateur/absences/create">Absence</a>
+                                    
+                                                                            <a class="dropdown-item" href="/utilisateur/overtimes/create/1">Heure</a>
+                                    
+                                                                            <a class="dropdown-item" href="/utilisateur/presences/create/advanced">Présence</a>
+                                    
+                                                                            <a class="dropdown-item" href="/utilisateur/expenses/tickets/create/multiple">Note de frais</a>
+                                    
+                                                                            <a class="dropdown-item" href="/utilisateur/dms/create">Document</a>
+                                    
+                                                                            <a class="dropdown-item" href="/human-resources/users/create">Utilisateur</a>
+                                                                    </div>
+                            </div>
+                        </div>
+                    </li>
+                                                    <li class="nav-item">
+                        <a href="/utilisateur/planning/routing" class="btn btn-light px-3" data-toggle="tooltip" title="Calendrier" data-placement="right"><i class="fa fa-calendar-alt fa-fw"></i></a>
+                    </li>
+                            </ul>
+        </div>
+        <div class="col-5 d-none d-lg-block">
+            <div class="my-2 my-lg-0 block-right text-right d-flex justify-content-end">
+                <div class="d-flex justify-content-center">
+                                            <div>
+                            <a href="/assistant/routing" class="btn btn-primary btn-circle my-2 my-sm-0 mx-1" data-toggle="tooltip" title="Assistant IA" aria-label="Assistant IA" data-placement="bottom">
+                                <i class="fa fa-user-headset fa-fw"></i>
+                            </a>
+                        </div>
+                                        <div>
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-circle my-2 my-sm-0 mx-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-question fa-fw"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right navbar-top-dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="https://support.manatime.com" target='_blank'>Aide en ligne</a>
+                                                                    <a class="dropdown-item" href="/contact">Nous contacter</a>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <div class="dropdown-toggle hide-caret ml-4" data-toggle="dropdown" role="button" >
+                        <div class="d-flex">
+                            <div class="p-0 mr-3 mr-md-2">
+                                <span class="name font-weight-bold text-body text-truncate">User 1</span>
+                                <span class="company text-muted text-truncate">Company</span>
+                            </div>
+                                    
+    <div class="initials initials-sm">AS</div>
+
+                        </div>
+                    </div>
+                    <div class="dropdown-menu dropdown-menu-right navbar-top-dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                                                                                                                        <a class="dropdown-item" href="/settings/preferences">Mes préférences</a>
+                                                <a class="dropdown-item" href="/security/change-password">Changer mon mot de passe</a>
+                                                                                <a class="dropdown-item" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10001&amp;company_id=10002&amp;user_email=user%40example.com" target="_blank" >Parrainer</a>
+                                                <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/security/logout">Déconnexion</a>
+                    </div>
+                </div>
+                            </div>
+        </div>
+        <div class="collapse navbar-collapse" id="appLauncherXS">
+            <div class="my-2 my-lg-0 d-lg-none d-xl-none">
+                <div class="row justify-content-center">
+                    <div class="col-4 col-sm-3 col-md-2 text-center mb-2">
+                                
+    <div class="initials initials-md">AS</div>
+
+                    </div>
+                    <div class="col-12 text-center">
+                        <div>
+                            <h4>User 1</h4>
+                            <h5 class="text-muted">Company</h5>
+                        </div>
+                    </div>
+                    <div class="col-8 col-sm-6 col-md-5">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                                                                                                                        <li class="nav-item">
+                                    <a class="btn btn-outline-primary btn-rounded btn-block mt-2" href="/settings/preferences"><i class="fa fa-sliders-h fa-fw"></i>Mes préférences</a>
+                                </li>
+                                                        <li class="nav-item">
+                                <a class="btn btn-outline-primary btn-rounded btn-block  mt-2" href="/security/change-password"><i class="fa fa-key fa-fw"></i>Changer mon mot de passe</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary btn-rounded btn-block  mt-2" href="https://support.manatime.com"><i class="fa fa-question fa-fw"></i>Aide en ligne</a>
+                            </li>
+                                                            <li class="nav-item">
+                                    <a class="btn btn-outline-primary btn-rounded btn-block mt-2" href="https://forms.office.com/r/XXXXXXXXXXXXXXXX?user_id=10001&amp;company_id=10002&amp;user_email=user%40example.com" target="_blank" ><i class="fa fa-heart fa-fw"></i>Parrainer</a>
+                                </li>
+                                                        <li class="nav-item">
+                                <a class="btn btn-danger btn-rounded btn-block  mt-3" href="/security/logout"><i class="fa fa-sign-out fa-fw"></i>Déconnexion</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="modal " id="appLauncher" tabindex="-1" aria-labelledby="appLauncher" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="modal-header pb-0">
+                    <div class="modal-title">
+                        <a class="btn btn-light" href="#" data-toggle="modal" data-target="#appLauncher"><i class="fa fa-times"></i></a>
+                    </div>
+                </div>
+                <div class="my-2 my-md-3 text-center">
+                    <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/logo-name.svg" alt="ManaTime" />
+                </div>
+                <div class="px-md-5">
+                    <div class="d-none d-md-block">
+                        <div class="hexagon-row">
+                                    <a href="/utilisateur/planning/routing" class="hexagon plg ">Calendrier</a>
+                                        <a href="/utilisateur/absences/routing" class="hexagon abs ">Absence</a>
+                                        <a href="/utilisateur/overtimes/routing" class="hexagon ovt ">Heure</a>
+    
+                    </div><div class="hexagon-row">        <div class="hexagon"></div>        <a href="/utilisateur/presences/routing" class="hexagon prs ">Présence</a>
+                                        <a href="/utilisateur/expenses/routing" class="hexagon exp ">Note de frais</a>
+    
+                    </div><div class="hexagon-row">                <a href="/utilisateur/dms/routing" class="hexagon doc ">Document</a>
+                                        <a href="/interviews/routing" class="hexagon itw ">Entretien</a>
+                                        <a href="/utilisateur/events/routing" class="hexagon evt ">Évènement</a>
+    
+                    </div><div class="hexagon-row">        <div class="hexagon"></div>        <a href="/human-resources/routing" class="hexagon hr ">Ress. Humaines</a>
+                                            <a href="/assistant/routing" class="hexagon ast ">Assistant IA</a>
+                                                                            </div>
+                    </div>
+                    <div class="d-md-none">
+                        <ul class="list-group list-group-flush">
+            <a href="/utilisateur/planning/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/plg.svg" width="40" height="40" alt="Calendrier" class="img-fluid mr-2" />
+            Calendrier
+        </a>
+                <a href="/utilisateur/absences/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/abs.svg" width="40" height="40" alt="Absence" class="img-fluid mr-2" />
+            Absence
+        </a>
+    
+            <a href="/utilisateur/overtimes/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/ovt.svg" width="40" height="40" alt="Heure" class="img-fluid mr-2" />
+            Heure
+        </a>
+                <a href="/utilisateur/presences/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/prs.svg" width="40" height="40" alt="Présence" class="img-fluid mr-2" />
+            Présence
+        </a>
+    
+            <a href="/utilisateur/expenses/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/exp.svg" width="40" height="40" alt="Note de frais" class="img-fluid mr-2" />
+            Note de frais
+        </a>
+            <a href="/utilisateur/dms/routing" class="list-group-item list-group-item-action ">
+        <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/doc.svg" width="40" height="40" alt="Document" class="img-fluid mr-2" />
+        Document
+    </a>
+    
+            <a href="/interviews/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/itw.svg" width="40" height="40" alt="Entretien" class="img-fluid mr-2" />
+            Entretien
+        </a>
+                <a href="/utilisateur/events/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/evt.svg" width="40" height="40" alt="Évènement" class="img-fluid mr-2" />
+            Évènement
+        </a>
+    
+            <a href="/human-resources/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/hr.svg" width="40" height="40" alt="Ressources Humaines" class="img-fluid mr-2" />
+            Ressources Humaines
+        </a>
+    
+    
+            <a href="/assistant/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg" width="40" height="40" alt="Assistant IA" class="img-fluid mr-2" />
+            Assistant IA
+        </a>
+    
+                                                                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .navbar.fixed-top.with-banner {
+            top: 45px;
+        }
+
+        #sidebar.with-banner, .below-navbar.with-banner {
+            padding-top: 103px; /* banner + navbar */
+        }
+
+        .hexagon-disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+        /* Double class needed to match CDN specificity (.hexagon:hover:not(.hexagon-empty)) and prevent blue hover */
+        .hexagon.hexagon-disabled:hover {
+            opacity: 0.4;
+            color: #858585;
+            cursor: default;
+        }
+
+        .hexagon-locked {
+            cursor: pointer;
+            position: relative;
+        }
+        .hexagon.hexagon-locked:hover {
+            opacity: 0.6;
+            filter: grayscale(100%) brightness(0.6);
+        }
+        .hexagon-lock-icon {
+            display: none;
+            position: absolute;
+            top: 46%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            line-height: 45px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hexagon.hexagon-locked:hover .hexagon-lock-icon {
+            display: block;
+        }
+        .module-locked {
+            display: flex !important;
+            align-items: center;
+        }
+        .module-locked:hover {
+            opacity: 0.6;
+            filter: grayscale(100%) brightness(0.6);
+        }
+        .module-locked .module-lock-icon {
+            margin-left: auto;
+            font-size: 14px;
+            color: #888;
+            flex-shrink: 0;
+        }
+    </style>
+                                <div class="below-navbar h-100 px-3">
+                        <div class="container px-xl-5">
+        <div class="card my-3 px-3 mx-xl-5">
+            <div class="card-body shadow-bottom">
+                <div class="mt-3 mb-4 text-center">
+                    <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/logo-name.svg" alt="ManaTime"/>
+                </div>
+                <div>
+                    <div class="d-none d-md-block" style="width: 600px;margin: auto;">
+                        <div class="hexagon-row">
+                                    <a href="/utilisateur/planning/routing" class="hexagon plg ">Calendrier</a>
+                                            <a href="/utilisateur/absences/routing" class="hexagon abs ">Absence</a>
+
+                                            <a href="/utilisateur/overtimes/routing" class="hexagon ovt ">Heure</a>
+
+    
+                                        <a href="/utilisateur/presences/routing" class="hexagon prs ">Présence</a>
+
+                        </div><div class="hexagon-row">        <div class="hexagon"></div>            <a href="/utilisateur/expenses/routing" class="hexagon exp ">Note de frais</a>
+
+    
+                                        <a href="/utilisateur/dms/routing" class="hexagon doc ">Document</a>
+
+    
+                                        <a href="/interviews/routing" class="hexagon itw ">Entretien</a>
+
+                        </div><div class="hexagon-row">                <a href="/utilisateur/events/routing" class="hexagon evt ">Évènement</a>
+    
+                                    <a href="/human-resources/routing" class="hexagon hr ">Ress. Humaines</a>
+    
+    
+                                    <a href="/assistant/routing" class="hexagon ast ">Assistant IA</a>
+    
+                                                                    </div>
+<style>
+    .hexagon.ast {
+        background-image: url("https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg"), url("https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon.svg");
+        background-repeat: no-repeat;
+        background-position: top 30px center, center;
+        background-size: 60%, auto;
+    }
+    .hexagon.ast:hover, .hexagon.ast.active {
+        background-image: url("https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg"),url("https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/hexagon-selected.svg");
+    }
+</style>                    </div>
+                    <div class="d-md-none">
+                        <ul class="list-group list-group-flush">
+            <a href="/utilisateur/planning/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/plg.svg" width="40" height="40" alt="Calendrier" class="img-fluid mr-2" />
+            Calendrier
+        </a>
+                <a href="/utilisateur/absences/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/abs.svg" width="40" height="40" alt="Absence" class="img-fluid mr-2" />
+            Absence
+        </a>
+    
+            <a href="/utilisateur/overtimes/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/ovt.svg" width="40" height="40" alt="Heure" class="img-fluid mr-2" />
+            Heure
+        </a>
+                <a href="/utilisateur/presences/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/prs.svg" width="40" height="40" alt="Présence" class="img-fluid mr-2" />
+            Présence
+        </a>
+    
+            <a href="/utilisateur/expenses/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/exp.svg" width="40" height="40" alt="Note de frais" class="img-fluid mr-2" />
+            Note de frais
+        </a>
+            <a href="/utilisateur/dms/routing" class="list-group-item list-group-item-action ">
+        <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/doc.svg" width="40" height="40" alt="Document" class="img-fluid mr-2" />
+        Document
+    </a>
+    
+            <a href="/interviews/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/itw.svg" width="40" height="40" alt="Entretien" class="img-fluid mr-2" />
+            Entretien
+        </a>
+                <a href="/utilisateur/events/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/evt.svg" width="40" height="40" alt="Évènement" class="img-fluid mr-2" />
+            Évènement
+        </a>
+    
+            <a href="/human-resources/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/hr.svg" width="40" height="40" alt="Ressources Humaines" class="img-fluid mr-2" />
+            Ressources Humaines
+        </a>
+    
+    
+            <a href="/assistant/routing" class="list-group-item list-group-item-action ">
+            <img src="https://d11lu0htm9h2oc.cloudfront.net/back/v2/img/modules/mia.svg" width="40" height="40" alt="Assistant IA" class="img-fluid mr-2" />
+            Assistant IA
+        </a>
+    
+                                                                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mx-xl-5">
+            <footer class="container text-muted footer-app">
+    <small class="row">
+        <div class="col">
+            <p>
+                <b><span class="fa fa-language fa-fw mr-1"></span>Langues disponibles</b><br />
+                <a class="text-muted" href="/home">Français<span class="d-none d-sm-inline-block">&nbsp;(France)</span></a>&nbsp;•&nbsp;
+                <a class="text-muted" href="/en/home">English<span class="d-none d-sm-inline-block">&nbsp;(UK)</span></a>
+            </p>
+        </div>
+        <div class="col">
+            <div class="text-right text-muted">
+                <div>
+                    <span class="d-none d-sm-inline-block"><a class="text-muted" href="/conditions-generales-de-vente">Confidentialité</a>&nbsp;•&nbsp;</span>
+                    <a class="text-muted" href="/legal-notices">Mentions légales</a>
+                </div>
+                <div class="d-none d-sm-block">
+                    ManaSoft© 2012-2026<div class="d-none d-md-inline-block">, Développé en France</div>
+                </div>
+                <div class="d-sm-none">
+                    ManaSoft© <span class="d-none d-sm-inline-block">2012-</span>2026
+                </div>
+            </div>
+        </div>
+    </small>
+</footer>        </div>
+    </div>
+                </div>
+                            </div>
+        
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js" integrity="sha512-4MvcHwcbqXKUHB6Lx3Zb5CEAVoE9u84qN+ZSMM6s7z8IeJriExrV3ND5zRze9mxNlABJ6k864P/Vl8m0Sd3DtQ==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-confirmation2/4.2.1/bootstrap-confirmation.min.js" integrity="sha512-LhgCuBuvISlfR3iVmjgchM6JrYvl16h/RJVsjdCfGXUahMHgmMJpavyIbluTuV3Ww8tJtGh2VAYayfoGvc84DA==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.fr.min.js" integrity="sha512-fx3aztaUjb4NyoD+Tso5g7R1l29bU3jnnTfNRKBiY9fdQOHzVhKJ10wEAgQ1zM/WXCzB9bnVryHD1M40775Tsw==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.en-GB.min.js" integrity="sha512-r4PTBIGgQtR/xq0SN3wGLfb96k78dj41nrK346r2pKckVWc/M+6ScCPZ9xz0IcTF65lyydFLUbwIAkNLT4T1MA==" crossorigin="anonymous" referrerpolicy="no-referrer" type="text/plain"></script>
+            <script type="text/plain">
+                $(document).ready(function() {
+                    $('[data-toggle="popover"]').popover({
+    html: true,
+    trigger: 'hover',
+    container: 'body'
+});
+
+
+$('[data-toggle="tooltip"]').tooltip({
+    trigger : 'hover',
+    html: true,
+    container: "body",
+    boundary: "window"
+});
+
+
+jQuery.fn.preventDoubleSubmission = function () {
+    $(this).on('submit', function (e) {
+        var $form = $(this);
+
+        if ($form.data('submitted') === true) {
+                        e.preventDefault();
+        } else {
+                        $form.data('submitted', true);
+
+            $(this).find(":submit").addClass('disabled');
+            $(this).find(":submit").append('<i class="fa fa-spinner-third fa-spin fa-fw"></i>');
+        }
+    });
+
+        return this;
+};
+$('form').preventDoubleSubmission();
+
+
+$('.dropdown-menu.dropdown-keep-open').on('click', function (e) {
+    e.stopPropagation();
+});
+
+$('.select-multiple select').not(".no-select2, .no-select2 select").select2({
+    language: "fr",
+    allowClear: true,
+    placeholder: "S\u00E9lectionnez..."
+});
+
+$('.select-multiple-no-clear select').not(".no-select2, .no-select2 select").select2({
+    language: "fr",
+    allowClear: false,
+    placeholder: "S\u00E9lectionnez..."
+});
+
+$('select').not(".no-select2, .no-select2 select, .select-multiple select, .select-multiple-no-clear select").select2({
+    theme: "bootstrap",
+    language: "fr",
+    allowClear: true,
+    placeholder: "S\u00E9lectionnez..."
+});
+
+$('.select2-no-clear select').not(".no-select2, .no-select2 select, .select-multiple select, .select-multiple-no-clear select").select2({
+    theme: "bootstrap",
+    language: "fr",
+    placeholder: "S\u00E9lectionnez..."
+});
+
+// Select2, check/uncheck all
+$(".check_all").click(function () {
+    $(this).parents('.check_all_group').find("select option").prop("selected", "selected");
+    $(this).parents('.check_all_group').find("select").trigger("change");
+});
+$(".uncheck_all").click(function () {
+    $(this).parents('.check_all_group').find("select").val("");
+    $(this).parents('.check_all_group').find("select").trigger("change");
+});
+
+
+
+$('[data-toggle=confirmation]').confirmation({
+    rootSelector: '[data-toggle=confirmation]',
+    container: 'body',
+    popout: true,
+    singleton: true,
+    title: 'Confirmez\u002Dvous\u0020l\u0027action\u0020\u003F',
+    btnOkLabel: '<i class="fa fa-check fa-fw"></i>',
+    btnOkClass: 'btn btn-primary mx-1 d-inline-block rounded-pill',
+    btnCancelLabel: '<i class="fa fa-times fa-fw"></i>',
+    btnCancelClass: 'btn btn-light mx-1 d-inline-block rounded-pill'
+});
+
+$('.input-group.date.month, .datepicker-month').datepicker({
+    todayBtn: 'linked',
+    language: "fr",
+    todayHighlight: true,
+    clearBtn: true,
+    autoclose: true,
+    format: "yyyy-mm",
+    startView: 1,
+    minViewMode: 1
+});
+
+var userDateFormat = 'dd\/mm\/yyyy';
+var userDatePlaceholder = 'jj\/mm\/aaaa';
+$('.input-group.date, .input-daterange, .datepicker').each(function() {
+    var $input = $(this).find('input');
+    var dateFormat = $input.data('date-format') || userDateFormat;
+    var datePlaceholder = $input.data('date-placeholder') || userDatePlaceholder;
+    if (datePlaceholder) {
+        $input.attr('placeholder', datePlaceholder);
+    }
+    $(this).datepicker({
+        todayBtn: 'linked',
+        language: "fr",
+        todayHighlight: true,
+        clearBtn: true,
+        autoclose: true,
+        format: dateFormat
+    });
+        var currentVal = $input.val();
+    if (currentVal && dateFormat !== 'yyyy-mm-dd' && /^\d{4}-\d{2}-\d{2}$/.test(currentVal)) {
+        var parts = currentVal.split('-');
+        $(this).datepicker('setDate', new Date(parts[0], parts[1] - 1, parts[2]));
+    }
+});
+
+
+                });
+            </script>
+        
+        
+    </body>
+</html>

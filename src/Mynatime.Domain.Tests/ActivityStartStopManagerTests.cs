@@ -269,35 +269,22 @@ public class ActivityStartStopManagerTests
     }
 
     [Fact]
-    public void ComputeActivityList_NightlyItem()
+    public void ComputeActivityList_NightlyItem_ExplicitStop()
     {
+        // A genuine night shift: an explicit Stop on the next day still forms a
+        // multi-day span and keeps the nightly warning.
         var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var date1 = date0.AddDays(1);
         var source = new ActivityStartStop();
         var target = new ActivityStartStopManager(source);
-
-        // day 1
-        source.Add(date0.AddHours(08.0), "Start", "project1");
-        source.Add(date0.AddHours(12.0), "Stop");
-        source.Add(date0.AddHours(13.5), "Start", "internal");
-        source.Add(date0.AddHours(16.5), "Start", "project2");
-        ////source.Add(date0.AddHours(17.5), "Stop");
-
-        // day 2
-        var date1 = date0.AddDays(1);
-        source.Add(date1.AddHours(09.0), "Start", "project1");
-        source.Add(date1.AddHours(09.4), "Start", "project2");
-        source.Add(date1.AddHours(12.0), "Stop");
+        source.Add(date0.AddHours(22.0), "Start", "project1");
+        source.Add(date1.AddHours(06.0), "Stop");
 
         target.GenerateItems();
-        var items = target.Activities;
         Assert.Empty(target.Errors);
         Assert.Collection(
-            items,
-            x => { VerifyEqual(x, date0, 08, 00, date0, 12, 00, "project1"); },
-            x => { VerifyEqual(x, date0, 13, 30, date0, 16, 30, "internal"); },
-            x => { VerifyEqual(x, date0, 16, 30, date1, 09, 00, "project2"); },
-            x => { VerifyEqual(x, date1, 09, 00, date1, 09, 24, "project1"); },
-            x => { VerifyEqual(x, date1, 09, 24, date1, 12, 00, "project2"); });
+            target.Activities,
+            x => { VerifyEqual(x, date0, 22, 00, date1, 06, 00, "project1"); });
         Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
         Assert.Collection(
             target.Warnings,
@@ -305,39 +292,47 @@ public class ActivityStartStopManagerTests
     }
 
     [Fact]
-    public void ComputeActivityList_ManyDaysItem()
+    public void ComputeActivityList_ManyDaysItem_ExplicitStop()
     {
+        // A multi-day span from an explicit Stop two days later keeps the warning.
         var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var date2 = date0.AddDays(2);
         var source = new ActivityStartStop();
         var target = new ActivityStartStopManager(source);
-
-        // day 1
-        source.Add(date0.AddHours(08.0), "Start", "project1");
-        source.Add(date0.AddHours(12.0), "Stop");
-        source.Add(date0.AddHours(13.5), "Start", "internal");
-        source.Add(date0.AddHours(16.5), "Start", "project2");
-        ////source.Add(date0.AddHours(17.5), "Stop");
-
-        // day 2
-        var date1 = date0.AddDays(2);
-        source.Add(date1.AddHours(09.0), "Start", "project1");
-        source.Add(date1.AddHours(09.4), "Start", "project2");
-        source.Add(date1.AddHours(12.0), "Stop");
+        source.Add(date0.AddHours(22.0), "Start", "project1");
+        source.Add(date2.AddHours(06.0), "Stop");
 
         target.GenerateItems();
-        var items = target.Activities;
         Assert.Empty(target.Errors);
         Assert.Collection(
-            items,
-            x => { VerifyEqual(x, date0, 08, 00, date0, 12, 00, "project1"); },
-            x => { VerifyEqual(x, date0, 13, 30, date0, 16, 30, "internal"); },
-            x => { VerifyEqual(x, date0, 16, 30, date1, 09, 00, "project2"); },
-            x => { VerifyEqual(x, date1, 09, 00, date1, 09, 24, "project1"); },
-            x => { VerifyEqual(x, date1, 09, 24, date1, 12, 00, "project2"); });
+            target.Activities,
+            x => { VerifyEqual(x, date0, 22, 00, date2, 06, 00, "project1"); });
         Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
         Assert.Collection(
             target.Warnings,
             x => { Assert.Equal("ManyDaysItem", x.Code); });
+    }
+
+    [Fact]
+    public void ComputeActivityList_MissingStopAcrossMidnight_LeavesOpen()
+    {
+        // Forgot to stop yesterday: the next day's first start no longer fabricates an
+        // overnight end — the previous activity is left open, to be closed explicitly.
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var date1 = date0.AddDays(1);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date0.AddHours(16.5), "Start", "project2");
+        source.Add(date1.AddHours(09.0), "Start", "project1");
+        source.Add(date1.AddHours(10.0), "Stop", "project1");
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+        Assert.Empty(target.Warnings);
+        Assert.Collection(
+            target.Activities,
+            x => { VerifyEqual(x, date0, 16, 30, null, 0, 00, "project2", isStartAndStop: false); },
+            x => { VerifyEqual(x, date1, 09, 00, date1, 10, 00, "project1"); });
     }
 
     [Fact]

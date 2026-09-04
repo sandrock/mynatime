@@ -70,10 +70,18 @@ public sealed class ActivityStartStopManager
                 // starting an activity
                 if (currentActivity != null)
                 {
-                    // and stopping another
-                    usedEvents.AddIfAbsent(startEvent!);
-                    usedEvents.AddIfAbsent(stopEvent = currentEvent);
-                    MakeStop(currentActivity, currentEvent.TimeLocal);
+                    // A new start implicitly stops the running one — but only within the same
+                    // day. Across midnight it means the stop was never recorded (e.g. left for
+                    // the day): leave the activity open rather than fabricate an overnight end,
+                    // so it can be closed explicitly later instead of committed as an invalid
+                    // span. An explicit Stop event still closes overnight (a genuine night shift).
+                    if (currentActivity.Item.DateStart == currentEvent.TimeLocal.Date)
+                    {
+                        usedEvents.AddIfAbsent(startEvent!);
+                        usedEvents.AddIfAbsent(stopEvent = currentEvent);
+                        MakeStop(currentActivity, currentEvent.TimeLocal);
+                    }
+
                     previousActivity = currentActivity;
                     currentActivity = null;
                 }

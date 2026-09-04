@@ -7,6 +7,7 @@ using Mynatime.Infrastructure;
 using Mynatime.Infrastructure.ProfileTransaction;
 using Spectre.Console;
 using System;
+using System.Globalization;
 
 /// <summary>
 /// Saves pending changes to the service.
@@ -269,12 +270,28 @@ public sealed class CommitCommand : Command
             var trackerActivities = manager.Activities.Where(a => a.IsStartAndStop).ToList();
             int activitiesSaved = 0, activitiesConverted = 0;
 
-            // Activities resolved by this commit: saved to the server, or converted to a
-            // standalone item. Everything else — transient-stopped or still-open activities —
-            // stays in the tracker, so its events (including boundaries shared with a resolved
-            // neighbour) must be kept.
-            var resolved = new List<NewActivityItemPage>();
+            // Guard: an activity spanning multiple days is almost always a missing or wrong
+            // stop, and the server rejects it ("end must be after start"). Ask before sending;
+            // when declined (or non-interactive) skip it and leave it — with its events — in
+            // the tracker so it can be fixed, instead of freezing a rejection into a standalone.
+            var toCommit = new List<ActivityItemWrapper>();
             foreach (var activity in trackerActivities)
+            {
+                if (activity.Item.DateStart?.Date != activity.Item.DateEnd?.Date
+                    && !this.ConfirmMultiDay(activity.Item))
+                {
+                    continue;
+                }
+
+                toCommit.Add(activity);
+            }
+
+            // Activities resolved by this commit: saved to the server, or converted to a
+            // standalone item. Everything else — transient-stopped, skipped multi-day, or
+            // still-open activities — stays in the tracker, so its events (including
+            // boundaries shared with a resolved neighbour) must be kept.
+            var resolved = new List<NewActivityItemPage>();
+            foreach (var activity in toCommit)
             {
                 await this.Visit(activity.Item);
                 if (!activity.Item.HasError())
@@ -330,6 +347,32 @@ public sealed class CommitCommand : Command
             activity.SaveFailedReason = activity.GetErrorMessage() ?? "Commit failed.";
             var item = activity.ToTransactionItem(null, this.app.TimeNowUtc);
             this.profile.Transaction!.Add(item);
+        }
+
+        /// <summary>
+        /// Asks whether to commit an activity that spans multiple days (likely a missing or
+        /// wrong stop). Returns false — skip — when declined or when the console is
+        /// non-interactive, so a script never sends a suspicious span unattended.
+        /// </summary>
+        private bool ConfirmMultiDay(NewActivityItemPage activity)
+        {
+            var name = activity.ActivityId != null
+                ? (this.profile.Data?.GetActivityById(activity.ActivityId)?.Name ?? activity.ActivityId)
+                : "(no category)";
+            var start = (activity.DateStart?.Date ?? default) + (activity.InAt ?? TimeSpan.Zero);
+            var end = (activity.DateEnd?.Date ?? default) + (activity.OutAt ?? TimeSpan.Zero);
+            var span = start.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
+                + " -> " + end.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+            this.console.MarkupLine("[yellow]Activity \"" + Markup.Escape(name) + "\" spans multiple days (" + Markup.Escape(span) + ").[/]");
+
+            bool proceed = this.console.Profile.Capabilities.Interactive
+                && this.console.Prompt(new ConfirmationPrompt("Commit it anyway?") { DefaultValue = false });
+            if (!proceed)
+            {
+                this.console.MarkupLine("[yellow]Skipped — left in the tracker. Fix it (e.g. correct the stop) and commit again.[/]");
+            }
+
+            return proceed;
         }
 
         public async Task Visit(NewActivityItemPage thing)

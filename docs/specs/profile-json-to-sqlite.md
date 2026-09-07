@@ -195,6 +195,11 @@ approach (decision 1) is chosen.
 - `id` — local autoincrement primary key, stable across syncs.
 - `server_id` — the service's id for the row, nullable until the row has been
   synced/created upstream. Local rows can exist before the server knows them.
+- `public_id` (forward-looking, not added to the sketches yet) — when server
+  mirroring lands (see "Future direction"), locally-originating rows will need a
+  globally-unique id (GUID/ULID) alongside the local PK so they merge into a
+  multi-user server without collisions. Profiles already have `UniqueId` as the
+  template; extend the pattern to presence edits and change items then.
 - Timestamps stored as ISO-8601 UTC text (`*_utc`) unless noted; local
   wall-clock values that the service treats as local keep a `_local` suffix.
 - Soft-delete via a nullable `deleted_utc`, matching the current category model.
@@ -465,6 +470,37 @@ Avoid the old `System.Data.SQLite` provider (mixed-mode `SQLite.Interop.dll`,
 fights RID-specific publish). If at-rest encryption is ever wanted, swap the
 bundle to `SQLitePCLRaw.bundle_e_sqlcipher` — same shipping mechanism, different
 native lib — which dovetails with the `password_storage` hook.
+
+
+Future direction: a Mynatime server
+----------------------------------------------------------------
+
+A hosted **Mynatime server** may come later — mirroring many users' data to offer
+advanced service usage, automated tasks, reports, and perhaps a personal web
+tracking page. No server work is scheduled; this section only records how the
+schema keeps that door open, and it validates decisions already made.
+
+Why the current design already fits:
+- **Multi-tenant, every row user-owned** — `tenant_id` and `user_id` everywhere.
+  The local DB is essentially a single-user slice of what a server holds for
+  many; the server just drops the "single-user, fail if many" guard.
+- **Server-shaped schema** — surrogate `id` + `server_id`, soft-deletes, sync
+  bookkeeping. Replicating the service's multi-customer shape was accepted from
+  the start, so lifting the schema to a server RDBMS is a small step.
+- **`presence_activity` is already a reporting/timeline read model** — the same
+  columnar shape a server would render for a personal web tracking page (and the
+  Domain timeline-merge logic is reusable server-side).
+
+Concrete nudges to keep it cheap later (not implemented now):
+1. **Globally-unique ids on locally-originating rows** (`public_id`, GUID/ULID)
+   so they push/merge into a multi-user server without PK collisions — profiles
+   already do this with `UniqueId`; extend to presence edits and change items.
+2. **Keep DDL reasonably portable** — avoid SQLite-only idioms so the schema can
+   move to a server RDBMS (Postgres/MySQL) later.
+
+If a second sync target (the Mynatime server) is ever added, sync bookkeeping
+would grow a "peer" dimension then — deliberately **not** modelled now (one peer
+today; YAGNI).
 
 
 Open decisions (need answers before coding)

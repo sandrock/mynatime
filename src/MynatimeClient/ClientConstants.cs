@@ -21,8 +21,8 @@ internal static class ClientConstants
     /// The Manatime login-page app-version this client build was validated against — the login
     /// page is the canary the runtime check reads (Manatime serves different per-frontend
     /// versions elsewhere). Bump it when the client is re-verified against a newer Manatime
-    /// release; a higher version seen at runtime surfaces a drift notice. Snapshot: 7.1.0 on
-    /// 2026-09-04, during an active 3.x -> 7.x rollout.
+    /// release; a higher version seen at runtime surfaces a drift notice. Snapshot: 7.13.0 on
+    /// 2026-11-25 (overnight-split commit verified; previously 7.1.0 on 2026-09-04).
     /// </summary>
-    public const string ExpectedManatimeVersion = "7.1.0";
+    public const string ExpectedManatimeVersion = "7.13.0";
 }

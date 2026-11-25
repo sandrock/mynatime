@@ -97,6 +97,7 @@ When you use the status command, these warnings may be displayed:
 
 - *"Nightly activity between 2022-10-29 and 2022-10-30. " (NightlyItem)*
     - Either you forgot to `stop` when leaving work, either you worked past midnight.
+    - On commit, such an activity is sent as one entry per day, cut at midnight (the first day ends at 23:59).
 - *"Multiple days activity between 2022-10-27 and 2022-10-29. (ManyDaysItem)"*
     - A generated activity would span across many days. This is unusual. 
 

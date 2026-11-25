@@ -46,6 +46,13 @@ see the capture for the exact field set. The client overrides only
   utiliser cette activité."); `commit` converts such a rejected tracker
   activity into a standalone flagged item rather than corrupting the residual
   (see issue #30). Capture: [`presences/create/advanced/failed.html`](presences/create/advanced/failed.html).
+- **Overnight presence rejected (Manatime 7.x)**: a presence crossing midnight
+  (`dateStart` 18/11, `dateEnd` 19/11, `inAt` 21:30, `outAt` 02:00) is rejected
+  on `create[inAt]` with "La fin doit être ultérieure au début." — the times
+  seem compared without their dates. Reproduced in the web UI on Manatime
+  7.13.0 (2026-11-25); older versions accepted it and stored one entry per day,
+  cut at midnight. Mynatime now splits such tracker activities itself, one
+  single-day item per day, the first ending at 23:59 (the form has no 24:00).
 
 
 Navigation URLs (reference, unverified)

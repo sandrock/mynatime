@@ -159,7 +159,64 @@ public sealed class ActivityStartStopManager
                 this.warnings.Add(new BaseError(ErrorCode.ManyDaysItem, "Multiple days activity between " + activity.Item.DateStart.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + " and " + activity.Item.DateEnd.Value.ToString(ClientConstants.DateInputFormat, CultureInfo.InvariantCulture) + ". "));
             }
         }
+
+        this.SplitAtMidnight();
     }
+
+    /// <summary>
+    /// Replaces each completed activity spanning midnight by one single-day piece per day.
+    /// Manatime 7.x rejects a presence whose end time is before its start time even when the
+    /// end date is later ("La fin doit être ultérieure au début"), so overnight spans must be
+    /// sent day by day. A day's piece ends at 23:59 (the form has no 24:00).
+    /// </summary>
+    private void SplitAtMidnight()
+    {
+        for (int i = 0; i < this.activities.Count; i++)
+        {
+            var activity = this.activities[i];
+            var begin = activity.Item.GetBeginTime();
+            var end = activity.Item.GetEndTime();
+            if (!activity.IsStartAndStop || begin == null || end == null || begin.Value.Date >= end.Value.Date)
+            {
+                continue;
+            }
+
+            var pieces = new List<ActivityItemWrapper>();
+            for (var day = begin.Value.Date; day <= end.Value.Date; day = day.AddDays(1))
+            {
+                var pieceIn = day == begin.Value.Date ? begin.Value.TimeOfDay : TimeSpan.Zero;
+                var pieceOut = day == end.Value.Date ? end.Value.TimeOfDay : LastMinuteOfDay;
+                if (pieceOut <= pieceIn)
+                {
+                    // e.g. a stop at exactly 00:00: nothing left on that day
+                    continue;
+                }
+
+                var piece = new ActivityItemWrapper();
+                piece.Item.ActivityId = activity.Item.ActivityId;
+                piece.Item.Comment = activity.Item.Comment;
+                piece.Item.DateStart = day;
+                piece.Item.InAt = pieceIn;
+                piece.Item.DateEnd = day;
+                piece.Item.OutAt = pieceOut;
+                piece.IsStartAndStop = true;
+                piece.SplitFrom = activity.Item;
+                pieces.Add(piece);
+            }
+
+            if (pieces.Count == 0)
+            {
+                // 23:59 -> 00:00: nothing representable, keep the span as is
+                continue;
+            }
+
+            this.activities.RemoveAt(i);
+            this.activities.InsertRange(i, pieces);
+            i += pieces.Count - 1;
+        }
+    }
+
+    private static readonly TimeSpan LastMinuteOfDay = new TimeSpan(23, 59, 0);
 
     private int CountDaysAcross(DateTime start, DateTime end)
     {
@@ -215,16 +272,14 @@ public sealed class ActivityStartStopManager
         currentActivity.Item.Comment = existing + "\n" + currentEvent.Comment;
     }
 
-    public bool IsEventFor(ActivityStartStopEvent item, NewActivityItemPage activity)
-    {
-        return item.TimeLocal == activity.GetEndTime() || item.TimeLocal == activity.GetBeginTime();
-    }
-
     /// <summary>
     /// Removes from the source every used event whose activities are all resolved (saved or
     /// converted). An event shared as a boundary with an unresolved activity — one not in
     /// <paramref name="resolved"/>, including still-open activities — is kept so the residual
     /// tracker re-derives correctly instead of losing or merging spans.
+    /// A span split at midnight is resolved only when all its pieces are. When only its first
+    /// pieces are, its start moves to the first unresolved piece (a new Start event), so a
+    /// retry does not re-send the days already saved.
     /// </summary>
     public void RemoveEventsForResolved(IReadOnlyCollection<NewActivityItemPage> resolved)
     {
@@ -233,13 +288,41 @@ public sealed class ActivityStartStopManager
             throw new ArgumentNullException(nameof(resolved));
         }
 
-        var unresolved = this.activities
-            .Where(a => !resolved.Contains(a.Item))
-            .Select(a => a.Item)
-            .ToList();
+        // Boundaries (begin, end) of the spans still to be committed, as the events know them.
+        var unresolved = new List<(DateTime? Begin, DateTime? End)>();
+        var restarts = new List<(NewActivityItemPage Span, DateTime Begin)>();
+        foreach (var group in this.activities.GroupBy(a => a.SplitFrom ?? a.Item))
+        {
+            var span = group.Key;
+            var flags = group.Select(a => resolved.Contains(a.Item)).ToList();
+            int resolvedPrefix = flags.TakeWhile(x => x).Count();
+            if (resolvedPrefix == flags.Count)
+            {
+                continue;
+            }
+
+            if (resolvedPrefix > 0 && !flags.Skip(resolvedPrefix).Any(x => x))
+            {
+                var begin = group.ElementAt(resolvedPrefix).Item.GetBeginTime()!.Value;
+                unresolved.Add((begin, span.GetEndTime()));
+                restarts.Add((span, begin));
+            }
+            else
+            {
+                // nothing saved, or an unexpected non-prefix pattern: keep the whole span
+                unresolved.Add((span.GetBeginTime(), span.GetEndTime()));
+            }
+        }
+
+        foreach (var restart in restarts)
+        {
+            var originalStart = this.usedEvents.FirstOrDefault(e => e.Mode == "Start" && e.TimeLocal == restart.Span.GetBeginTime());
+            this.source.Add(restart.Begin, "Start", restart.Span.ActivityId, originalStart?.Comment);
+        }
+
         foreach (var usedEvent in this.usedEvents.ToList())
         {
-            if (!unresolved.Any(a => this.IsEventFor(usedEvent, a)))
+            if (!unresolved.Any(a => usedEvent.TimeLocal == a.Begin || usedEvent.TimeLocal == a.End))
             {
                 this.source.Remove(usedEvent);
             }

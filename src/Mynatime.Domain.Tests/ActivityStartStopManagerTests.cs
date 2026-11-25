@@ -272,7 +272,7 @@ public class ActivityStartStopManagerTests
     public void ComputeActivityList_NightlyItem_ExplicitStop()
     {
         // A genuine night shift: an explicit Stop on the next day still forms a
-        // multi-day span and keeps the nightly warning.
+        // multi-day span and keeps the nightly warning; it is split into one piece per day.
         var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
         var date1 = date0.AddDays(1);
         var source = new ActivityStartStop();
@@ -284,7 +284,10 @@ public class ActivityStartStopManagerTests
         Assert.Empty(target.Errors);
         Assert.Collection(
             target.Activities,
-            x => { VerifyEqual(x, date0, 22, 00, date1, 06, 00, "project1"); });
+            x => { VerifyEqual(x, date0, 22, 00, date0, 23, 59, "project1"); },
+            x => { VerifyEqual(x, date1, 00, 00, date1, 06, 00, "project1"); });
+        Assert.Same(target.Activities[0].SplitFrom, target.Activities[1].SplitFrom);
+        Assert.NotNull(target.Activities[0].SplitFrom);
         Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
         Assert.Collection(
             target.Warnings,
@@ -294,7 +297,8 @@ public class ActivityStartStopManagerTests
     [Fact]
     public void ComputeActivityList_ManyDaysItem_ExplicitStop()
     {
-        // A multi-day span from an explicit Stop two days later keeps the warning.
+        // A multi-day span from an explicit Stop two days later keeps the warning and is split
+        // into one piece per day, full days in between.
         var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
         var date2 = date0.AddDays(2);
         var source = new ActivityStartStop();
@@ -306,11 +310,30 @@ public class ActivityStartStopManagerTests
         Assert.Empty(target.Errors);
         Assert.Collection(
             target.Activities,
-            x => { VerifyEqual(x, date0, 22, 00, date2, 06, 00, "project1"); });
+            x => { VerifyEqual(x, date0, 22, 00, date0, 23, 59, "project1"); },
+            x => { VerifyEqual(x, date0.AddDays(1), 00, 00, date0.AddDays(1), 23, 59, "project1"); },
+            x => { VerifyEqual(x, date2, 00, 00, date2, 06, 00, "project1"); });
         Assert.Equal(source.EventsList.Count, target.UsedEvents.Count);
         Assert.Collection(
             target.Warnings,
             x => { Assert.Equal("ManyDaysItem", x.Code); });
+    }
+
+    [Fact]
+    public void ComputeActivityList_NightlyItem_StopAtMidnight_SinglePiece()
+    {
+        // A stop at exactly 00:00 leaves nothing on the next day: only the first piece remains.
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date0.AddHours(21.5), "Start", "project1", "night");
+        source.Add(date0.AddDays(1), "Stop");
+
+        target.GenerateItems();
+        Assert.Empty(target.Errors);
+        Assert.Collection(
+            target.Activities,
+            x => { VerifyEqual(x, date0, 21, 30, date0, 23, 59, "project1", "night"); });
     }
 
     [Fact]
@@ -411,6 +434,71 @@ public class ActivityStartStopManagerTests
         target.RemoveEventsForResolved(resolved);
 
         Assert.Collection(source.EventsList, x => Assert.Same(pending, x));
+    }
+
+    [Fact]
+    public void RemoveEventsForResolved_Split_AllPiecesResolved_RemovesSpan()
+    {
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date0.AddHours(21.5), "Start", "project1");
+        source.Add(date0.AddDays(1).AddHours(02.0), "Stop");
+
+        target.GenerateItems();
+        target.RemoveEventsForResolved(target.Activities.Select(a => a.Item).ToList());
+
+        Assert.Empty(source.EventsList);
+    }
+
+    [Fact]
+    public void RemoveEventsForResolved_Split_NoPieceResolved_KeepsSpan()
+    {
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        var start = source.Add(date0.AddHours(21.5), "Start", "project1");
+        var stop = source.Add(date0.AddDays(1).AddHours(02.0), "Stop");
+
+        target.GenerateItems();
+        target.RemoveEventsForResolved(new List<NewActivityItemPage>());
+
+        Assert.Collection(
+            source.EventsList,
+            x => Assert.Same(start, x),
+            x => Assert.Same(stop, x));
+    }
+
+    [Fact]
+    public void RemoveEventsForResolved_Split_FirstPieceResolved_RestartsAtMidnight()
+    {
+        // Day 1 saved, day 2 failed (transient): the retry must only send day 2.
+        var date0 = new DateTime(2021, 7, 1, 0, 0, 0, DateTimeKind.Local);
+        var date1 = date0.AddDays(1);
+        var source = new ActivityStartStop();
+        var target = new ActivityStartStopManager(source);
+        source.Add(date0.AddHours(09.0), "Start", "project0");
+        source.Add(date0.AddHours(21.5), "Start", "project1", "backup");
+        var stop = source.Add(date1.AddHours(02.0), "Stop");
+
+        target.GenerateItems();
+        Assert.Equal(3, target.Activities.Count);
+        var resolved = new List<NewActivityItemPage>
+        {
+            target.Activities[0].Item,
+            target.Activities[1].Item,
+        };
+        target.RemoveEventsForResolved(resolved);
+
+        Assert.Equal(2, source.EventsList.Count);
+        Assert.Contains(stop, source.EventsList);
+
+        var after = new ActivityStartStopManager(source);
+        after.GenerateItems();
+        Assert.Empty(after.Errors);
+        Assert.Collection(
+            after.Activities,
+            x => { VerifyEqual(x, date1, 00, 00, date1, 02, 00, "project1", "backup"); });
     }
 
     private void VerifyEqual(ActivityItemWrapper wrapper, DateTime date, int hour, int minute, DateTime? endDate, int endHour, int endMinute, string? category, string? comment = null, bool? isStartAndStop = true)
